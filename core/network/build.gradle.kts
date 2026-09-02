@@ -4,6 +4,10 @@ plugins {
     id("leaflet.ktor")
 }
 
+android {
+    namespace = "com.ilynehdev.core.network"
+}
+
 dependencies {
     api(libs.koin.android)
     testImplementation(libs.junit)
