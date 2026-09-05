@@ -26,9 +26,12 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Leaflet"
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(":app")
 include(":core:designsystem")
 include(":data:plants")
 include(":feature:plants")
 include(":core:network")
+include(":core:network:client")
+include(":core:network:plants")

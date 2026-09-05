@@ -5,6 +5,8 @@ plugins {
 }
 
 dependencies {
+    implementation(projects.core.network.client)
+
     implementation(libs.koin.core)
     testImplementation(libs.junit)
 }
