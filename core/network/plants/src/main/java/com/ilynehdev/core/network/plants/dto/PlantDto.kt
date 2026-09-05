@@ -111,3 +111,4 @@ data class PlantDto(
     @SerialName("default_image") val defaultImage: PlantImageDto? = null,
 )
 
+

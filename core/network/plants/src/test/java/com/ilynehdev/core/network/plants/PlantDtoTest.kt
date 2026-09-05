@@ -5,6 +5,7 @@ import com.ilynehdev.core.network.plants.dto.PagedDto
 import com.ilynehdev.core.network.plants.dto.PlantAnatomyDto
 import com.ilynehdev.core.network.plants.dto.PlantCycleDto
 import com.ilynehdev.core.network.plants.dto.PlantDto
+import com.ilynehdev.core.network.plants.dto.PlantPruningCountDto
 import com.ilynehdev.core.network.plants.dto.PlantWateringDto
 import com.ilynehdev.core.network.plants.util.readResource
 import kotlinx.serialization.SerializationException
@@ -202,8 +203,8 @@ class PlantDtoTest {
     @Test
     fun `details fixture empty pruning_count array decodes as null`() {
         // Server returns [] instead of null when no pruning data (PHP empty array quirk)
-        assertNull(details(1).pruningCount)
-        assertNull(details(31).pruningCount)
+        assertEquals(emptyList<PlantPruningCountDto>(), details(1).pruningCount)
+        assertEquals(emptyList<PlantPruningCountDto>(), details(31).pruningCount)
     }
 
     @Test
