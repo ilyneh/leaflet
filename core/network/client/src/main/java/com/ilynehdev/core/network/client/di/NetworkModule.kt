@@ -3,6 +3,7 @@ package com.ilynehdev.core.network.client.di
 import com.ilynehdev.core.network.client.LeafletJson
 import com.ilynehdev.core.network.client.NetworkConfig
 import com.ilynehdev.core.network.client.createHttpClient
+import com.ilynehdev.core.network.client.createPlantHttpClient
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
@@ -26,7 +27,7 @@ val networkModule = module {
     }
 
     single<HttpClient>(PlantsClient) {
-        createHttpClient(
+        createPlantHttpClient(
             engine = get(),
             json = get(),
             config = get(PlantsClient)

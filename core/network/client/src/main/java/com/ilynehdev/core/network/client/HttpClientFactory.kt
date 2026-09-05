@@ -55,3 +55,10 @@ fun createHttpClient(engine: HttpClientEngine, json: Json, config: NetworkConfig
             }
         }
     }
+
+fun createPlantHttpClient(engine: HttpClientEngine, json: Json, config: NetworkConfig): HttpClient =
+    createHttpClient(engine, json, config).config {
+        defaultRequest {
+            url { parameters.append("key", config.apiKey) }
+        }
+    }

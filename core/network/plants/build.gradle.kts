@@ -2,6 +2,7 @@ plugins {
     id("leaflet.jvm.library")
     id("leaflet.kotlin.serialization")
     id("leaflet.ktor")
+    id("leaflet.contract.test")
 }
 
 dependencies {
