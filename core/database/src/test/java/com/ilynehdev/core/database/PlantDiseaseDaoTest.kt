@@ -1,6 +1,7 @@
 package com.ilynehdev.core.database
 
 import android.content.Context
+import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -122,6 +123,49 @@ class PlantDiseaseDaoTest {
         assertEquals("https://img/first.jpg", summaries.single { it.id == 1L }.thumbnail)
         assertNull(summaries.single { it.id == 2L }.thumbnail)
         assertNull(summaries.single { it.id == 3L }.thumbnail)
+    }
+
+    // ---- lists / paging ----
+    @Test
+    fun `observePlantDiseases returns full entities ordered by common name`() = runTest {
+        val rust = disease(1, commonName = "Rust")
+        val blight = disease(2, commonName = "Blight")
+        dao.upsertPlantDiseases(listOf(rust, blight))
+
+        assertEquals(listOf(blight, rust), dao.observePlantDiseases().first())
+    }
+
+    @Test
+    fun `pagedPlantDiseases loads pages in order`() = runTest {
+        dao.upsertPlantDiseases((1L..5L).map { disease(it, commonName = "Disease %02d".format(it)) })
+
+        val page = dao.pagedPlantDiseases().load(
+            PagingSource.LoadParams.Refresh(key = null, loadSize = 3, placeholdersEnabled = false)
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(listOf(1L, 2L, 3L), page.data.map { it.id })
+        assertEquals(3, page.nextKey)
+    }
+
+    @Test
+    fun `pagedSummaries loads summary rows with derived thumbnail`() = runTest {
+        dao.upsertPlantDiseases(
+            (1L..5L).map {
+                disease(
+                    it,
+                    commonName = "Disease %02d".format(it),
+                    images = listOf(ImageColumn(thumbnail = "https://img/$it.jpg")),
+                )
+            }
+        )
+
+        val page = dao.pagedSummaries().load(
+            PagingSource.LoadParams.Refresh(key = null, loadSize = 3, placeholdersEnabled = false)
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(listOf("Disease 01", "Disease 02", "Disease 03"), page.data.map { it.commonName })
+        assertEquals("https://img/1.jpg", page.data.first().thumbnail)
+        assertEquals(3, page.nextKey)
     }
 
     @Test

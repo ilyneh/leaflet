@@ -1,5 +1,6 @@
 package com.ilynehdev.core.database.dao
 
+import androidx.paging.PagingSource
 import androidx.room3.Dao
 import androidx.room3.Query
 import androidx.room3.Upsert
@@ -19,6 +20,12 @@ interface PlantDiseaseDao {
     @Query("SELECT * FROM plant_diseases WHERE id = :id")
     suspend fun getById(id: Long): PlantDiseaseEntity?
 
+    @Query("SELECT * FROM plant_diseases ORDER BY common_name")
+    fun observePlantDiseases(): Flow<List<PlantDiseaseEntity>>
+
+    @Query("SELECT * FROM plant_diseases ORDER BY common_name")
+    fun pagedPlantDiseases(): PagingSource<Int, PlantDiseaseEntity>
+
     @Query(
         """
         SELECT id, common_name, scientific_name, host, images
@@ -27,5 +34,11 @@ interface PlantDiseaseDao {
     )
     fun observeSummaries(): Flow<List<PlantDiseaseSummaryRow>>
 
-
+    @Query(
+        """
+        SELECT id, common_name, scientific_name, host, images
+        FROM plant_diseases ORDER BY common_name
+        """
+    )
+    fun pagedSummaries(): PagingSource<Int, PlantDiseaseSummaryRow>
 }

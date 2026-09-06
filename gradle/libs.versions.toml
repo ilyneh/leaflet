@@ -77,6 +77,7 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 androidx-room-runtime = { group = "androidx.room3", name = "room3-runtime", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room3", name = "room3-compiler", version.ref = "room" }
 room-gradle-plugin = { group = "androidx.room3", name = "androidx.room3.gradle.plugin", version.ref = "room" }
+androidx-room-paging = { group = "androidx.room3", name = "room3-paging", version.ref = "room" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

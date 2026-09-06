@@ -1,6 +1,7 @@
 package com.ilynehdev.core.database
 
 import android.content.Context
+import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -126,6 +127,40 @@ class PlantDaoTest {
         assertEquals("FREQUENT", zebra.watering)
         assertEquals("https://img/1.jpg", zebra.thumbnail)
         assertNull(summaries.single { it.id == 2L }.thumbnail)
+    }
+
+    // ---- lists / paging ----
+    @Test
+    fun `observePlants returns full entities ordered by common name`() = runTest {
+        val zebra = plant(1, commonName = "Zebra Plant")
+        val aloe = plant(2, commonName = "Aloe Vera")
+        dao.upsertPlants(listOf(zebra, aloe))
+
+        assertEquals(listOf(aloe, zebra), dao.observePlants().first())
+    }
+
+    @Test
+    fun `pagedPlants loads pages in order`() = runTest {
+        dao.upsertPlants((1L..5L).map { plant(it, commonName = "Plant %02d".format(it)) })
+
+        val page = dao.pagedPlants().load(
+            PagingSource.LoadParams.Refresh(key = null, loadSize = 3, placeholdersEnabled = false)
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(listOf(1L, 2L, 3L), page.data.map { it.id.toLong() })
+        assertEquals(3, page.nextKey)
+    }
+
+    @Test
+    fun `pagedSummaries loads summary rows in order`() = runTest {
+        dao.upsertPlants((1L..5L).map { plant(it, commonName = "Plant %02d".format(it)) })
+
+        val page = dao.pagedSummaries().load(
+            PagingSource.LoadParams.Refresh(key = null, loadSize = 3, placeholdersEnabled = false)
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(listOf("Plant 01", "Plant 02", "Plant 03"), page.data.map { it.commonName })
+        assertEquals(3, page.nextKey)
     }
 
     @Test
