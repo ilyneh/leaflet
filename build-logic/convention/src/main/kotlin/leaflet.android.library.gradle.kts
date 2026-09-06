@@ -22,6 +22,8 @@ android {
 }
 
 dependencies {
+    "implementation"(libs.findLibrary("androidx.core.ktx").get())
+
     "testImplementation"(libs.findLibrary("junit").get())
     "androidTestImplementation"(libs.findLibrary("androidx.junit").get())
 }
