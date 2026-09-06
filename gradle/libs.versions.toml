@@ -26,6 +26,7 @@ appcompatVersion = "1.8.0"
 
 # Room
 room = "3.0.2"
+jetbrainsKotlinJvm = "2.4.10"
 
 [libraries]
 android-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin"}
@@ -92,6 +93,7 @@ leaflet-kotlin-serialization = { id = "leaflet.kotlin.serialization" }
 leaflet-android-library = { id = "leaflet.android.library" }
 leaflet-ktor = { id = "leaflet.ktor" }
 leaflet-jvm-library = { id = "leaflet.jvm.library" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 
 [bundles]
 ktor = [
