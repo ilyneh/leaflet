@@ -47,7 +47,7 @@ data class PlantEntity(
     val tropical: Boolean? = null,
     val cuisine: Boolean? = null,
     val indoor: Boolean? = null,
-    @SerialName("care_level") val careLevel: String? = null,
+    @ColumnInfo("care_level") val careLevel: String? = null,
     val description: String? = null,
 
     @Embedded("hardiness_") val hardiness: HardinessColumn? = null,

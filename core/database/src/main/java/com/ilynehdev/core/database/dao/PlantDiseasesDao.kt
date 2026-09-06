@@ -9,7 +9,7 @@ import com.ilynehdev.core.database.projections.PlantDiseaseSummaryRow
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface PlantDiseaseDao {
+interface PlantDiseasesDao {
 
     @Upsert
     fun upsertPlantDiseases(plants: List<PlantDiseaseEntity>)

@@ -5,7 +5,7 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ilynehdev.core.database.dao.PlantDiseaseDao
+import com.ilynehdev.core.database.dao.PlantDiseasesDao
 import com.ilynehdev.core.database.entities.ImageColumn
 import com.ilynehdev.core.database.entities.PlantDiseaseEntity
 import com.ilynehdev.core.database.entities.PlantDiseaseSectionColumn
@@ -24,7 +24,7 @@ import org.robolectric.annotation.Config
 class PlantDiseaseDaoTest {
 
     private lateinit var db: LeafletDatabase
-    private lateinit var dao: PlantDiseaseDao
+    private lateinit var dao: PlantDiseasesDao
 
     @Before
     fun setUp() {

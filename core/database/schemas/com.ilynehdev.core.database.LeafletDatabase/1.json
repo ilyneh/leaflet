@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "dfd5dd1271f00fe5f8e7f573a883a682",
+    "identityHash": "8e5624c7e92888e860bc10fa58656743",
     "entities": [
       {
         "tableName": "plants",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `common_name` TEXT, `scientific_name` TEXT, `other_name` TEXT, `family` TEXT, `genus` TEXT, `species_epithet` TEXT, `cultivar` TEXT, `variety` TEXT, `origin` TEXT, `type` TEXT, `dimensions` TEXT, `cycle` TEXT, `watering` TEXT, `plant_anatomy` TEXT, `sunlight` TEXT, `pruning_month` TEXT, `pruning_count` TEXT, `seeds` INTEGER, `attracts` TEXT, `propagation` TEXT, `flowers` INTEGER, `flowering_season` TEXT, `soil` TEXT, `pest_susceptibility` TEXT, `growth_rate` TEXT, `maintenance` TEXT, `medicinal` INTEGER, `poisonous_to_humans` INTEGER, `poisonous_to_pets` INTEGER, `drought_tolerant` INTEGER, `salt_tolerant` INTEGER, `thorny` INTEGER, `invasive` INTEGER, `rare` INTEGER, `tropical` INTEGER, `cuisine` INTEGER, `indoor` INTEGER, `careLevel` TEXT, `description` TEXT, `hardiness_min` TEXT, `hardiness_max` TEXT, `watering_benchmark_value` TEXT, `watering_benchmark_unit` TEXT, `image_imageId` INTEGER, `image_license` INTEGER, `image_licenseName` TEXT, `image_licenseUrl` TEXT, `image_originalUrl` TEXT, `image_regularUrl` TEXT, `image_mediumUrl` TEXT, `image_smallUrl` TEXT, `image_thumbnail` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `common_name` TEXT, `scientific_name` TEXT, `other_name` TEXT, `family` TEXT, `genus` TEXT, `species_epithet` TEXT, `cultivar` TEXT, `variety` TEXT, `origin` TEXT, `type` TEXT, `dimensions` TEXT, `cycle` TEXT, `watering` TEXT, `plant_anatomy` TEXT, `sunlight` TEXT, `pruning_month` TEXT, `pruning_count` TEXT, `seeds` INTEGER, `attracts` TEXT, `propagation` TEXT, `flowers` INTEGER, `flowering_season` TEXT, `soil` TEXT, `pest_susceptibility` TEXT, `growth_rate` TEXT, `maintenance` TEXT, `medicinal` INTEGER, `poisonous_to_humans` INTEGER, `poisonous_to_pets` INTEGER, `drought_tolerant` INTEGER, `salt_tolerant` INTEGER, `thorny` INTEGER, `invasive` INTEGER, `rare` INTEGER, `tropical` INTEGER, `cuisine` INTEGER, `indoor` INTEGER, `care_level` TEXT, `description` TEXT, `hardiness_min` TEXT, `hardiness_max` TEXT, `watering_benchmark_value` TEXT, `watering_benchmark_unit` TEXT, `image_imageId` INTEGER, `image_license` INTEGER, `image_licenseName` TEXT, `image_licenseUrl` TEXT, `image_originalUrl` TEXT, `image_regularUrl` TEXT, `image_mediumUrl` TEXT, `image_smallUrl` TEXT, `image_thumbnail` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -201,7 +201,7 @@
           },
           {
             "fieldPath": "careLevel",
-            "columnName": "careLevel",
+            "columnName": "care_level",
             "affinity": "TEXT"
           },
           {
@@ -339,11 +339,39 @@
             "id"
           ]
         }
+      },
+      {
+        "tableName": "fetch_metadata",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`model` TEXT NOT NULL, `cursor` TEXT, `completed_at` INTEGER, PRIMARY KEY(`model`))",
+        "fields": [
+          {
+            "fieldPath": "model",
+            "columnName": "model",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cursor",
+            "columnName": "cursor",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "completedAt",
+            "columnName": "completed_at",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "model"
+          ]
+        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dfd5dd1271f00fe5f8e7f573a883a682')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8e5624c7e92888e860bc10fa58656743')"
     ]
   }
 }

@@ -3,13 +3,12 @@ plugins {
 }
 
 android {
-    namespace = "com.ilynehdev.data.plants"
+    namespace = "com.ilynehdev.data.common"
 }
 
 dependencies {
     implementation(projects.core.database)
-    implementation(projects.core.network.plants)
     implementation(projects.core.phloem)
 
-    implementation(libs.androidx.room.paging)
+    implementation(libs.androidx.room.runtime)
 }

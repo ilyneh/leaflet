@@ -9,7 +9,7 @@ import com.ilynehdev.core.database.projections.PlantSummaryRow
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface PlantDao {
+interface PlantsDao {
 
     @Upsert
     fun upsertPlants(plants: List<PlantEntity>)
@@ -37,7 +37,7 @@ interface PlantDao {
     @Query(
         """
         SELECT id, common_name, scientific_name, watering, sunlight, image_thumbnail
-        FROM plants ORDER BY common_name
+        FROM plants ORDER BY id
         """
     )
     fun pagedSummaries(): PagingSource<Int, PlantSummaryRow>

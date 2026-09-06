@@ -5,7 +5,7 @@ import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ilynehdev.core.database.dao.PlantDao
+import com.ilynehdev.core.database.dao.PlantsDao
 import com.ilynehdev.core.database.entities.HardinessColumn
 import com.ilynehdev.core.database.entities.ImageColumn
 import com.ilynehdev.core.database.entities.DimensionsColumn
@@ -25,7 +25,7 @@ import org.robolectric.annotation.Config
 class PlantDaoTest {
 
     private lateinit var db: LeafletDatabase
-    private lateinit var dao: PlantDao
+    private lateinit var dao: PlantsDao
 
     @Before
     fun setUp() {
@@ -45,7 +45,7 @@ class PlantDaoTest {
         id: Long,
         commonName: String? = "Plant $id",
     ) = PlantEntity(
-        id = id.toInt(),
+        id = id,
         commonName = commonName,
         scientificName = listOf("Abies alba"),
         family = "Pinaceae",
@@ -147,7 +147,7 @@ class PlantDaoTest {
             PagingSource.LoadParams.Refresh(key = null, loadSize = 3, placeholdersEnabled = false)
         ) as PagingSource.LoadResult.Page
 
-        assertEquals(listOf(1L, 2L, 3L), page.data.map { it.id.toLong() })
+        assertEquals(listOf(1L, 2L, 3L), page.data.map { it.id })
         assertEquals(3, page.nextKey)
     }
 
