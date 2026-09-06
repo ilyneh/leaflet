@@ -8,6 +8,7 @@ dependencies {
     implementation(libs.android.gradle.plugin)
     implementation(libs.android.tools.common)
     implementation(libs.ksp.gradle.plugin)
+    implementation(libs.room.gradle.plugin)
 
     implementation(libs.kotlin.gradle.plugin)
     implementation(libs.kotlin.serialization.gradle.plugin)

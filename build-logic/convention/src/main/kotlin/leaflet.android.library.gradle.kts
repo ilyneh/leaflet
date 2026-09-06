@@ -25,5 +25,8 @@ dependencies {
     "implementation"(libs.findLibrary("androidx.core.ktx").get())
 
     "testImplementation"(libs.findLibrary("junit").get())
+    "testImplementation"(libs.findLibrary("androidx.junit").get())
+    "testImplementation"(libs.findLibrary("robolectric").get())
+    "testImplementation"(libs.findLibrary("kotlinx.coroutines.test").get())
     "androidTestImplementation"(libs.findLibrary("androidx.junit").get())
 }
