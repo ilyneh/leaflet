@@ -11,7 +11,7 @@ data class PlantDiseaseSectionColumn(
     val description: String? = null,
 )
 
-@Entity
+@Entity(tableName = "plant_diseases")
 data class PlantDiseaseEntity(
     @PrimaryKey val id: Long,
     @ColumnInfo("common_name") val commonName: String? = null,

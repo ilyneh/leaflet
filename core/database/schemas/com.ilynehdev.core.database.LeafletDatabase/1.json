@@ -1,0 +1,349 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "dfd5dd1271f00fe5f8e7f573a883a682",
+    "entities": [
+      {
+        "tableName": "plants",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `common_name` TEXT, `scientific_name` TEXT, `other_name` TEXT, `family` TEXT, `genus` TEXT, `species_epithet` TEXT, `cultivar` TEXT, `variety` TEXT, `origin` TEXT, `type` TEXT, `dimensions` TEXT, `cycle` TEXT, `watering` TEXT, `plant_anatomy` TEXT, `sunlight` TEXT, `pruning_month` TEXT, `pruning_count` TEXT, `seeds` INTEGER, `attracts` TEXT, `propagation` TEXT, `flowers` INTEGER, `flowering_season` TEXT, `soil` TEXT, `pest_susceptibility` TEXT, `growth_rate` TEXT, `maintenance` TEXT, `medicinal` INTEGER, `poisonous_to_humans` INTEGER, `poisonous_to_pets` INTEGER, `drought_tolerant` INTEGER, `salt_tolerant` INTEGER, `thorny` INTEGER, `invasive` INTEGER, `rare` INTEGER, `tropical` INTEGER, `cuisine` INTEGER, `indoor` INTEGER, `careLevel` TEXT, `description` TEXT, `hardiness_min` TEXT, `hardiness_max` TEXT, `watering_benchmark_value` TEXT, `watering_benchmark_unit` TEXT, `image_imageId` INTEGER, `image_license` INTEGER, `image_licenseName` TEXT, `image_licenseUrl` TEXT, `image_originalUrl` TEXT, `image_regularUrl` TEXT, `image_mediumUrl` TEXT, `image_smallUrl` TEXT, `image_thumbnail` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "commonName",
+            "columnName": "common_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "scientificName",
+            "columnName": "scientific_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "otherName",
+            "columnName": "other_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "family",
+            "columnName": "family",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "genus",
+            "columnName": "genus",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "speciesEpithet",
+            "columnName": "species_epithet",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "cultivar",
+            "columnName": "cultivar",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "variety",
+            "columnName": "variety",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "origin",
+            "columnName": "origin",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dimensions",
+            "columnName": "dimensions",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "cycle",
+            "columnName": "cycle",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "watering",
+            "columnName": "watering",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "plantAnatomy",
+            "columnName": "plant_anatomy",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sunlight",
+            "columnName": "sunlight",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "pruningMonth",
+            "columnName": "pruning_month",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "pruningCount",
+            "columnName": "pruning_count",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "seeds",
+            "columnName": "seeds",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "attracts",
+            "columnName": "attracts",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "propagation",
+            "columnName": "propagation",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "flowers",
+            "columnName": "flowers",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "floweringSeason",
+            "columnName": "flowering_season",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "soil",
+            "columnName": "soil",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "pestSusceptibility",
+            "columnName": "pest_susceptibility",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "growthRate",
+            "columnName": "growth_rate",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "maintenance",
+            "columnName": "maintenance",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "medicinal",
+            "columnName": "medicinal",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "poisonousToHumans",
+            "columnName": "poisonous_to_humans",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "poisonousToPets",
+            "columnName": "poisonous_to_pets",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "droughtTolerant",
+            "columnName": "drought_tolerant",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "saltTolerant",
+            "columnName": "salt_tolerant",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "thorny",
+            "columnName": "thorny",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "invasive",
+            "columnName": "invasive",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "rare",
+            "columnName": "rare",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "tropical",
+            "columnName": "tropical",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "cuisine",
+            "columnName": "cuisine",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "indoor",
+            "columnName": "indoor",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "careLevel",
+            "columnName": "careLevel",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "hardiness.min",
+            "columnName": "hardiness_min",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "hardiness.max",
+            "columnName": "hardiness_max",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wateringBenchmark.value",
+            "columnName": "watering_benchmark_value",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wateringBenchmark.unit",
+            "columnName": "watering_benchmark_unit",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "defaultImage.imageId",
+            "columnName": "image_imageId",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "defaultImage.license",
+            "columnName": "image_license",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "defaultImage.licenseName",
+            "columnName": "image_licenseName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "defaultImage.licenseUrl",
+            "columnName": "image_licenseUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "defaultImage.originalUrl",
+            "columnName": "image_originalUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "defaultImage.regularUrl",
+            "columnName": "image_regularUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "defaultImage.mediumUrl",
+            "columnName": "image_mediumUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "defaultImage.smallUrl",
+            "columnName": "image_smallUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "defaultImage.thumbnail",
+            "columnName": "image_thumbnail",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "plant_diseases",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `common_name` TEXT, `scientific_name` TEXT, `other_name` TEXT, `family` TEXT, `description` TEXT, `solution` TEXT, `host` TEXT, `images` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "commonName",
+            "columnName": "common_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "scientificName",
+            "columnName": "scientific_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "otherName",
+            "columnName": "other_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "family",
+            "columnName": "family",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "solution",
+            "columnName": "solution",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "host",
+            "columnName": "host",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "images",
+            "columnName": "images",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dfd5dd1271f00fe5f8e7f573a883a682')"
+    ]
+  }
+}

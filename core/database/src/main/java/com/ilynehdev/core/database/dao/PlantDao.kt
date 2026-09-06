@@ -16,6 +16,11 @@ interface PlantDao {
     @Upsert
     fun upsertPlant(plant: PlantEntity)
 
-    @Query("SELECT id, common_name, image_thumbnail FROM plants ORDER BY common_name")
+    @Query(
+        """
+        SELECT id, common_name, scientific_name, watering, sunlight, image_thumbnail
+        FROM plants ORDER BY common_name
+        """
+    )
     fun observeSummaries(): Flow<List<PlantSummaryRow>>
 }
