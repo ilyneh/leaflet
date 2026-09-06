@@ -7,13 +7,17 @@ import androidx.room3.PrimaryKey
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Entity
+@Entity(tableName = "plants")
 data class PlantEntity(
     @PrimaryKey val id: Int,
     @ColumnInfo("common_name") val commonName: String?,
     @ColumnInfo("scientific_name") val scientificName: List<String>?,
     @ColumnInfo("other_name") val otherName: List<String>? = null,
     val family: String?,
+    val genus: String? = null,
+    @ColumnInfo("species_epithet") val speciesEpithet: String? = null,
+    val cultivar: String? = null,
+    val variety: String? = null,
     val origin: List<String>? = null,
     val type: String?,
     val dimensions: List<DimensionsColumn>? = null,

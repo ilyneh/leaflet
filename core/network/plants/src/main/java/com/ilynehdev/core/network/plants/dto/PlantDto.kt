@@ -74,6 +74,13 @@ data class PlantDto(
     @SerialName("scientific_name") val scientificName: List<String>? = null,
     @SerialName("other_name") val otherName: List<String>? = null,
     val family: String? = null,
+    val genus: String? = null,
+    // Server quirk: sometimes holds the quoted cultivar instead of a real epithet
+    // (e.g. id 10 has species_epithet "'Johin'", cultivar "Johin"). Do not derive
+    // the scientific name from genus + speciesEpithet; use scientificName.
+    @SerialName("species_epithet") val speciesEpithet: String? = null,
+    val cultivar: String? = null,
+    val variety: String? = null,
     val origin: List<String>? = null,
     val type: String? = null,
     val dimensions: List<PlantDimensionsDto>? = null,

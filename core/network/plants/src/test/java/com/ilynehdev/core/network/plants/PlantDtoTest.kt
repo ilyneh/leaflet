@@ -120,6 +120,10 @@ class PlantDtoTest {
         assertNull(plant.commonName)
         assertNull(plant.dimensions)
         assertNull(plant.flowers)
+        assertNull(plant.genus)
+        assertNull(plant.speciesEpithet)
+        assertNull(plant.cultivar)
+        assertNull(plant.variety)
     }
 
     @Test
@@ -127,6 +131,29 @@ class PlantDtoTest {
         assertThrows(SerializationException::class.java) {
             json.decodeFromString<PlantDto>("""{"common_name":"Rose"}""")
         }
+    }
+
+    // ---- taxonomy ----
+    @Test
+    fun `taxonomy fields decode from server keys`() {
+        val plant = json.decodeFromString<PlantDto>(
+            """{"id":1,"genus":"Acer","species_epithet":"palmatum","cultivar":"Aoyagi","variety":null}"""
+        )
+
+        assertEquals("Acer", plant.genus)
+        assertEquals("palmatum", plant.speciesEpithet)
+        assertEquals("Aoyagi", plant.cultivar)
+        assertNull(plant.variety)
+    }
+
+    @Test
+    fun `list fixture species without cultivar decode null cultivar`() {
+        val plant = json.decodeFromString<PagedDto<PlantDto>>(readResource("data/plants/plants-1.json")).data.first()
+
+        assertEquals("Abies", plant.genus)
+        assertEquals("alba", plant.speciesEpithet)
+        assertNull(plant.cultivar)
+        assertNull(plant.variety)
     }
 
     // ---- fixtures: details endpoint ----
@@ -253,6 +280,10 @@ class PlantDtoTest {
         assertEquals(31L, plant.id)
         assertEquals("Aoyagi Japanese Maple*", plant.commonName)
         assertNull(plant.family)
+        assertEquals("Acer", plant.genus)
+        assertEquals("palmatum", plant.speciesEpithet)
+        assertEquals("Aoyagi", plant.cultivar)
+        assertNull(plant.variety)
         assertEquals(listOf("Japan"), plant.origin)
         assertEquals(listOf("full sun", "part shade"), plant.sunlight)
         assertEquals(8, plant.pruningMonth?.size)
