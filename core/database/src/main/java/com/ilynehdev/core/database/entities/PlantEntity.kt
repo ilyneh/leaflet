@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 
 @Entity(tableName = "plants")
 data class PlantEntity(
-    @PrimaryKey val id: Int,
+    @PrimaryKey val id: Long,
     @ColumnInfo("common_name") val commonName: String?,
     @ColumnInfo("scientific_name") val scientificName: List<String>?,
     @ColumnInfo("other_name") val otherName: List<String>? = null,
