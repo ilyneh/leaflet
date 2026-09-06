@@ -1,6 +1,6 @@
 [versions]
 # Tooling
-androidGradlePlugin = "9.2.1"
+androidGradlePlugin = "9.4.0"
 androidTools = "32.4.0" # https://mvnrepository.com/artifact/com.android.tools/common
 ksp = "2.3.11" # https://github.com/google/ksp
 
