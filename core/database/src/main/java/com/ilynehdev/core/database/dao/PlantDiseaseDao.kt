@@ -16,10 +16,12 @@ interface PlantDiseaseDao {
     @Upsert
     fun upsertPlantDisease(plant: PlantDiseaseEntity)
 
+    @Query("SELECT * FROM plant_diseases WHERE id = :id")
+    suspend fun getById(id: Long): PlantDiseaseEntity?
+
     @Query(
         """
-        SELECT id, common_name, scientific_name, host,
-               json_extract(images, '$[0].thumbnail') AS image_thumbnail
+        SELECT id, common_name, scientific_name, host, images
         FROM plant_diseases ORDER BY common_name
         """
     )

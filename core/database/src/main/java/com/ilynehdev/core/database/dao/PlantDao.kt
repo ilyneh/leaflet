@@ -16,6 +16,9 @@ interface PlantDao {
     @Upsert
     fun upsertPlant(plant: PlantEntity)
 
+    @Query("SELECT * FROM plants WHERE id = :id")
+    suspend fun getById(id: Long): PlantEntity?
+
     @Query(
         """
         SELECT id, common_name, scientific_name, watering, sunlight, image_thumbnail
