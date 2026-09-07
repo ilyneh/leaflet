@@ -6,8 +6,8 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import com.ilynehdev.core.database.projections.PlantSummaryRow
 import com.ilynehdev.core.network.plants.dto.PlantDto
+import com.ilynehdev.core.phloem.FetchResult
 import com.ilynehdev.core.phloem.PhloemFetcher
-import kotlinx.coroutines.CancellationException
 
 @OptIn(ExperimentalPagingApi::class)
 class PlantsRemoteMediator(
@@ -27,14 +27,11 @@ class PlantsRemoteMediator(
     ): MediatorResult = when (loadType) {
         // List only grows at the end; nothing to load above the first row.
         LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
+
         LoadType.REFRESH,
-        LoadType.APPEND -> try {
-            val hasMore = fetcher.pullNextPage()
-            MediatorResult.Success(endOfPaginationReached = !hasMore)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            MediatorResult.Error(e)
+        LoadType.APPEND -> when (val result = fetcher.pullNextPage()) {
+            is FetchResult.Success -> MediatorResult.Success(endOfPaginationReached = !result.hasMore)
+            is FetchResult.Error -> MediatorResult.Error(result.cause)
         }
     }
 }

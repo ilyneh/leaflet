@@ -1,11 +1,12 @@
 package com.ilynehdev.core.phloem
 
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 interface PhloemFetcher<Dto> {
-    suspend fun pullNextPage(): Boolean
+    suspend fun pullNextPage(): FetchResult
 
     /** True when the last complete pull finished within the TTL. */
     suspend fun isFresh(): Boolean
@@ -23,20 +24,35 @@ class PhloemFetcherImpl<Dto>(
 
     private val mutex = Mutex()
 
-    override suspend fun pullNextPage(): Boolean = mutex.withLock {
+    override suspend fun pullNextPage(): FetchResult = mutex.withLock {
         val cursor = fetchMetadataStore.get(model)?.cursor
-        val page = fetchPage(cursor)
-        transactor.transaction {
-            persistPage(page.items)
-            fetchMetadataStore.save(
-                model = model,
-                metadata = FetchMetadata(
-                    cursor = page.nextCursor,
-                    completedAt = if (page.nextCursor == null) now() else null
-                ),
-            )
+
+        val page = try {
+            fetchPage(cursor)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            return FetchResult.Error(e.toFetchError(), e)
         }
-        page.nextCursor != null
+
+        try {
+            transactor.transaction {
+                persistPage(page.items)
+                fetchMetadataStore.save(
+                    model = model,
+                    metadata = FetchMetadata(
+                        cursor = page.nextCursor,
+                        completedAt = if (page.nextCursor == null) now() else null,
+                    ),
+                )
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            return FetchResult.Error(FetchError.StorageError, e)
+        }
+
+        FetchResult.Success(hasMore = page.nextCursor != null)
     }
 
     override suspend fun isFresh(): Boolean {

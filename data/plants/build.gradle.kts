@@ -10,6 +10,7 @@ dependencies {
     implementation(projects.core.database)
     implementation(projects.core.network.plants)
     implementation(projects.core.phloem)
+    implementation(projects.data.common)
 
     implementation(libs.androidx.room.paging)
 }
