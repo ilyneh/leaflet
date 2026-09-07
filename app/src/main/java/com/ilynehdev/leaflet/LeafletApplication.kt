@@ -28,7 +28,7 @@ class LeafletApplication : Application() {
             androidLogger()
             androidContext(this@LeafletApplication)
             // featurePlantsModule transitively includes data, database, common and network modules.
-            modules(featurePlantsModule, appModule)
+            modules(appModule, featurePlantsModule)
         }
     }
 }
