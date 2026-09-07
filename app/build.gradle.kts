@@ -38,6 +38,10 @@ android {
 }
 
 dependencies {
+    implementation(projects.data.plants)
+
+    implementation(libs.koin.android)
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
