@@ -7,3 +7,8 @@ plugins {
 android {
     namespace = "com.ilynehdev.core.database"
 }
+
+dependencies {
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+}

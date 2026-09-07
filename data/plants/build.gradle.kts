@@ -12,7 +12,9 @@ dependencies {
     implementation(projects.core.phloem)
     implementation(projects.data.common)
 
+    implementation(libs.koin.core)
     implementation(libs.androidx.room.paging)
 
     testImplementation(libs.androidx.paging.testing)
+    testImplementation(libs.koin.test)
 }

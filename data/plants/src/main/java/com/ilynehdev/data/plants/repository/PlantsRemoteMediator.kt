@@ -10,7 +10,7 @@ import com.ilynehdev.core.phloem.FetchResult
 import com.ilynehdev.core.phloem.PhloemFetcher
 
 @OptIn(ExperimentalPagingApi::class)
-class PlantsRemoteMediator(
+internal class PlantsRemoteMediator(
     private val fetcher: PhloemFetcher<PlantDto>,
 ) : RemoteMediator<Int, PlantSummaryRow>() {
 

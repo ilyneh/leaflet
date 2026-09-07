@@ -10,5 +10,6 @@ dependencies {
     implementation(projects.core.database)
     implementation(projects.core.phloem)
 
+    implementation(libs.koin.core)
     implementation(libs.androidx.room.runtime)
 }

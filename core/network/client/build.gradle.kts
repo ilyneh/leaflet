@@ -5,6 +5,6 @@ plugins {
 }
 
 dependencies {
-    api(libs.koin.core)
+    implementation(libs.koin.core)
     testImplementation(libs.junit)
 }
