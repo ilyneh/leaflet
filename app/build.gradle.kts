@@ -17,9 +17,7 @@ val perenualApiKey: String =
 android {
     namespace = "com.ilynehdev.leaflet"
     compileSdk {
-        version = release(37) {
-            minorApiLevel = 1
-        }
+        version = release(37)
     }
 
     defaultConfig {
