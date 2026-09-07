@@ -12,13 +12,16 @@ import kotlinx.coroutines.flow.Flow
 interface PlantsDao {
 
     @Upsert
-    fun upsertPlants(plants: List<PlantEntity>)
+    suspend fun upsertPlants(plants: List<PlantEntity>)
 
     @Upsert
-    fun upsertPlant(plant: PlantEntity)
+    suspend fun upsertPlant(plant: PlantEntity)
 
     @Query("SELECT * FROM plants WHERE id = :id")
     suspend fun getById(id: Long): PlantEntity?
+
+    @Query("SELECT * FROM plants WHERE id = :id")
+    fun observePlant(id: Long): Flow<PlantEntity?>
 
     @Query("SELECT * FROM plants ORDER BY common_name")
     fun observePlants(): Flow<List<PlantEntity>>
@@ -41,4 +44,16 @@ interface PlantsDao {
         """
     )
     fun pagedSummaries(): PagingSource<Int, PlantSummaryRow>
+
+    // scientific_name is a JSON-encoded list; LIKE still substring-matches inside it.
+    @Query(
+        """
+        SELECT id, common_name, scientific_name, watering, sunlight, image_thumbnail
+        FROM plants
+        WHERE common_name LIKE '%' || :query || '%'
+           OR scientific_name LIKE '%' || :query || '%'
+        ORDER BY common_name
+        """
+    )
+    fun searchSummaries(query: String): PagingSource<Int, PlantSummaryRow>
 }

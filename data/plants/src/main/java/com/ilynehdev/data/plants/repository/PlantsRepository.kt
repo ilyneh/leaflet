@@ -15,13 +15,16 @@ import com.ilynehdev.core.phloem.Transactor
 import com.ilynehdev.data.plants.mapper.toEntity
 import com.ilynehdev.data.plants.mapper.toPlant
 import com.ilynehdev.data.plants.model.Plant
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.hours
 
 interface PlantsRepository {
 
-    fun observePlant(plantId: String): Flow<Plant>
+    fun observePlant(plantId: Long): Flow<Plant?>
 
     fun observePlants(): Flow<PagingData<Plant>>
 
@@ -53,9 +56,8 @@ class PlantsRepositoryImpl(
         }
     )
 
-    override fun observePlant(plantId: String): Flow<Plant> {
-        TODO("Not yet implemented")
-    }
+    override fun observePlant(plantId: Long): Flow<Plant?> =
+        dao.observePlant(plantId).map { it?.toPlant() }
 
     @OptIn(ExperimentalPagingApi::class)
     override fun observePlants(): Flow<PagingData<Plant>> {
@@ -67,8 +69,27 @@ class PlantsRepositoryImpl(
             .map { pagingData -> pagingData.map { it.toPlant() } }
     }
 
-    override fun searchPlant(name: String): Flow<PagingData<Plant>> {
-        TODO("Not yet implemented")
+    // Local-first: Room is the merge point. The paged flow serves local matches
+    // immediately; in parallel one remote search page is upserted into the same
+    // table, which invalidates the PagingSource and re-emits with remote hits.
+    // Remote failure (offline) is swallowed — local results stand alone.
+    override fun searchPlant(name: String): Flow<PagingData<Plant>> = channelFlow {
+        launch {
+            try {
+                val page = api.getPlants(page = 1, query = name)
+                dao.upsertPlants(page.items.map { it.toEntity() })
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+            }
+        }
+
+        Pager(
+            config = PagingConfig(pageSize = NETWORK_PAGE_SIZE, enablePlaceholders = false),
+            pagingSourceFactory = { dao.searchSummaries(name) }
+        ).flow
+            .map { pagingData -> pagingData.map { it.toPlant() } }
+            .collect { send(it) }
     }
 
     companion object {

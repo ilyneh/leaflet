@@ -8,14 +8,15 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 
 interface PlantsApi {
-    suspend fun getPlants(page: Int): Page<PlantDto>
+    suspend fun getPlants(page: Int, query: String? = null): Page<PlantDto>
     suspend fun getPlant(id: Long): PlantDto
 }
 
 class PlantsApiImpl(private val client: HttpClient) : PlantsApi {
-    override suspend fun getPlants(page: Int): Page<PlantDto> {
+    override suspend fun getPlants(page: Int, query: String?): Page<PlantDto> {
         return client.get("v2/species-list") {
             parameter("page", page)
+            if (!query.isNullOrBlank()) parameter("q", query)
         }.body<PagedDto<PlantDto>>().let {
             Page(items = it.data, nextKey = it.nextPage)
         }

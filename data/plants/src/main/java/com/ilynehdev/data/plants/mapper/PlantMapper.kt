@@ -110,3 +110,12 @@ internal fun PlantSummaryRow.toPlant() = Plant(
     sunlight = sunlight,
     thumbnail = thumbnail
 )
+
+internal fun PlantEntity.toPlant() = Plant(
+    id = id,
+    commonName = commonName,
+    scientificName = scientificName,
+    watering = watering,
+    sunlight = sunlight,
+    thumbnail = defaultImage?.thumbnail
+)
