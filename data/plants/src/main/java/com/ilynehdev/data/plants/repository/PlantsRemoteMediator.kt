@@ -29,9 +29,16 @@ class PlantsRemoteMediator(
         LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
 
         LoadType.REFRESH,
-        LoadType.APPEND -> when (val result = fetcher.pullNextPage()) {
-            is FetchResult.Success -> MediatorResult.Success(endOfPaginationReached = !result.hasMore)
-            is FetchResult.Error -> MediatorResult.Error(result.cause)
+        LoadType.APPEND -> if (fetcher.isFresh()) {
+            // Completed catalog within TTL: the local table IS the full list.
+            // Without this, APPEND at the list end would restart the crawl
+            // from page 1 (completion leaves the cursor null).
+            MediatorResult.Success(endOfPaginationReached = true)
+        } else {
+            when (val result = fetcher.pullNextPage()) {
+                is FetchResult.Success -> MediatorResult.Success(endOfPaginationReached = !result.hasMore)
+                is FetchResult.Error -> MediatorResult.Error(result.cause)
+            }
         }
     }
 }

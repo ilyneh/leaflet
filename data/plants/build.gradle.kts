@@ -13,4 +13,6 @@ dependencies {
     implementation(projects.data.common)
 
     implementation(libs.androidx.room.paging)
+
+    testImplementation(libs.androidx.paging.testing)
 }
