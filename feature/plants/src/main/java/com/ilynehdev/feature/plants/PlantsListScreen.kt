@@ -17,14 +17,20 @@ import kotlinx.coroutines.flow.flowOf
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun PlantListScreen(viewModel: PlantsViewModel = koinViewModel()) {
+fun PlantListScreen(
+    modifier: Modifier = Modifier,
+    viewModel: PlantsViewModel = koinViewModel()
+) {
     val plants = viewModel.plants.collectAsLazyPagingItems()
-    PlantListContent(plants = plants)
+    PlantListContent(plants, modifier)
 }
 
 @Composable
-fun PlantListContent(plants: LazyPagingItems<Plant>) {
-    LazyColumn {
+fun PlantListContent(
+    plants: LazyPagingItems<Plant>,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(modifier = modifier) {
         items(count = plants.itemCount, key = plants.itemKey { it.id }) { index ->
             val plant = plants[index]
             Text(

@@ -17,15 +17,8 @@ val networkModule = module {
 
     single<HttpClientEngine> { OkHttp.create() }
 
-    // PlantsClient
-    single<NetworkConfig>(PlantsClient) {
-        NetworkConfig(
-            baseUrl = "https://perenual.com/api/",
-            apiKey = "TO-REPLACE",
-            isDebug = true
-        )
-    }
-
+    // NetworkConfig(PlantsClient) is provided by the composition root (app),
+    // which owns BuildConfig and the API key from local.properties.
     single<HttpClient>(PlantsClient) {
         createPlantHttpClient(
             engine = get(),

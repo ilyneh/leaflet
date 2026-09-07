@@ -1,7 +1,18 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
 }
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+val perenualApiKey: String =
+    localProperties.getProperty("PERENUAL_API_KEY")
+        ?: System.getenv("PERENUAL_API_KEY")
+        ?: ""
 
 android {
     namespace = "com.ilynehdev.leaflet"
@@ -19,6 +30,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "PERENUAL_API_KEY", "\"$perenualApiKey\"")
     }
 
     buildTypes {
@@ -34,11 +47,13 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
 dependencies {
     implementation(projects.core.designsystem)
+    implementation(projects.core.network.client)
     implementation(projects.feature.plants)
 
     implementation(libs.koin.android)

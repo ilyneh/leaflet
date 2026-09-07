@@ -1,6 +1,7 @@
 package com.ilynehdev.data.plants.di
 
 import android.content.Context
+import com.ilynehdev.core.network.client.NetworkConfig
 import org.junit.Test
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.test.verify.verify
@@ -19,8 +20,9 @@ class DataPlantsModuleTest {
         dataPlantsModule.verify(
             extraTypes = listOf(
                 Context::class,
-                // NetworkConfig is constructed inline with literals; verify()
-                // reflects its constructor and would flag these as unresolvable.
+                // NetworkConfig is provided by the app composition root
+                // (needs BuildConfig for the API key), so it is absent here.
+                NetworkConfig::class,
                 String::class,
                 Boolean::class,
             )

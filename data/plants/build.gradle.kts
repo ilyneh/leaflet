@@ -17,4 +17,5 @@ dependencies {
 
     testImplementation(libs.androidx.paging.testing)
     testImplementation(libs.koin.test)
+    testImplementation(projects.core.network.client)
 }
