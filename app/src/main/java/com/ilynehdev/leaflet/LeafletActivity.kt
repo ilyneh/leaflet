@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import com.ilynehdev.core.designsystem.LeafletTheme
 import com.ilynehdev.feature.plants.PlantListScreen
 
-class MainActivity : ComponentActivity() {
+class LeafletActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
