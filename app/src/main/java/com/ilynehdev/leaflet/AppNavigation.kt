@@ -19,7 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
-import com.ilynehdev.feature.plants.PlantListScreen
+import com.ilynehdev.feature.plants.list.PlantListScreen
 import kotlinx.serialization.Serializable
 
 

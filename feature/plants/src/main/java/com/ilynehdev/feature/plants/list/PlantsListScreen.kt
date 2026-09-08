@@ -1,11 +1,10 @@
-package com.ilynehdev.feature.plants
+package com.ilynehdev.feature.plants.list
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -14,7 +13,6 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import com.ilynehdev.data.plants.model.Plant
 import com.ilynehdev.feature.plants.ui.components.MainHeader
 import com.ilynehdev.feature.plants.ui.components.SearchTextField
 import kotlinx.coroutines.flow.flowOf
@@ -23,7 +21,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun PlantListScreen(
     modifier: Modifier = Modifier,
-    viewModel: PlantsViewModel = koinViewModel()
+    viewModel: PlantsListViewModel = koinViewModel()
 ) {
     val plants = viewModel.plants.collectAsLazyPagingItems()
     PlantListContent(
@@ -35,7 +33,7 @@ fun PlantListScreen(
 
 @Composable
 fun PlantListContent(
-    plants: LazyPagingItems<Plant>,
+    plants: LazyPagingItems<PlantsListUiData>,
     onSearchQueryChanged: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -52,14 +50,15 @@ fun PlantListContent(
             onValueChange = onSearchQueryChanged
         )
         
-        LazyColumn {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             items(count = plants.itemCount, key = plants.itemKey { it.id }) { index ->
                 val plant = plants[index]
-                Text(
-                    text = plant?.commonName.orEmpty(),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                PlantsListItem(
+                    commonName = plant?.commonName.orEmpty(),
+                    scientificName = plant?.scientificName,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
@@ -72,9 +71,9 @@ fun PlantListContentPreview() {
     val plants = flowOf(
         PagingData.from(
             listOf(
-                Plant(1, "Monstera Deliciosa", null, null, null, null),
-                Plant(2, "Snake Plant", null, null, null, null),
-                Plant(3, "Aloe Vera", null, null, null, null),
+                PlantsListUiData(1, "Monstera Deliciosa", "Monstera deliciosa", null),
+                PlantsListUiData(2, "Snake Plant", "null", null),
+                PlantsListUiData(3, "Aloe Vera", null, null,),
             )
         )
     ).collectAsLazyPagingItems()
