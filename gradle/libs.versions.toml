@@ -28,6 +28,9 @@ appcompatVersion = "1.8.0"
 # Room
 room = "3.0.2"
 jetbrainsKotlinJvm = "2.4.10"
+nav3Core = "1.1.7"
+lifecycleViewmodelNav3 = "2.12.0-alpha02"
+material3AdaptiveNav3 = "1.4.0-alpha01"
 
 [libraries]
 android-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin"}
@@ -87,6 +90,14 @@ androidx-room-paging = { group = "androidx.room3", name = "room3-paging", versio
 androidx-paging-testing = { group = "androidx.paging", name = "paging-testing", version.ref = "paging" }
 androidx-paging-common = { group = "androidx.paging", name = "paging-common", version.ref = "paging" }
 androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "paging" }
+
+# Core Navigation 3 libraries
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
+
+# Optional add-on libraries
+androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
+androidx-material3-adaptive-navigation3 = { group = "androidx.compose.material3.adaptive", name = "adaptive-navigation3", version.ref = "material3AdaptiveNav3" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

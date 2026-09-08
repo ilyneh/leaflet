@@ -1,5 +1,7 @@
 package com.ilynehdev.feature.plants
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +15,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.ilynehdev.data.plants.model.Plant
+import com.ilynehdev.feature.plants.ui.components.MainHeader
+import com.ilynehdev.feature.plants.ui.components.SearchTextField
 import kotlinx.coroutines.flow.flowOf
 import org.koin.androidx.compose.koinViewModel
 
@@ -22,21 +26,42 @@ fun PlantListScreen(
     viewModel: PlantsViewModel = koinViewModel()
 ) {
     val plants = viewModel.plants.collectAsLazyPagingItems()
-    PlantListContent(plants, modifier)
+    PlantListContent(
+        plants = plants,
+        onSearchQueryChanged = {},
+        modifier = modifier
+    )
 }
 
 @Composable
 fun PlantListContent(
     plants: LazyPagingItems<Plant>,
+    onSearchQueryChanged: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier) {
-        items(count = plants.itemCount, key = plants.itemKey { it.id }) { index ->
-            val plant = plants[index]
-            Text(
-                text = plant?.commonName.orEmpty(),
-                modifier = Modifier.fillMaxWidth().padding(16.dp)
-            )
+    Column(
+        modifier = modifier.fillMaxWidth()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        MainHeader(text = "Plants")
+        
+        SearchTextField(
+            value = "",
+            placeHolderText = "Search plants",
+            onValueChange = onSearchQueryChanged
+        )
+        
+        LazyColumn {
+            items(count = plants.itemCount, key = plants.itemKey { it.id }) { index ->
+                val plant = plants[index]
+                Text(
+                    text = plant?.commonName.orEmpty(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                )
+            }
         }
     }
 }
@@ -54,5 +79,8 @@ fun PlantListContentPreview() {
         )
     ).collectAsLazyPagingItems()
 
-    PlantListContent(plants = plants)
+    PlantListContent(
+        plants = plants,
+        onSearchQueryChanged = { }
+    )
 }

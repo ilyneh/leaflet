@@ -5,10 +5,16 @@ plugins {
 
 android {
     namespace = "com.ilynehdev.feature.plants"
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+    }
+    androidResources {
+        enable = true
+    }
 }
 
 dependencies {
+    implementation(projects.core.designsystem)
     implementation(projects.data.plants)
 
     // compose
