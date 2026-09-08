@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plants">Plants</string>
+    <string name="search_plants">Search plants</string>
+</resources>
