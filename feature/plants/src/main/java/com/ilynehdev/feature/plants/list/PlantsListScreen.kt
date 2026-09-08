@@ -21,13 +21,13 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun PlantListScreen(
     modifier: Modifier = Modifier,
-    viewModel: PlantsListViewModel = koinViewModel()
+    viewModel: PlantsListViewModel = koinViewModel(),
 ) {
     val plants = viewModel.plants.collectAsLazyPagingItems()
     PlantListContent(
         plants = plants,
         onSearchQueryChanged = {},
-        modifier = modifier
+        modifier = modifier.padding(horizontal = 20.dp)
     )
 }
 
@@ -38,8 +38,7 @@ fun PlantListContent(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxWidth()
-            .padding(16.dp),
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         MainHeader(text = "Plants")
