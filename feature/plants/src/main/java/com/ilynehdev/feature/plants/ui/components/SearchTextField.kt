@@ -29,7 +29,7 @@ fun SearchTextField(
         placeholder = { Text(placeHolderText) },
         leadingIcon = {
             Icon(
-                painter = painterResource(R.drawable.ic_discover),
+                painter = painterResource(R.drawable.ic_search),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.secondary,
             )

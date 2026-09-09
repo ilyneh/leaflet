@@ -2,4 +2,5 @@
 <resources>
     <string name="plants">Plants</string>
     <string name="search_plants">Search plants</string>
+    <string name="filter">Filter</string>
 </resources>

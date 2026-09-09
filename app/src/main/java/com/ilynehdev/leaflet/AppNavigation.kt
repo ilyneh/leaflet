@@ -1,5 +1,6 @@
 package com.ilynehdev.leaflet
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
@@ -25,15 +26,18 @@ import kotlinx.serialization.Serializable
 
 @Serializable data object BrowseRoute
 @Serializable data object SavedRoute
+@Serializable data object PlantingsRoute
 
 data class NavBarItem(
     val route: Any,
+    @param:DrawableRes val iconRes: Int,
     val label: String
 )
 
 val NAV_ITEMS = listOf(
-    NavBarItem(BrowseRoute, "Browse"),
-    NavBarItem(SavedRoute, "Saved"),
+    NavBarItem(BrowseRoute, R.drawable.ic_browse_leaf,"Browse"),
+    NavBarItem(SavedRoute, R.drawable.ic_saved_bookmark,"Saved"),
+    NavBarItem(PlantingsRoute, R.drawable.ic_plantings_pot, "Plantings")
 )
 
 @Composable
@@ -74,7 +78,7 @@ fun AppNavigation(
                             },
                             icon = {
                                 Icon(
-                                    painter = painterResource(com.ilynehdev.feature.plants.R.drawable.ic_discover),
+                                    painter = painterResource(item.iconRes),
                                     contentDescription = null
                                 )
                             },

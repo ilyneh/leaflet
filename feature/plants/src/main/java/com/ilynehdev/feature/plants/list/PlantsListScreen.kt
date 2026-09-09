@@ -1,13 +1,22 @@
 package com.ilynehdev.feature.plants.list
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,6 +44,9 @@ fun PlantListScreen(
         onSearchQueryChanged = {
             viewModel.onQueryChanged(it)
         },
+        onFilterClicked = {
+            // nave to filter
+        },
         modifier = modifier
     )
 }
@@ -44,20 +56,44 @@ fun PlantListContent(
     plants: LazyPagingItems<PlantsListUiData>,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
+    onFilterClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
             .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         MainHeader(text = stringResource(R.string.plants))
-        
-        SearchTextField(
-            value = searchQuery,
-            placeHolderText = stringResource(R.string.search_plants),
-            onValueChange = onSearchQueryChanged
-        )
+
+        Row(
+            modifier = Modifier.height(56.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            SearchTextField(
+                value = searchQuery,
+                placeHolderText = stringResource(R.string.search_plants),
+                onValueChange = onSearchQueryChanged,
+                modifier = Modifier.weight(1f)
+            )
+
+            OutlinedIconButton(
+                onClick = onFilterClicked,
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.secondaryContainer
+                ),
+                modifier = Modifier.size(56.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_filter),
+                    tint = MaterialTheme.colorScheme.secondary,
+                    contentDescription = stringResource(R.string.filter)
+                )
+            }
+        }
         
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -90,6 +126,7 @@ fun PlantListContentPreview() {
     PlantListContent(
         plants = plants,
         searchQuery = "",
-        onSearchQueryChanged = { }
+        onSearchQueryChanged = {},
+        onFilterClicked = {}
     )
 }
