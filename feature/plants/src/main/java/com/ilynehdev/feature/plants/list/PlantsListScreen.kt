@@ -64,7 +64,7 @@ fun PlantListContent(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         MainHeader(text = stringResource(R.string.plants))
 
