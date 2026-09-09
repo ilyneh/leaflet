@@ -22,15 +22,19 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    debugImplementation(libs.androidx.compose.ui.tooling)
 
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.paging.common)
     implementation(libs.androidx.paging.compose)
 
+    implementation(libs.kotlinx.coroutines.android)
+
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
-    implementation(libs.kotlinx.coroutines.android)
-
-    debugImplementation(libs.androidx.compose.ui.tooling)
+    // need for coil
+    implementation(libs.ktor.client.android)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.ktor)
 }

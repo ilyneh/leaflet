@@ -103,6 +103,7 @@ fun PlantListContent(
                 PlantsListItem(
                     commonName = plant?.commonName.orEmpty(),
                     scientificName = plant?.scientificName,
+                    imageUrl = plant?.imageUrl,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

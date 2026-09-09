@@ -26,6 +26,9 @@ private val LightColors = lightColorScheme(
     onSurfaceVariant     = GreenGrey30,
     outline              = GreenGrey50,
     outlineVariant       = GreenGrey80,
+
+    surfaceContainerHigh = Grey92,
+    surfaceContainerHighest = Grey90,
 )
 
 private val DarkColors = darkColorScheme(

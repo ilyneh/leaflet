@@ -34,6 +34,7 @@ val Red90 = Color(0xFFFFDAD6)
 val Grey5  = Color(0xFF0F1512)
 val Grey10 = Color(0xFF191C1A)
 val Grey90 = Color(0xFFDFE4DF)
+val Grey92 = Color(0xFFE6EDE9)
 val Grey99 = Color(0xFFF7FBF8)
 
 // Neutral variant — GreenGrey
