@@ -65,7 +65,7 @@ fun AppNavigation(
                         NavigationBarItem(
                             selected = currentRoute == item.route,
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                selectedIconColor = MaterialTheme.colorScheme.secondary,
                                 selectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,

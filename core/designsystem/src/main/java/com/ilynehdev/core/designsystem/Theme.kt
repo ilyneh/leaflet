@@ -7,28 +7,51 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 private val LightColors = lightColorScheme(
-    primary              = Pink40,
-    onPrimary            = White,
-    primaryContainer     = Pink90,
-    onPrimaryContainer   = Pink10,
-    inversePrimary       = Pink80,
-    secondary            = Green40,
-    onSecondary          = White,
-    secondaryContainer   = Green60,
-    onSecondaryContainer = Green20,
-    tertiary             = Cyan40,
-    tertiaryContainer    = Cyan90,
-    error                = Red40,
-    errorContainer       = Red90,
-    surface              = Grey99,
-    onSurface            = Grey10,
-    surfaceVariant       = GreenGrey90,
-    onSurfaceVariant     = GreenGrey30,
-    outline              = GreenGrey50,
-    outlineVariant       = GreenGrey80,
+    primary = Green40,
+    onPrimary = White,
+    primaryContainer = Green90,
+    onPrimaryContainer = Green10,
+    inversePrimary = Green60,
 
+    secondary = Pink50,
+    onSecondary = White,
+    secondaryContainer = Pink90,
+    onSecondaryContainer = Pink10,
+
+    tertiary = Green35,
+    onTertiary = White,
+    tertiaryContainer = GreenGrey90,
+    onTertiaryContainer = Green35,
+
+    error = Red40,
+    onError = White,
+    errorContainer = Red90,
+    onErrorContainer = Red30,
+
+    background = Grey98,
+    onBackground = GreenGrey10,
+
+    surface = Grey98,
+    onSurface = GreenGrey10,
+    surfaceVariant = GreenGrey90,
+    onSurfaceVariant = GreenGrey40,
+
+    surfaceContainerLowest = White,
+    surfaceContainerLow = Grey96,
+    surfaceContainer = Grey94,
     surfaceContainerHigh = Grey92,
     surfaceContainerHighest = Grey90,
+
+    surfaceBright = Grey98,
+    surfaceDim = Grey90,
+    surfaceTint = Green40,
+
+    outline = GreenGrey70,
+    outlineVariant = GreenGrey90,
+
+    inverseSurface = Grey20,
+    inverseOnSurface = Grey96,
+    scrim = Black,
 )
 
 private val DarkColors = darkColorScheme(

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.runtime.Composable
@@ -81,15 +82,18 @@ fun PlantListContent(
             OutlinedIconButton(
                 onClick = onFilterClicked,
                 shape = RoundedCornerShape(16.dp),
+                colors = IconButtonDefaults.outlinedIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
+                ),
                 border = BorderStroke(
                     width = 1.dp,
-                    color = MaterialTheme.colorScheme.secondaryContainer
+                    color = MaterialTheme.colorScheme.outlineVariant
                 ),
                 modifier = Modifier.size(56.dp)
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_filter),
-                    tint = MaterialTheme.colorScheme.secondary,
+                    tint = MaterialTheme.colorScheme.primary,
                     contentDescription = stringResource(R.string.filter)
                 )
             }
