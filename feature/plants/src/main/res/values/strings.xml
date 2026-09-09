@@ -4,4 +4,6 @@
     <string name="search_plants">Search plants</string>
     <string name="filter">Filter</string>
     <string name="back">Back</string>
+    <string name="plant_detail_load_failed">Couldn\'t load this plant</string>
+    <string name="retry">Retry</string>
 </resources>

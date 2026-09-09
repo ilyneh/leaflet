@@ -1,6 +1,11 @@
 package com.ilynehdev.leaflet
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,13 +26,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.ilynehdev.feature.plants.detail.PlantDetailScreen
 import com.ilynehdev.feature.plants.list.PlantListScreen
 import kotlinx.serialization.Serializable
 
+
+private val SLIDE_SPEC = tween<IntOffset>(durationMillis = 300, easing = FastOutSlowInEasing)
 
 @Serializable data object BrowseRoute
 @Serializable data object SavedRoute
@@ -117,6 +127,10 @@ fun AppNavigation(
         NavDisplay(
             modifier = Modifier.padding(innerPadding),
             backStack = backStack,
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator(),
+            ),
             onBack = {
                 if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
             },
@@ -126,7 +140,18 @@ fun AppNavigation(
                         onPlantClicked = { id -> backStack.add(PlantDetailRoute(id)) }
                     )
                 }
-                entry<PlantDetailRoute> { route ->
+                entry<PlantDetailRoute>(
+                    metadata = NavDisplay.transitionSpec {
+                        slideInHorizontally(SLIDE_SPEC, initialOffsetX = { it }) togetherWith
+                            slideOutHorizontally(SLIDE_SPEC, targetOffsetX = { -it / 4 })
+                    } + NavDisplay.popTransitionSpec {
+                        slideInHorizontally(SLIDE_SPEC, initialOffsetX = { -it / 4 }) togetherWith
+                            slideOutHorizontally(SLIDE_SPEC, targetOffsetX = { it })
+                    } + NavDisplay.predictivePopTransitionSpec {
+                        slideInHorizontally(SLIDE_SPEC, initialOffsetX = { -it / 4 }) togetherWith
+                            slideOutHorizontally(SLIDE_SPEC, targetOffsetX = { it })
+                    },
+                ) { route ->
                     PlantDetailScreen(
                         plantId = route.id,
                         onBackClicked = {
