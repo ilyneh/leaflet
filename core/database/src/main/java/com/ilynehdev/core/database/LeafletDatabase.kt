@@ -18,7 +18,7 @@ import com.ilynehdev.core.database.entities.PlantEntity
         PlantEntity::class,
         PlantDiseaseEntity::class,
         FetchMetadataEntity::class],
-    version = 1
+    version = 2
 )
 @ColumnTypeConverters(PlantConverters::class)
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)

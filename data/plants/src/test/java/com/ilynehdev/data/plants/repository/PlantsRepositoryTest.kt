@@ -10,6 +10,7 @@ import com.ilynehdev.core.database.LeafletDatabase
 import com.ilynehdev.core.network.plants.api.Page
 import com.ilynehdev.core.network.plants.api.PlantsApi
 import com.ilynehdev.core.network.plants.dto.PlantDto
+import com.ilynehdev.core.phloem.FetchError
 import com.ilynehdev.core.phloem.FetchMetadata
 import com.ilynehdev.core.phloem.FetchMetadataStore
 import com.ilynehdev.core.phloem.PhloemModel
@@ -49,8 +50,14 @@ class PlantsRepositoryTest {
             }
         }
 
-        override suspend fun getPlant(id: Long): PlantDto =
-            error("not used in these tests")
+        val details = mutableMapOf<Long, PlantDto>()
+        val requestedDetailIds = mutableListOf<Long>()
+
+        override suspend fun getPlant(id: Long): PlantDto {
+            failWith?.let { throw it }
+            requestedDetailIds += id
+            return details[id] ?: error("no detail stubbed for id $id")
+        }
     }
 
     private class FakeMetadataStore : FetchMetadataStore {
@@ -64,6 +71,7 @@ class PlantsRepositoryTest {
     private lateinit var db: LeafletDatabase
     private val api = FakePlantsApi()
     private val store = FakeMetadataStore()
+    private var nowMillis = 1_000_000L
     private lateinit var repo: PlantsRepository
 
     @Before
@@ -77,6 +85,7 @@ class PlantsRepositoryTest {
             api = api,
             transactor = { it() },
             metadataStore = store,
+            now = { nowMillis },
         )
     }
 
@@ -193,5 +202,70 @@ class PlantsRepositoryTest {
         repo.searchPlant("fern").asSnapshot()
 
         assertTrue("fern" in api.requestedQueries)
+    }
+
+    // ---- refreshPlantDetails (cache-through) ----
+    @Test
+    fun `refreshPlantDetails fetches, stores and stamps the row`() = runTest {
+        api.details[7] = PlantDto(id = 7, commonName = "Monstera", description = "Big leaves")
+
+        val error = repo.refreshPlantDetails(7)
+
+        assertNull(error)
+        val row = db.plantDao().getById(7)
+        assertEquals("Big leaves", row?.description)
+        assertEquals(nowMillis, row?.detailsSyncedAt)
+    }
+
+    @Test
+    fun `refreshPlantDetails skips network while row is fresh`() = runTest {
+        api.details[7] = PlantDto(id = 7, commonName = "Monstera")
+        repo.refreshPlantDetails(7)
+
+        nowMillis += 1_000  // well inside the TTL
+        val error = repo.refreshPlantDetails(7)
+
+        assertNull(error)
+        assertEquals(listOf(7L), api.requestedDetailIds)  // fetched exactly once
+    }
+
+    @Test
+    fun `refreshPlantDetails refetches after ttl expires`() = runTest {
+        api.details[7] = PlantDto(id = 7, commonName = "Monstera")
+        repo.refreshPlantDetails(7)
+
+        nowMillis += PlantsRepositoryImpl.DETAILS_TTL.inWholeMilliseconds + 1
+        repo.refreshPlantDetails(7)
+
+        assertEquals(listOf(7L, 7L), api.requestedDetailIds)
+        assertEquals(nowMillis, db.plantDao().getById(7)?.detailsSyncedAt)
+    }
+
+    @Test
+    fun `refreshPlantDetails classifies failure and keeps cached row`() = runTest {
+        api.details[7] = PlantDto(id = 7, commonName = "Monstera", description = "Big leaves")
+        repo.refreshPlantDetails(7)
+
+        nowMillis += PlantsRepositoryImpl.DETAILS_TTL.inWholeMilliseconds + 1
+        api.failWith = IOException("offline")
+
+        val error = repo.refreshPlantDetails(7)
+
+        assertEquals(FetchError.Offline, error)
+        assertEquals("Big leaves", db.plantDao().getById(7)?.description)
+    }
+
+    @Test
+    fun `list crawl does not clobber a detail-synced row`() = runTest {
+        api.details[1] = PlantDto(id = 1, commonName = "Aloe", description = "Succulent")
+        repo.refreshPlantDetails(1)
+
+        // Catalog crawl returns the same plant as a sparse list row.
+        api.pages[1] = Page(listOf(dto(1, "Aloe")), nextKey = null)
+        repo.observePlants().asSnapshot()
+
+        val row = db.plantDao().getById(1)
+        assertEquals("Succulent", row?.description)      // detail survived
+        assertEquals(nowMillis, row?.detailsSyncedAt)    // stamp survived
     }
 }

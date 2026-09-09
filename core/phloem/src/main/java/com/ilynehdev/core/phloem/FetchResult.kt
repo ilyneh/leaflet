@@ -26,7 +26,7 @@ sealed class FetchError {
     data object StorageError : FetchError()
 }
 
-internal fun Throwable.toFetchError(): FetchError = when (this) {
+fun Throwable.toFetchError(): FetchError = when (this) {
     is ClientRequestException -> when (response.status) {
         HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden -> FetchError.Forbidden
         HttpStatusCode.TooManyRequests -> FetchError.RateLimited

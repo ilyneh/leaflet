@@ -20,6 +20,9 @@ interface PlantsDao {
     @Query("SELECT * FROM plants WHERE id = :id")
     suspend fun getById(id: Long): PlantEntity?
 
+    @Query("SELECT id FROM plants WHERE id IN (:ids) AND details_synced_at IS NOT NULL")
+    suspend fun detailSyncedIds(ids: List<Long>): List<Long>
+
     @Query("SELECT * FROM plants WHERE id = :id")
     fun observePlant(id: Long): Flow<PlantEntity?>
 

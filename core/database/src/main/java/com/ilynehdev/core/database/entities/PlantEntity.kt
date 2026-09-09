@@ -49,6 +49,8 @@ data class PlantEntity(
     val indoor: Boolean? = null,
     @ColumnInfo("care_level") val careLevel: String? = null,
     val description: String? = null,
+    // Null = row holds only sparse list data, no detail fetch yet.
+    @ColumnInfo("details_synced_at") val detailsSyncedAt: Long? = null,
 
     @Embedded("hardiness_") val hardiness: HardinessColumn? = null,
     @Embedded("watering_benchmark_") val wateringBenchmark: WateringBenchmarkColumn?,

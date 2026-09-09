@@ -7,11 +7,14 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.ilynehdev.core.database.dao.PlantsDao
 import com.ilynehdev.core.network.plants.api.PlantsApi
+import com.ilynehdev.core.network.plants.dto.PlantDto
+import com.ilynehdev.core.phloem.FetchError
 import com.ilynehdev.core.phloem.FetchMetadataStore
 import com.ilynehdev.core.phloem.FetchPage
 import com.ilynehdev.core.phloem.PhloemFetcherImpl
 import com.ilynehdev.core.phloem.PhloemModel
 import com.ilynehdev.core.phloem.Transactor
+import com.ilynehdev.core.phloem.toFetchError
 import com.ilynehdev.data.plants.mapper.toEntity
 import com.ilynehdev.data.plants.mapper.toPlant
 import com.ilynehdev.data.plants.model.Plant
@@ -20,6 +23,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 
 interface PlantsRepository {
@@ -29,6 +33,13 @@ interface PlantsRepository {
     fun observePlants(): Flow<PagingData<Plant>>
 
     fun searchPlant(name: String): Flow<PagingData<Plant>>
+
+    /**
+     * Cache-through fetch of the full plant record; [observePlant] emits the
+     * update. Null = success or still fresh; [FetchError] = fetch failed,
+     * cached data stands.
+     */
+    suspend fun refreshPlantDetails(plantId: Long): FetchError?
 }
 
 class PlantsRepositoryImpl(
@@ -36,6 +47,7 @@ class PlantsRepositoryImpl(
     private val api: PlantsApi,
     transactor: Transactor,
     metadataStore: FetchMetadataStore,
+    private val now: () -> Long = System::currentTimeMillis,
 ) : PlantsRepository {
 
     private val fetcher = PhloemFetcherImpl(
@@ -51,13 +63,42 @@ class PlantsRepositoryImpl(
             )
         },
         persistPage = { items ->
-            val entities = items.map { it.toEntity() }
-            dao.upsertPlants(entities)
+            upsertListRows(items)
         }
     )
 
+    // List responses are sparse; upserting one over a detail-synced row would
+    // null out the fetched details, so those rows are skipped.
+    private suspend fun upsertListRows(items: List<PlantDto>) {
+        val entities = items.map { it.toEntity() }
+        val protected = dao.detailSyncedIds(entities.map { it.id }).toSet()
+        dao.upsertPlants(entities.filterNot { it.id in protected })
+    }
+
     override fun observePlant(plantId: Long): Flow<Plant?> =
         dao.observePlant(plantId).map { it?.toPlant() }
+
+    override suspend fun refreshPlantDetails(plantId: Long): FetchError? {
+        val syncedAt = dao.getById(plantId)?.detailsSyncedAt
+        if (syncedAt != null && now() - syncedAt < DETAILS_TTL.inWholeMilliseconds) {
+            return null
+        }
+
+        val dto = try {
+            api.getPlant(plantId)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            return e.toFetchError()
+        }
+
+        return try {
+            dao.upsertPlant(dto.toEntity().copy(detailsSyncedAt = now()))
+            null
+        } catch (e: Exception) {
+            FetchError.StorageError
+        }
+    }
 
     @OptIn(ExperimentalPagingApi::class)
     override fun observePlants(): Flow<PagingData<Plant>> {
@@ -77,7 +118,7 @@ class PlantsRepositoryImpl(
         launch {
             try {
                 val page = api.getPlants(page = 1, query = name)
-                dao.upsertPlants(page.items.map { it.toEntity() })
+                upsertListRows(page.items)
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
@@ -94,5 +135,6 @@ class PlantsRepositoryImpl(
 
     companion object {
         const val NETWORK_PAGE_SIZE = 30
+        val DETAILS_TTL = 7.days
     }
 }
