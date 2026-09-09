@@ -1,7 +1,9 @@
 package com.ilynehdev.leaflet
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -15,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -40,6 +43,20 @@ val NAV_ITEMS = listOf(
     NavBarItem(SavedRoute, R.drawable.ic_saved_bookmark,"Saved"),
     NavBarItem(PlantingsRoute, R.drawable.ic_plantings_pot, "Plantings")
 )
+
+@Composable
+private fun PlaceholderScreen(title: String) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
 
 @Composable
 fun AppNavigation(
@@ -103,6 +120,8 @@ fun AppNavigation(
             },
             entryProvider = entryProvider {
                 entry<BrowseRoute> { PlantListScreen() }
+                entry<SavedRoute> { PlaceholderScreen(title = "Saved") }
+                entry<PlantingsRoute> { PlaceholderScreen(title = "Plantings") }
             }
         )
     }
