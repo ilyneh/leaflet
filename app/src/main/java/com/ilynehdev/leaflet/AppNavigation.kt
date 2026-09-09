@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.ilynehdev.feature.plants.detail.PlantDetailScreen
 import com.ilynehdev.feature.plants.list.PlantListScreen
 import kotlinx.serialization.Serializable
 
@@ -31,6 +32,7 @@ import kotlinx.serialization.Serializable
 @Serializable data object BrowseRoute
 @Serializable data object SavedRoute
 @Serializable data object PlantingsRoute
+@Serializable data class PlantDetailRoute(val id: Long)
 
 data class NavBarItem(
     val route: Any,
@@ -68,7 +70,7 @@ fun AppNavigation(
         containerColor = MaterialTheme.colorScheme.surface,
         modifier = modifier,
         bottomBar = {
-            Column {
+            if (currentRoute !is PlantDetailRoute) Column {
                 HorizontalDivider(
                     thickness = 1.dp,
                     color = MaterialTheme.colorScheme.outlineVariant,
@@ -119,7 +121,19 @@ fun AppNavigation(
                 if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
             },
             entryProvider = entryProvider {
-                entry<BrowseRoute> { PlantListScreen() }
+                entry<BrowseRoute> {
+                    PlantListScreen(
+                        onPlantClicked = { id -> backStack.add(PlantDetailRoute(id)) }
+                    )
+                }
+                entry<PlantDetailRoute> { route ->
+                    PlantDetailScreen(
+                        plantId = route.id,
+                        onBackClicked = {
+                            if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
+                        },
+                    )
+                }
                 entry<SavedRoute> { PlaceholderScreen(title = "Saved") }
                 entry<PlantingsRoute> { PlaceholderScreen(title = "Plantings") }
             }

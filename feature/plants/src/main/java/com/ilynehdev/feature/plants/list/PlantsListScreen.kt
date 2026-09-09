@@ -1,6 +1,5 @@
 package com.ilynehdev.feature.plants.list
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +24,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun PlantListScreen(
+    onPlantClicked: (id: Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlantsListViewModel = koinViewModel(),
 ) {
@@ -35,9 +35,9 @@ fun PlantListScreen(
         searchQuery = searchQuery,
         onSearchQueryChanged = viewModel::onQueryChanged,
         onFilterClicked = {
-            // nave to filter
+            // nav to filter
         },
-        onItemClicked = {},
+        onItemClicked = onPlantClicked,
         modifier = modifier
     )
 }
