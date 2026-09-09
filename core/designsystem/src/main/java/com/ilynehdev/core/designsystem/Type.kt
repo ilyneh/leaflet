@@ -1,6 +1,5 @@
 package com.ilynehdev.core.designsystem
 
-import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,34 +16,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+private val baseline = Typography()
+
 val Typography = Typography(
-    displayLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Bold,
-        fontSize = 32.sp,
-        lineHeight = 34.sp
-    ),
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    ),
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
-    ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
+    displayLarge = baseline.displayLarge.copy(fontFamily = DisplayFontFamily),
+    displayMedium = baseline.displayMedium.copy(fontFamily = DisplayFontFamily),
+    displaySmall = baseline.displaySmall.copy(fontFamily = DisplayFontFamily),
+
+    headlineLarge = baseline.headlineLarge.copy(fontFamily = DisplayFontFamily),
+    headlineMedium = baseline.headlineMedium.copy(fontFamily = DisplayFontFamily),
+    headlineSmall = baseline.headlineSmall.copy(fontFamily = DisplayFontFamily),
+
+    titleLarge = baseline.titleLarge.copy(fontFamily = DisplayFontFamily),
+    titleMedium = baseline.titleMedium.copy(fontFamily = DisplayFontFamily),
+    titleSmall = baseline.titleSmall.copy(fontFamily = DisplayFontFamily),
+
+    bodyLarge = baseline.bodyLarge.copy(fontFamily = BodyFontFamily),
+    bodyMedium = baseline.bodyMedium.copy(fontFamily = BodyFontFamily),
+    bodySmall = baseline.bodySmall.copy(fontFamily = BodyFontFamily),
+
+    labelLarge = baseline.labelLarge.copy(fontFamily = BodyFontFamily),
+    labelMedium = baseline.labelMedium.copy(fontFamily = BodyFontFamily),
+    labelSmall = baseline.labelSmall.copy(fontFamily = BodyFontFamily)
 )
 
 @Preview(name = "Small Font", fontScale = 0.85f)

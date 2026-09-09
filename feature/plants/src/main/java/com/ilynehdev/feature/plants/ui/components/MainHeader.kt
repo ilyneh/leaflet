@@ -16,7 +16,7 @@ fun MainHeader(
     Text(
         text = text,
         color = MaterialTheme.colorScheme.onSurface,
-        style = MaterialTheme.typography.displayLarge,
+        style = MaterialTheme.typography.headlineLarge,
         modifier = modifier
     )
 }
