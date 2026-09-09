@@ -1,6 +1,7 @@
 package com.ilynehdev.feature.plants.list
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,12 +37,14 @@ fun PlantsListItem(
     commonName: String,
     scientificName: String?,
     imageUrl: String?,
+    onItemClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp),
+            .clickable(onClick = onItemClicked)
+            .padding(horizontal = 20.dp, vertical = 2.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -83,7 +86,7 @@ fun PlantsListItem(
 
 
         Column(
-            modifier = Modifier
+            modifier = Modifier.weight(1f)
         ) {
             Text(
                 text = commonName,
@@ -95,6 +98,12 @@ fun PlantsListItem(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+
+        Icon(
+            painter = painterResource(R.drawable.ic_chevron_forward),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.outline
+        )
     }
 }
 
@@ -105,7 +114,8 @@ fun PlantsListItemPreview() {
         PlantsListItem(
             commonName = "Monstera",
             scientificName = "M. deliciosa",
-            imageUrl = null
+            imageUrl = null,
+            onItemClicked = {}
         )
     }
 }
