@@ -19,7 +19,7 @@ fun MainHeader(
         text = text,
         color = MaterialTheme.colorScheme.onSurface,
         style = MaterialTheme.typography.headlineLarge,
-        modifier = modifier.padding(top = 18.dp)
+        modifier = modifier.padding(top = 18.dp, bottom = 12.dp)
     )
 }
 

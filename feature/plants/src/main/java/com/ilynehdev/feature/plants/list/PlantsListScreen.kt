@@ -2,6 +2,7 @@ package com.ilynehdev.feature.plants.list
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -50,11 +51,7 @@ fun PlantListContent(
     onItemClicked: (id: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-
+    Column(modifier = modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(horizontal = 20.dp)
         ) {
@@ -63,7 +60,7 @@ fun PlantListContent(
         }
 
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            contentPadding = PaddingValues(top = 6.dp, bottom = 12.dp)
         ) {
             items(count = plants.itemCount, key = plants.itemKey { it.id }) { index ->
                 val plant = plants[index] ?: return@items

@@ -44,7 +44,7 @@ fun PlantsListItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onItemClicked)
-            .padding(horizontal = 20.dp, vertical = 2.dp),
+            .padding(horizontal = 20.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
