@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -26,27 +28,33 @@ fun PlantListScreen(
     viewModel: PlantsListViewModel = koinViewModel(),
 ) {
     val plants = viewModel.plants.collectAsLazyPagingItems()
+    val searchQuery by viewModel.query.collectAsStateWithLifecycle()
     PlantListContent(
         plants = plants,
-        onSearchQueryChanged = {},
-        modifier = modifier.padding(horizontal = 20.dp)
+        searchQuery = searchQuery,
+        onSearchQueryChanged = {
+            viewModel.onQueryChanged(it)
+        },
+        modifier = modifier
     )
 }
 
 @Composable
 fun PlantListContent(
     plants: LazyPagingItems<PlantsListUiData>,
+    searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth()
+            .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         MainHeader(text = stringResource(R.string.plants))
         
         SearchTextField(
-            value = "",
+            value = searchQuery,
             placeHolderText = stringResource(R.string.search_plants),
             onValueChange = onSearchQueryChanged
         )
@@ -81,6 +89,7 @@ fun PlantListContentPreview() {
 
     PlantListContent(
         plants = plants,
+        searchQuery = "",
         onSearchQueryChanged = { }
     )
 }
