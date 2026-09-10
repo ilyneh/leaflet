@@ -3,6 +3,7 @@ package com.ilynehdev.feature.plants.detail
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -33,6 +34,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -54,6 +57,7 @@ fun PlantDetailScreen(
     PlantDetailContent(
         uiState = uiState,
         onBackClicked = onBackClicked,
+        onSaveClicked = viewModel::onSaveClicked,
         onRetryClicked = viewModel::onRetryClicked,
         modifier = modifier,
     )
@@ -63,6 +67,7 @@ fun PlantDetailScreen(
 fun PlantDetailContent(
     uiState: PlantDetailUiState,
     onBackClicked: () -> Unit,
+    onSaveClicked: () -> Unit,
     onRetryClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -93,21 +98,10 @@ fun PlantDetailContent(
             }
         }
 
-        IconButton(
-            onClick = onBackClicked,
-            colors = IconButtonDefaults.iconButtonColors(
-                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
-                contentColor = MaterialTheme.colorScheme.onSurface,
-            ),
-            modifier = Modifier
-                .padding(start = 8.dp, top = 8.dp)
-                .size(44.dp)
-                .align(Alignment.TopStart),
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_chevron_back),
-                contentDescription = stringResource(R.string.back),
-            )
+        BackButton(onBackClicked)
+
+        if (uiState.saveButtonVisible) {
+            SaveButton(onSaveClicked, uiState.isSaved)
         }
     }
 }
@@ -227,6 +221,62 @@ private fun PlantTraitsRow(plant: PlantDetailUiData) {
     }
 }
 
+@Composable
+private fun BoxScope.BackButton(onBackClicked: () -> Unit) {
+    IconButton(
+        onClick = onBackClicked,
+        colors = IconButtonDefaults.iconButtonColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+            contentColor = MaterialTheme.colorScheme.onSurface,
+        ),
+        modifier = Modifier
+            .padding(start = 16.dp, top = 8.dp)
+            .size(44.dp)
+            .align(Alignment.TopStart),
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_chevron_back),
+            contentDescription = stringResource(R.string.back),
+        )
+    }
+}
+
+@Composable
+private fun BoxScope.SaveButton(
+    onSaveClicked: () -> Unit,
+    isSaved: Boolean,
+) {
+    IconButton(
+        onClick = onSaveClicked,
+        colors = IconButtonDefaults.iconButtonColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+        ),
+        modifier = Modifier
+            .padding(end = 16.dp, top = 8.dp)
+            .align(Alignment.TopEnd)
+            .size(44.dp)
+            .semantics {
+                selected = isSaved
+            }
+    ) {
+        Icon(
+            painter = painterResource(
+                if (isSaved) {
+                    R.drawable.ic_saved_bookmark_filled
+                } else {
+                    R.drawable.ic_saved_bookmark
+                }
+            ),
+            contentDescription = stringResource(R.string.save),
+            tint = if (isSaved) {
+                MaterialTheme.colorScheme.secondary
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            }
+        )
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable
@@ -250,6 +300,7 @@ private fun PlantDetailContentPreview() {
                 ),
             ),
             onBackClicked = {},
+            onSaveClicked = {},
             onRetryClicked = {},
         )
     }

@@ -6,6 +6,7 @@ import com.ilynehdev.data.common.RefreshResult
 import com.ilynehdev.data.plants.model.Dimension
 import com.ilynehdev.data.plants.model.PlantDetails
 import com.ilynehdev.data.plants.repository.PlantsRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -37,6 +38,8 @@ data class PlantDetailUiData(
 
 data class PlantDetailUiState(
     val plant: PlantDetailUiData? = null,
+    val saveButtonVisible: Boolean = false,
+    val isSaved: Boolean = false,
     val loadingStatus: LoadingStatus = LoadingStatus.Loading,
 )
 
@@ -49,9 +52,15 @@ class PlantDetailViewModel(
 
     val uiState: StateFlow<PlantDetailUiState> = combine(
         plantsRepository.observePlant(plantId),
+        plantsRepository.observeIsSaved(plantId),
         loadingStatus,
-    ) { plant, status ->
-        PlantDetailUiState(plant = plant?.toUiData(), loadingStatus = status)
+    ) { plant, isSaved, status ->
+        PlantDetailUiState(
+            plant = plant?.toUiData(),
+            saveButtonVisible = plant != null,
+            isSaved = isSaved,
+            loadingStatus = status
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -62,9 +71,22 @@ class PlantDetailViewModel(
         refresh()
     }
 
-    fun onRetryClicked() = refresh()
-
     fun onPullToRefresh() = refresh(force = true)
+
+    fun onSaveClicked() {
+        viewModelScope.launch {
+            try {
+                plantsRepository.updateSavedPlant(plantId, !uiState.value.isSaved)
+            } catch (e: Exception) {
+                when (e) {
+                    is CancellationException -> throw e
+                }
+                // swallow
+            }
+        }
+    }
+
+    fun onRetryClicked() = refresh()
 
     private fun refresh(force: Boolean = false) {
         viewModelScope.launch {

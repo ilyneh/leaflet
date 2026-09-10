@@ -52,7 +52,7 @@ data class NavBarItem(
 
 val NAV_ITEMS = listOf(
     NavBarItem(BrowseRoute, R.drawable.ic_browse_leaf,"Browse"),
-    NavBarItem(SavedRoute, R.drawable.ic_saved_bookmark,"Saved"),
+    NavBarItem(SavedRoute, com.ilynehdev.feature.plants.R.drawable.ic_saved_bookmark,"Saved"),
     NavBarItem(PlantingsRoute, R.drawable.ic_plantings_pot, "Plantings")
 )
 
