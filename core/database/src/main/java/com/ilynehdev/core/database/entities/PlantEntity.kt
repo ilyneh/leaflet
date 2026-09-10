@@ -26,7 +26,7 @@ data class PlantEntity(
     @ColumnInfo("plant_anatomy") val plantAnatomy: List<AnatomyColumn>? = null,
     val sunlight: List<String>? = null,
     @ColumnInfo("pruning_month") val pruningMonth: List<String>? = null,
-    @ColumnInfo("pruning_count") val pruningCount: List<PruningCountColumn>? = null,
+    @ColumnInfo("pruning_count") val pruningCount: PruningCountColumn? = null,
     val seeds: Boolean? = null,
     val attracts: List<String>? = null,
     val propagation: List<String>? = null,

@@ -1,7 +1,16 @@
 package com.ilynehdev.core.network.plants.dto
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.nullable
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.JsonEncoder
+import kotlinx.serialization.json.JsonNull
 
 @Serializable
 data class PlantDimensionsDto(
@@ -48,6 +57,31 @@ data class PlantPruningCountDto(
     val interval: String,
 )
 
+// The API sends pruning_count as [] when absent and as an object when present.
+object PruningCountDtoSerializer : KSerializer<PlantPruningCountDto?> {
+    override val descriptor: SerialDescriptor =
+        PlantPruningCountDto.serializer().nullable.descriptor
+
+    override fun deserialize(decoder: Decoder): PlantPruningCountDto? {
+        val input = decoder as JsonDecoder
+        return when (val element = input.decodeJsonElement()) {
+            is JsonNull -> null
+            is JsonArray -> element.firstOrNull()?.let {
+                input.json.decodeFromJsonElement(PlantPruningCountDto.serializer(), it)
+            }
+            else -> input.json.decodeFromJsonElement(PlantPruningCountDto.serializer(), element)
+        }
+    }
+
+    override fun serialize(encoder: Encoder, value: PlantPruningCountDto?) {
+        if (value == null) {
+            (encoder as JsonEncoder).encodeJsonElement(JsonNull)
+        } else {
+            encoder.encodeSerializableValue(PlantPruningCountDto.serializer(), value)
+        }
+    }
+}
+
 @Serializable
 data class PlantHardinessDto(
     val min: String?,
@@ -91,7 +125,8 @@ data class PlantDto(
     @SerialName("plant_anatomy") val plantAnatomy: List<PlantAnatomyDto>? = null,
     val sunlight: List<String>? = null,
     @SerialName("pruning_month") val pruningMonth: List<String>? = null,
-    @SerialName("pruning_count") val pruningCount: List<PlantPruningCountDto>? = null,
+    @Serializable(with = PruningCountDtoSerializer::class)
+    @SerialName("pruning_count") val pruningCount: PlantPruningCountDto? = null,
     val seeds: Boolean? = null,
     val attracts: List<String>? = null,
     val propagation: List<String>? = null,

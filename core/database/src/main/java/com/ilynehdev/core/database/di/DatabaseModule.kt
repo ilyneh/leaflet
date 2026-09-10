@@ -3,6 +3,7 @@ package com.ilynehdev.core.database.di
 import androidx.room3.Room
 import com.ilynehdev.core.database.LeafletDatabase
 import com.ilynehdev.core.database.MIGRATION_1_2
+import com.ilynehdev.core.database.MIGRATION_2_3
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -13,7 +14,7 @@ val databaseModule = module {
             klass = LeafletDatabase::class.java,
             name = "leaflet.db"
         )
-            .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
             .build()
     }
 

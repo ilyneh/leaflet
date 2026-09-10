@@ -230,8 +230,8 @@ class PlantDtoTest {
     @Test
     fun `details fixture empty pruning_count array decodes as null`() {
         // Server returns [] instead of null when no pruning data (PHP empty array quirk)
-        assertEquals(emptyList<PlantPruningCountDto>(), details(1).pruningCount)
-        assertEquals(emptyList<PlantPruningCountDto>(), details(31).pruningCount)
+        assertNull(details(1).pruningCount)
+        assertNull(details(31).pruningCount)
     }
 
     @Test
