@@ -1,4 +1,4 @@
-package com.ilynehdev.core.phloem
+package com.ilynehdev.core.phloem.pagefetcher
 
 enum class PhloemModel(val key: String) {
     PlantCatalog("plant_catalog"),

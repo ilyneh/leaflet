@@ -1,4 +1,4 @@
-package com.ilynehdev.core.phloem
+package com.ilynehdev.core.phloem.pagefetcher
 
 data class FetchMetadata(
     val cursor: String?,        // next page to fetch; null once catalog fully crawled

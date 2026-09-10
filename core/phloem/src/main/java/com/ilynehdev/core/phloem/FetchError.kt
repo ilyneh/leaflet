@@ -5,10 +5,6 @@ import io.ktor.client.plugins.ServerResponseException
 import io.ktor.http.HttpStatusCode
 import java.io.IOException
 
-sealed class FetchResult {
-    data class Success(val hasMore: Boolean) : FetchResult()
-    data class Error(val error: FetchError, val cause: Throwable) : FetchResult()
-}
 
 sealed class FetchError {
     data object General : FetchError()

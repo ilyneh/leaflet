@@ -5,8 +5,8 @@ import androidx.room3.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ilynehdev.core.database.LeafletDatabase
-import com.ilynehdev.core.phloem.FetchMetadata
-import com.ilynehdev.core.phloem.PhloemModel
+import com.ilynehdev.core.phloem.pagefetcher.FetchMetadata
+import com.ilynehdev.core.phloem.pagefetcher.PhloemModel
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals

@@ -5,8 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.ilynehdev.data.plants.model.Plant
-import com.ilynehdev.data.plants.repository.PlantsRepository
+import com.ilynehdev.data.plants.repository.PagedPlantsRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -27,7 +26,7 @@ data class PlantsListUiData(
 )
 
 class PlantsListViewModel(
-    private val repository: PlantsRepository,
+    private val repository: PagedPlantsRepository,
 ) : ViewModel() {
 
     private val _query = MutableStateFlow("")

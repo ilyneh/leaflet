@@ -2,22 +2,22 @@ package com.ilynehdev.feature.plants.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ilynehdev.core.phloem.FetchError
+import com.ilynehdev.data.common.RefreshResult
 import com.ilynehdev.data.plants.model.Dimension
 import com.ilynehdev.data.plants.model.PlantDetails
 import com.ilynehdev.data.plants.repository.PlantsRepository
-import java.util.Locale
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 sealed interface LoadingStatus {
     data object Loading : LoadingStatus
     data object Done : LoadingStatus
-    data class Failed(val error: FetchError) : LoadingStatus
+    data object Failed : LoadingStatus
 }
 
 data class PlantDetailUiData(
@@ -42,13 +42,13 @@ data class PlantDetailUiState(
 
 class PlantDetailViewModel(
     private val plantId: Long,
-    private val repository: PlantsRepository,
+    private val plantsRepository: PlantsRepository,
 ) : ViewModel() {
 
     private val loadingStatus = MutableStateFlow<LoadingStatus>(LoadingStatus.Loading)
 
     val uiState: StateFlow<PlantDetailUiState> = combine(
-        repository.observePlant(plantId),
+        plantsRepository.observePlant(plantId),
         loadingStatus,
     ) { plant, status ->
         PlantDetailUiState(plant = plant?.toUiData(), loadingStatus = status)
@@ -64,12 +64,15 @@ class PlantDetailViewModel(
 
     fun onRetryClicked() = refresh()
 
-    private fun refresh() {
+    fun onPullToRefresh() = refresh(force = true)
+
+    private fun refresh(force: Boolean = false) {
         viewModelScope.launch {
             loadingStatus.value = LoadingStatus.Loading
-            loadingStatus.value = when (val error = repository.refreshPlantDetails(plantId)) {
-                null -> LoadingStatus.Done
-                else -> LoadingStatus.Failed(error)
+            loadingStatus.value = when (plantsRepository.refreshPlantDetails(plantId, force)) {
+                is RefreshResult.Refreshed,
+                is RefreshResult.AlreadyFresh -> LoadingStatus.Done
+                is RefreshResult.Failed -> LoadingStatus.Failed
             }
         }
     }

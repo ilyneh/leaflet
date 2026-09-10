@@ -11,10 +11,12 @@ import com.ilynehdev.core.network.plants.api.Page
 import com.ilynehdev.core.network.plants.api.PlantsApi
 import com.ilynehdev.core.network.plants.dto.PlantDto
 import com.ilynehdev.core.phloem.FetchError
-import com.ilynehdev.core.phloem.FetchMetadata
-import com.ilynehdev.core.phloem.FetchMetadataStore
-import com.ilynehdev.core.phloem.PhloemModel
-import java.io.IOException
+import com.ilynehdev.core.phloem.Freshness
+import com.ilynehdev.core.phloem.itemfetcher.PhloemItemFetcherImpl
+import com.ilynehdev.core.phloem.pagefetcher.FetchMetadata
+import com.ilynehdev.core.phloem.pagefetcher.FetchMetadataStore
+import com.ilynehdev.core.phloem.pagefetcher.PhloemModel
+import com.ilynehdev.data.common.RefreshResult
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -25,6 +27,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import java.io.IOException
+import kotlin.time.Duration.Companion.days
 
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [34])
@@ -71,8 +75,10 @@ class PlantsRepositoryTest {
     private lateinit var db: LeafletDatabase
     private val api = FakePlantsApi()
     private val store = FakeMetadataStore()
+    private val DETAILS_TTL = 7.days
     private var nowMillis = 1_000_000L
-    private lateinit var repo: PlantsRepository
+    private lateinit var repo: PagedPlantsRepository
+    private lateinit var detailRepo: PlantsRepository
 
     @Before
     fun setUp() {
@@ -80,12 +86,18 @@ class PlantsRepositoryTest {
         db = Room.inMemoryDatabaseBuilder(context, LeafletDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        repo = PlantsRepositoryImpl(
+        repo = PagedPlantsRepositoryImpl(
             dao = db.plantDao(),
             api = api,
             transactor = { it() },
             metadataStore = store,
             now = { nowMillis },
+        )
+        detailRepo = PlantsRepositoryImpl(
+            dao = db.plantDao(),
+            api = api,
+            fetcher = PhloemItemFetcherImpl(),
+            freshness = Freshness(ttl = DETAILS_TTL, now = { nowMillis }),
         )
     }
 
@@ -102,7 +114,7 @@ class PlantsRepositoryTest {
         api.pages[1] = Page(listOf(dto(7, "Monstera Deliciosa")), nextKey = null)
         repo.observePlants().asSnapshot()   // fills db through the mediator
 
-        val plant = repo.observePlant(7).first()
+        val plant = detailRepo.observePlant(7).first()
 
         assertEquals("Monstera Deliciosa", plant?.commonName)
         assertEquals(7L, plant?.id)
@@ -110,7 +122,7 @@ class PlantsRepositoryTest {
 
     @Test
     fun `observePlant emits null for missing row`() = runTest {
-        assertNull(repo.observePlant(99).first())
+        assertNull(detailRepo.observePlant(99).first())
     }
 
     // ---- observePlants (mediator path) ----
@@ -194,7 +206,7 @@ class PlantsRepositoryTest {
             items.map { it.commonName.orEmpty() }.sorted(),
         )
         // remote hit permanently enriched the catalog table
-        assertEquals("Monstera Remote", repo.observePlant(50).first()?.commonName)
+        assertEquals("Monstera Remote", detailRepo.observePlant(50).first()?.commonName)
     }
 
     @Test
@@ -209,9 +221,9 @@ class PlantsRepositoryTest {
     fun `refreshPlantDetails fetches, stores and stamps the row`() = runTest {
         api.details[7] = PlantDto(id = 7, commonName = "Monstera", description = "Big leaves")
 
-        val error = repo.refreshPlantDetails(7)
+        val result = detailRepo.refreshPlantDetails(7)
 
-        assertNull(error)
+        assertEquals(RefreshResult.Refreshed, result)
         val row = db.plantDao().getById(7)
         assertEquals("Big leaves", row?.description)
         assertEquals(nowMillis, row?.detailsSyncedAt)
@@ -220,22 +232,35 @@ class PlantsRepositoryTest {
     @Test
     fun `refreshPlantDetails skips network while row is fresh`() = runTest {
         api.details[7] = PlantDto(id = 7, commonName = "Monstera")
-        repo.refreshPlantDetails(7)
+        detailRepo.refreshPlantDetails(7)
 
         nowMillis += 1_000  // well inside the TTL
-        val error = repo.refreshPlantDetails(7)
+        val result = detailRepo.refreshPlantDetails(7)
 
-        assertNull(error)
+        assertEquals(RefreshResult.AlreadyFresh, result)
         assertEquals(listOf(7L), api.requestedDetailIds)  // fetched exactly once
+    }
+
+    @Test
+    fun `forced refresh bypasses ttl and refetches a fresh row`() = runTest {
+        api.details[7] = PlantDto(id = 7, commonName = "Monstera")
+        detailRepo.refreshPlantDetails(7)
+
+        nowMillis += 1_000  // still fresh
+        val result = detailRepo.refreshPlantDetails(7, force = true)
+
+        assertEquals(RefreshResult.Refreshed, result)
+        assertEquals(listOf(7L, 7L), api.requestedDetailIds)
+        assertEquals(nowMillis, db.plantDao().getById(7)?.detailsSyncedAt)
     }
 
     @Test
     fun `refreshPlantDetails refetches after ttl expires`() = runTest {
         api.details[7] = PlantDto(id = 7, commonName = "Monstera")
-        repo.refreshPlantDetails(7)
+        detailRepo.refreshPlantDetails(7)
 
-        nowMillis += PlantsRepositoryImpl.DETAILS_TTL.inWholeMilliseconds + 1
-        repo.refreshPlantDetails(7)
+        nowMillis += DETAILS_TTL.inWholeMilliseconds + 1
+        detailRepo.refreshPlantDetails(7)
 
         assertEquals(listOf(7L, 7L), api.requestedDetailIds)
         assertEquals(nowMillis, db.plantDao().getById(7)?.detailsSyncedAt)
@@ -244,21 +269,21 @@ class PlantsRepositoryTest {
     @Test
     fun `refreshPlantDetails classifies failure and keeps cached row`() = runTest {
         api.details[7] = PlantDto(id = 7, commonName = "Monstera", description = "Big leaves")
-        repo.refreshPlantDetails(7)
+        detailRepo.refreshPlantDetails(7)
 
-        nowMillis += PlantsRepositoryImpl.DETAILS_TTL.inWholeMilliseconds + 1
+        nowMillis += DETAILS_TTL.inWholeMilliseconds + 1
         api.failWith = IOException("offline")
 
-        val error = repo.refreshPlantDetails(7)
+        val result = detailRepo.refreshPlantDetails(7)
 
-        assertEquals(FetchError.Offline, error)
+        assertEquals(RefreshResult.Failed(FetchError.Offline), result)
         assertEquals("Big leaves", db.plantDao().getById(7)?.description)
     }
 
     @Test
     fun `list crawl does not clobber a detail-synced row`() = runTest {
         api.details[1] = PlantDto(id = 1, commonName = "Aloe", description = "Succulent")
-        repo.refreshPlantDetails(1)
+        detailRepo.refreshPlantDetails(1)
 
         // Catalog crawl returns the same plant as a sparse list row.
         api.pages[1] = Page(listOf(dto(1, "Aloe")), nextKey = null)

@@ -6,12 +6,12 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import com.ilynehdev.core.database.projections.PlantSummaryRow
 import com.ilynehdev.core.network.plants.dto.PlantDto
-import com.ilynehdev.core.phloem.FetchResult
-import com.ilynehdev.core.phloem.PhloemFetcher
+import com.ilynehdev.core.phloem.pagefetcher.FetchResult
+import com.ilynehdev.core.phloem.pagefetcher.PhloemPageFetcher
 
 @OptIn(ExperimentalPagingApi::class)
-internal class PlantsRemoteMediator(
-    private val fetcher: PhloemFetcher<PlantDto>,
+internal class PagedPlantsRemoteMediator(
+    private val fetcher: PhloemPageFetcher<PlantDto>,
 ) : RemoteMediator<Int, PlantSummaryRow>() {
 
     override suspend fun initialize(): InitializeAction =

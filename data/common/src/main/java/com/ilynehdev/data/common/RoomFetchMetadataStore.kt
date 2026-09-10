@@ -2,9 +2,9 @@ package com.ilynehdev.data.common
 
 import com.ilynehdev.core.database.dao.FetchMetadataDao
 import com.ilynehdev.core.database.entities.FetchMetadataEntity
-import com.ilynehdev.core.phloem.FetchMetadata
-import com.ilynehdev.core.phloem.FetchMetadataStore
-import com.ilynehdev.core.phloem.PhloemModel
+import com.ilynehdev.core.phloem.pagefetcher.FetchMetadata
+import com.ilynehdev.core.phloem.pagefetcher.FetchMetadataStore
+import com.ilynehdev.core.phloem.pagefetcher.PhloemModel
 
 class RoomFetchMetadataStore(private val dao: FetchMetadataDao) : FetchMetadataStore {
 

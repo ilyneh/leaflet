@@ -1,26 +1,27 @@
-package com.ilynehdev.core.phloem
+package com.ilynehdev.core.phloem.pagefetcher
 
+import com.ilynehdev.core.phloem.FetchError
+import com.ilynehdev.core.phloem.Freshness
+import com.ilynehdev.core.phloem.toFetchError
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.time.Duration
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-interface PhloemFetcher<Dto> {
+interface PhloemPageFetcher<Dto> {
     suspend fun pullNextPage(): FetchResult
 
     /** True when the last complete pull finished within the TTL. */
     suspend fun isFresh(): Boolean
 }
 
-class PhloemFetcherImpl<Dto>(
+class PhloemPageFetcherImpl<Dto>(
     private val model: PhloemModel,
-    private val ttl: Duration,
+    private val freshness: Freshness,
     private val transactor: Transactor,
     private val fetchMetadataStore: FetchMetadataStore,
     private val fetchPage: suspend (cursor: String?) -> FetchPage<Dto>,
     private val persistPage: suspend (items: List<Dto>) -> Unit,
-    private val now: () -> Long = System::currentTimeMillis,
-) : PhloemFetcher<Dto> {
+) : PhloemPageFetcher<Dto> {
 
     private val mutex = Mutex()
 
@@ -42,7 +43,7 @@ class PhloemFetcherImpl<Dto>(
                     model = model,
                     metadata = FetchMetadata(
                         cursor = page.nextCursor,
-                        completedAt = if (page.nextCursor == null) now() else null,
+                        completedAt = if (page.nextCursor == null) freshness.newTimestamp() else null,
                     ),
                 )
             }
@@ -56,8 +57,7 @@ class PhloemFetcherImpl<Dto>(
     }
 
     override suspend fun isFresh(): Boolean {
-        val completedAt = fetchMetadataStore.get(model)?.completedAt ?: return false
-        return now() - completedAt < ttl.inWholeMilliseconds
+        return freshness.isFresh(fetchMetadataStore.get(model)?.completedAt)
     }
 }
 

@@ -8,9 +8,9 @@ android {
 
 dependencies {
     api(projects.core.phloem)
+    api(projects.data.common)
     implementation(projects.core.database)
     implementation(projects.core.network.plants)
-    implementation(projects.data.common)
 
     implementation(libs.koin.core)
     implementation(libs.androidx.room.paging)

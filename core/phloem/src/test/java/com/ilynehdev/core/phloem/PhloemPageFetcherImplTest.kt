@@ -1,12 +1,16 @@
 package com.ilynehdev.core.phloem
 
+import com.ilynehdev.core.phloem.pagefetcher.FetchMetadata
+import com.ilynehdev.core.phloem.pagefetcher.FetchMetadataStore
+import com.ilynehdev.core.phloem.pagefetcher.FetchPage
+import com.ilynehdev.core.phloem.pagefetcher.FetchResult
+import com.ilynehdev.core.phloem.pagefetcher.PhloemModel
+import com.ilynehdev.core.phloem.pagefetcher.PhloemPageFetcherImpl
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respondError
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
-import java.io.IOException
-import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -15,8 +19,10 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.IOException
+import kotlin.time.Duration.Companion.hours
 
-class PhloemFetcherImplTest {
+class PhloemPageFetcherImplTest {
 
     private class FakeMetadataStore : FetchMetadataStore {
         val map = mutableMapOf<PhloemModel, FetchMetadata>()
@@ -36,9 +42,12 @@ class PhloemFetcherImplTest {
         pages: Map<String?, FetchPage<String>> = emptyMap(),
         fetchPage: (suspend (String?) -> FetchPage<String>)? = null,
         persistPage: (suspend (List<String>) -> Unit)? = null,
-    ) = PhloemFetcherImpl(
+    ) = PhloemPageFetcherImpl(
         model = PhloemModel.PlantCatalog,
-        ttl = 24.hours,
+        freshness = Freshness(
+            ttl = 24.hours,
+            now = { currentTime },
+        ),
         transactor = { it() },
         fetchMetadataStore = store,
         fetchPage = fetchPage ?: { cursor ->
@@ -46,7 +55,6 @@ class PhloemFetcherImplTest {
             pages.getValue(cursor)
         },
         persistPage = persistPage ?: { items -> persisted += items },
-        now = { currentTime },
     )
 
     // ---- crawl progression ----
@@ -166,7 +174,8 @@ class PhloemFetcherImplTest {
 
     @Test
     fun `isFresh true within ttl and false after`() = runTest {
-        store.map[PhloemModel.PlantCatalog] = FetchMetadata(cursor = null, completedAt = currentTime)
+        store.map[PhloemModel.PlantCatalog] =
+            FetchMetadata(cursor = null, completedAt = currentTime)
 
         currentTime += 23.hours.inWholeMilliseconds
         assertTrue(fetcher().isFresh())
