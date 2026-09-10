@@ -24,6 +24,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.paging.common)
     implementation(libs.androidx.paging.compose)
