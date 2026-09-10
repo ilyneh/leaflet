@@ -23,4 +23,5 @@ val databaseModule = module {
 
     single { get<LeafletDatabase>().plantDao() }
     single { get<LeafletDatabase>().plantDiseaseDao() }
+    single { get<LeafletDatabase>().savedPlantDao() }
 }

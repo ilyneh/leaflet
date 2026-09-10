@@ -32,9 +32,11 @@ val dataPlantsModule = module {
     single<PlantsRepository> {
         PlantsRepositoryImpl(
             dao = get(),
+            savedDao = get(),
             api = get(),
             fetcher = PhloemItemFetcherImpl(),
             freshness = Freshness(ttl = PLANT_DETAILS_TTL),
+            now = System::currentTimeMillis
         )
     }
 }

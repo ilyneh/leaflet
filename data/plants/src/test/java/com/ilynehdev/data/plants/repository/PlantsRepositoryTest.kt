@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -95,9 +96,11 @@ class PlantsRepositoryTest {
         )
         detailRepo = PlantsRepositoryImpl(
             dao = db.plantDao(),
+            savedDao = db.savedPlantDao(),
             api = api,
             fetcher = PhloemItemFetcherImpl(),
             freshness = Freshness(ttl = DETAILS_TTL, now = { nowMillis }),
+            now = { nowMillis },
         )
     }
 
@@ -278,6 +281,65 @@ class PlantsRepositoryTest {
 
         assertEquals(RefreshResult.Failed(FetchError.Offline), result)
         assertEquals("Big leaves", db.plantDao().getById(7)?.description)
+    }
+
+    // ---- saved plants ----
+    @Test
+    fun `updateSavedPlant round-trips through observeIsSaved`() = runTest {
+        api.pages[1] = Page(listOf(dto(1, "Aloe")), nextKey = null)
+        repo.observePlants().asSnapshot()   // seed catalog row for the FK
+
+        assertFalse(detailRepo.observeIsSaved(1).first())
+
+        detailRepo.updateSavedPlant(1, saved = true)
+        assertTrue(detailRepo.observeIsSaved(1).first())
+
+        detailRepo.updateSavedPlant(1, saved = false)
+        assertFalse(detailRepo.observeIsSaved(1).first())
+    }
+
+    @Test
+    fun `updateSavedPlant is idempotent and refreshes savedAt`() = runTest {
+        api.pages[1] = Page(listOf(dto(1, "Aloe")), nextKey = null)
+        repo.observePlants().asSnapshot()
+
+        detailRepo.updateSavedPlant(1, saved = true)
+        nowMillis += 5_000
+        detailRepo.updateSavedPlant(1, saved = true)
+
+        val saved = detailRepo.observeSavedPlants().first()
+        assertEquals(1, saved.size)
+        assertEquals(nowMillis, saved.single().savedAt)
+    }
+
+    @Test
+    fun `unsaving a plant that is not saved is a no-op`() = runTest {
+        api.pages[1] = Page(listOf(dto(1, "Aloe")), nextKey = null)
+        repo.observePlants().asSnapshot()
+
+        detailRepo.updateSavedPlant(1, saved = false)
+
+        assertTrue(detailRepo.observeSavedPlants().first().isEmpty())
+    }
+
+    @Test
+    fun `observeSavedPlants maps plant fields and orders by most recently saved`() = runTest {
+        api.pages[1] = Page(
+            listOf(dto(1, "Aloe"), dto(2, "Basil"), dto(3, "Cactus")),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+
+        detailRepo.updateSavedPlant(1, saved = true)
+        nowMillis += 1_000
+        detailRepo.updateSavedPlant(3, saved = true)
+
+        val saved = detailRepo.observeSavedPlants().first()
+
+        assertEquals(listOf(3L, 1L), saved.map { it.id })  // newest first
+        val aloe = saved.single { it.id == 1L }
+        assertEquals("Aloe", aloe.commonName)
+        assertEquals(nowMillis - 1_000, aloe.savedAt)
     }
 
     @Test
