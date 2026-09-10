@@ -15,7 +15,10 @@ import com.ilynehdev.core.network.plants.dto.PlantHardinessDto
 import com.ilynehdev.core.network.plants.dto.PlantImageDto
 import com.ilynehdev.core.network.plants.dto.PlantPruningCountDto
 import com.ilynehdev.core.network.plants.dto.PlantWateringGeneralBenchmarkDto
+import com.ilynehdev.data.plants.model.Dimension
 import com.ilynehdev.data.plants.model.Plant
+import com.ilynehdev.data.plants.model.PlantDetails
+import com.ilynehdev.data.plants.model.WateringBenchmark
 
 internal fun PlantDto.toEntity() = PlantEntity(
     id = id,
@@ -86,7 +89,8 @@ private fun PlantHardinessDto.toColumn() = HardinessColumn(
 )
 
 private fun PlantWateringGeneralBenchmarkDto.toColumn() = WateringBenchmarkColumn(
-    value = value,
+    // some watering frequency values return wrapped in "", remove them before storing in db
+    value = value?.trim('"'),
     unit = unit,
 )
 
@@ -118,4 +122,32 @@ internal fun PlantEntity.toPlant() = Plant(
     watering = watering,
     sunlight = sunlight,
     thumbnail = defaultImage?.thumbnail
+)
+
+internal fun PlantEntity.toPlantDetails() = PlantDetails(
+    id = id,
+    commonName = commonName,
+    scientificName = scientificName,
+    description = description,
+    imageUrl = defaultImage?.regularUrl
+        ?: defaultImage?.originalUrl
+        ?: defaultImage?.thumbnail,
+    watering = watering,
+    wateringBenchmark = wateringBenchmark?.let {
+        WateringBenchmark(value = it.value, unit = it.unit)
+    },
+    sunlight = sunlight,
+    careLevel = careLevel,
+    cycle = cycle,
+    poisonousToHumans = poisonousToHumans,
+    poisonousToPets = poisonousToPets,
+    dimensions = dimensions?.map {
+        Dimension(
+            type = it.type,
+            minValue = it.minValue,
+            maxValue = it.maxValue,
+            unit = it.unit,
+        )
+    },
+    indoor = indoor,
 )

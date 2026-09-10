@@ -7,9 +7,9 @@ android {
 }
 
 dependencies {
+    api(projects.core.phloem)
     implementation(projects.core.database)
     implementation(projects.core.network.plants)
-    api(projects.core.phloem)
     implementation(projects.data.common)
 
     implementation(libs.koin.core)

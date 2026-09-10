@@ -17,7 +17,9 @@ import com.ilynehdev.core.phloem.Transactor
 import com.ilynehdev.core.phloem.toFetchError
 import com.ilynehdev.data.plants.mapper.toEntity
 import com.ilynehdev.data.plants.mapper.toPlant
+import com.ilynehdev.data.plants.mapper.toPlantDetails
 import com.ilynehdev.data.plants.model.Plant
+import com.ilynehdev.data.plants.model.PlantDetails
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -28,7 +30,7 @@ import kotlin.time.Duration.Companion.hours
 
 interface PlantsRepository {
 
-    fun observePlant(plantId: Long): Flow<Plant?>
+    fun observePlant(plantId: Long): Flow<PlantDetails?>
 
     fun observePlants(): Flow<PagingData<Plant>>
 
@@ -75,8 +77,8 @@ class PlantsRepositoryImpl(
         dao.upsertPlants(entities.filterNot { it.id in protected })
     }
 
-    override fun observePlant(plantId: Long): Flow<Plant?> =
-        dao.observePlant(plantId).map { it?.toPlant() }
+    override fun observePlant(plantId: Long): Flow<PlantDetails?> =
+        dao.observePlant(plantId).map { it?.toPlantDetails() }
 
     override suspend fun refreshPlantDetails(plantId: Long): FetchError? {
         val syncedAt = dao.getById(plantId)?.detailsSyncedAt

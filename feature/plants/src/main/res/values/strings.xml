@@ -6,4 +6,14 @@
     <string name="back">Back</string>
     <string name="plant_detail_load_failed">Couldn\'t load this plant</string>
     <string name="retry">Retry</string>
+    <string name="trait_light">Light</string>
+    <string name="trait_water">Water</string>
+    <string name="trait_pets">Pets</string>
+    <string name="trait_toxic">Toxic</string>
+    <string name="trait_safe">Safe</string>
+    <string name="mature_size">Mature size</string>
+    <string name="care_level">Care level</string>
+    <string name="toxicity_notice_pets_and_humans">Toxic to pets and people if eaten. Keep out of reach and wash hands after pruning.</string>
+    <string name="toxicity_notice_pets">Toxic to pets if eaten. Keep away from furry loved ones.</string>
+    <string name="toxicity_notice_humans">Toxic to people if eaten. Keep out of reach of children and wash hands after pruning.</string>
 </resources>
