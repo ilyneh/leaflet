@@ -9,16 +9,19 @@ import com.ilynehdev.core.database.converters.PlantConverters
 import com.ilynehdev.core.database.dao.FetchMetadataDao
 import com.ilynehdev.core.database.dao.PlantsDao
 import com.ilynehdev.core.database.dao.PlantDiseasesDao
+import com.ilynehdev.core.database.dao.SavedPlantsDao
 import com.ilynehdev.core.database.entities.FetchMetadataEntity
 import com.ilynehdev.core.database.entities.PlantDiseaseEntity
 import com.ilynehdev.core.database.entities.PlantEntity
+import com.ilynehdev.core.database.entities.SavedPlantEntity
 
 @Database(
     entities = [
         PlantEntity::class,
         PlantDiseaseEntity::class,
-        FetchMetadataEntity::class],
-    version = 3
+        FetchMetadataEntity::class,
+        SavedPlantEntity::class],
+    version = 4
 )
 @ColumnTypeConverters(PlantConverters::class)
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
@@ -26,4 +29,5 @@ abstract class LeafletDatabase : RoomDatabase() {
     abstract fun plantDao(): PlantsDao
     abstract fun plantDiseaseDao(): PlantDiseasesDao
     abstract fun fetchMetadataDao(): FetchMetadataDao
+    abstract fun savedPlantDao(): SavedPlantsDao
 }

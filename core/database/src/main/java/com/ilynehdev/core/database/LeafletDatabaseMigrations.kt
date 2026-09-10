@@ -18,3 +18,19 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
         connection.execSQL("UPDATE plants SET pruning_count = NULL")
     }
 }
+
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override suspend fun migrate(connection: SQLiteConnection) {
+        connection.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `saved_plants` (
+                `plant_id` INTEGER NOT NULL,
+                `saved_at` INTEGER NOT NULL,
+                PRIMARY KEY(`plant_id`),
+                FOREIGN KEY(`plant_id`) REFERENCES `plants`(`id`)
+                    ON UPDATE NO ACTION ON DELETE NO ACTION
+            )
+            """.trimIndent()
+        )
+    }
+}
