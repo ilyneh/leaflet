@@ -16,6 +16,7 @@ data class PlantFilters(
     val isEmpty: Boolean
         get() = activeCount == 0
 
+    // Counts active traits, not individual selections within them.
     val activeCount: Int
-        get() = light.size + watering.size + safety.size + careLevel.size + matureSize.size
+        get() = listOf(light, watering, safety, careLevel, matureSize).count { it.isNotEmpty() }
 }

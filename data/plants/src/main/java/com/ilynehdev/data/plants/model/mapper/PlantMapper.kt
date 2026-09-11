@@ -121,7 +121,21 @@ internal fun PlantEntity.toPlant() = Plant(
     scientificName = scientificName,
     watering = watering,
     sunlight = sunlight,
-    thumbnail = defaultImage?.thumbnail
+    thumbnail = defaultImage?.thumbnail,
+    wateringBenchmark = wateringBenchmark?.let {
+        WateringBenchmark(value = it.value, unit = it.unit)
+    },
+    careLevel = careLevel,
+    poisonousToHumans = poisonousToHumans,
+    poisonousToPets = poisonousToPets,
+    dimensions = dimensions?.map {
+        Dimension(
+            type = it.type,
+            minValue = it.minValue,
+            maxValue = it.maxValue,
+            unit = it.unit,
+        )
+    },
 )
 
 internal fun PlantEntity.toPlantDetails() = PlantDetails(

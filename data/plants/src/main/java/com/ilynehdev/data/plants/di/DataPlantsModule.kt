@@ -9,6 +9,8 @@ import com.ilynehdev.data.plants.repository.PagedPlantsRepository
 import com.ilynehdev.data.plants.repository.PagedPlantsRepositoryImpl
 import com.ilynehdev.data.plants.repository.PlantsRepository
 import com.ilynehdev.data.plants.repository.PlantsRepositoryImpl
+import com.ilynehdev.data.plants.usecase.ObserveFilteredPlantsUseCase
+import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 import kotlin.time.Duration.Companion.days
 
@@ -28,6 +30,8 @@ val dataPlantsModule = module {
             metadataStore = get()
         )
     }
+
+    factoryOf(::ObserveFilteredPlantsUseCase)
 
     val clock: () -> Long = System::currentTimeMillis
     single<PlantsRepository> {

@@ -14,6 +14,7 @@ import com.ilynehdev.core.phloem.pagefetcher.FetchPage
 import com.ilynehdev.core.phloem.pagefetcher.PhloemModel
 import com.ilynehdev.core.phloem.pagefetcher.PhloemPageFetcherImpl
 import com.ilynehdev.core.phloem.Transactor
+import com.ilynehdev.data.plants.filters.FilterQueryParams
 import com.ilynehdev.data.plants.model.mapper.toEntity
 import com.ilynehdev.data.plants.model.mapper.toPlant
 import com.ilynehdev.data.plants.model.Plant
@@ -28,6 +29,12 @@ interface PagedPlantsRepository {
     fun observePlants(): Flow<PagingData<Plant>>
 
     fun searchPlant(name: String): Flow<PagingData<Plant>>
+
+    fun observeFilteredPlants(
+        query: String,
+        savedOnly: Boolean,
+        searchParams: FilterQueryParams,
+    ): Flow<List<Plant>>
 }
 
 class PagedPlantsRepositoryImpl(
@@ -58,6 +65,21 @@ class PagedPlantsRepositoryImpl(
         }
     )
 
+    // One successful remote fetch per (query, params) per process, LRU-capped:
+    // filter toggles and resubscribes re-create the flow, and the rows they
+    // need are already upserted. Failures are not recorded, so going back
+    // online retries. Access-ordered map keeps recently repeated searches
+    // deduped while old ones age out and become refetchable.
+    private val completedSearches = object : LinkedHashMap<Pair<String, FilterQueryParams>, Unit>(
+        16,
+        0.75f,
+        true
+    ) {
+        override fun removeEldestEntry(
+            eldest: MutableMap.MutableEntry<Pair<String, FilterQueryParams>, Unit>,
+        ) = size > MAX_COMPLETED_SEARCHES
+    }
+
     // List responses are sparse; upserting one over a detail-synced row would
     // null out the fetched details, so those rows are skipped.
     private suspend fun upsertListRows(items: List<PlantDto>) {
@@ -81,25 +103,65 @@ class PagedPlantsRepositoryImpl(
     // table, which invalidates the PagingSource and re-emits with remote hits.
     // Remote failure (offline) is swallowed — local results stand alone.
     override fun searchPlant(name: String): Flow<PagingData<Plant>> = channelFlow {
-        launch {
-            try {
-                val page = api.getPlants(page = 1, query = name)
-                upsertListRows(page.items)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (_: Exception) {
-            }
-        }
+        launch { fetchSearchPage(name) }
 
         Pager(
             config = PagingConfig(pageSize = NETWORK_PAGE_SIZE, enablePlaceholders = false),
-            pagingSourceFactory = { dao.searchSummaries(name) }
+            pagingSourceFactory = { dao.searchSummaries(escapeLike(name)) }
         ).flow
             .map { pagingData -> pagingData.map { it.toPlant() } }
             .collect { send(it) }
     }
 
+    // Same local-first merge as searchPlant, over a plain list: SQL narrows by
+    // query and saved membership; the in-memory filter predicates live in
+    // ObserveFilteredPlantsUseCase. Server params only pre-narrow the fetch.
+    override fun observeFilteredPlants(
+        query: String,
+        savedOnly: Boolean,
+        searchParams: FilterQueryParams,
+    ): Flow<List<Plant>> = channelFlow {
+        if (query.isNotBlank()) {
+            launch { fetchSearchPage(query, searchParams) }
+        }
+
+        dao.observePlantsFiltered(escapeLike(query.trim()), savedOnly)
+            .map { entities -> entities.map { it.toPlant() } }
+            .collect { send(it) }
+    }
+
+    private suspend fun fetchSearchPage(
+        query: String,
+        params: FilterQueryParams = FilterQueryParams(),
+    ) {
+        val key = query to params
+        synchronized(completedSearches) {
+            if (completedSearches.containsKey(key)) return
+        }
+
+        try {
+            val page = api.getPlants(
+                page = 1,
+                query = query,
+                sunlight = params.sunlight,
+                watering = params.watering,
+                poisonous = params.poisonous,
+            )
+            upsertListRows(page.items)
+            synchronized(completedSearches) { completedSearches[key] = Unit }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun escapeLike(query: String): String = query
+        .replace("\\", "\\\\")
+        .replace("%", "\\%")
+        .replace("_", "\\_")
+
     companion object {
         const val NETWORK_PAGE_SIZE = 30
+        private const val MAX_COMPLETED_SEARCHES = 50
     }
 }

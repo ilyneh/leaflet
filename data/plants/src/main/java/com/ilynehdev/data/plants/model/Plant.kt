@@ -7,4 +7,10 @@ data class Plant(
     val watering: String?,
     val sunlight: List<String>?,
     val thumbnail: String?,
+    // Filter inputs; null on rows built from the sparse summary projection.
+    val wateringBenchmark: WateringBenchmark? = null,
+    val careLevel: String? = null,
+    val poisonousToHumans: Boolean? = null,
+    val poisonousToPets: Boolean? = null,
+    val dimensions: List<Dimension>? = null,
 )

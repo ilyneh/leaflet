@@ -17,6 +17,9 @@ import com.ilynehdev.core.phloem.pagefetcher.FetchMetadata
 import com.ilynehdev.core.phloem.pagefetcher.FetchMetadataStore
 import com.ilynehdev.core.phloem.pagefetcher.PhloemModel
 import com.ilynehdev.data.common.RefreshResult
+import com.ilynehdev.data.plants.filters.LightFilter
+import com.ilynehdev.data.plants.filters.PlantFilters
+import com.ilynehdev.data.plants.usecase.ObserveFilteredPlantsUseCase
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -42,12 +45,21 @@ class PlantsRepositoryTest {
         var failOnPage: Int? = null
         val requestedQueries = mutableListOf<String?>()
         val requestedPages = mutableListOf<Int>()
+        val requestedFilterParams = mutableListOf<Triple<String?, String?, Boolean?>>()
 
-        override suspend fun getPlants(page: Int, query: String?): Page<PlantDto> {
+        override suspend fun getPlants(
+            page: Int,
+            query: String?,
+            sunlight: String?,
+            watering: String?,
+            poisonous: Boolean?,
+            indoor: Boolean?,
+        ): Page<PlantDto> {
             failWith?.let { throw it }
             if (page == failOnPage) throw IOException("interrupted at page $page")
             requestedQueries += query
             requestedPages += page
+            requestedFilterParams += Triple(sunlight, watering, poisonous)
             return if (query == null) {
                 pages[page] ?: Page(emptyList(), nextKey = null)
             } else {
@@ -80,6 +92,7 @@ class PlantsRepositoryTest {
     private var nowMillis = 1_000_000L
     private lateinit var repo: PagedPlantsRepository
     private lateinit var detailRepo: PlantsRepository
+    private lateinit var observeFilteredPlants: ObserveFilteredPlantsUseCase
 
     @Before
     fun setUp() {
@@ -102,6 +115,7 @@ class PlantsRepositoryTest {
             freshness = Freshness(ttl = DETAILS_TTL, now = { nowMillis }),
             now = { nowMillis },
         )
+        observeFilteredPlants = ObserveFilteredPlantsUseCase(repo)
     }
 
     @After
@@ -109,7 +123,17 @@ class PlantsRepositoryTest {
         db.close()
     }
 
-    private fun dto(id: Long, commonName: String) = PlantDto(id = id, commonName = commonName)
+    private fun dto(
+        id: Long,
+        commonName: String,
+        sunlight: List<String>? = null,
+        poisonousToPets: Boolean? = null,
+    ) = PlantDto(
+        id = id,
+        commonName = commonName,
+        sunlight = sunlight,
+        poisonousToPets = poisonousToPets,
+    )
 
     // ---- observePlant ----
     @Test
@@ -340,6 +364,186 @@ class PlantsRepositoryTest {
         val aloe = saved.single { it.id == 1L }
         assertEquals("Aloe", aloe.commonName)
         assertEquals(nowMillis - 1_000, aloe.savedAt)
+    }
+
+    // ---- observeFilteredPlants ----
+    @Test
+    fun `filtered query narrows locally and passes filter params to api`() = runTest {
+        api.pages[1] = Page(
+            listOf(
+                dto(1, "Aloe", sunlight = listOf("full sun")),
+                dto(2, "Basil", sunlight = listOf("full shade")),
+            ),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+
+        val filters = PlantFilters(light = setOf(LightFilter.DirectSun))
+        val items = observeFilteredPlants("a", savedOnly = false, filters = filters).first()
+
+        assertEquals(listOf("Aloe"), items.map { it.commonName })
+        assertTrue("a" in api.requestedQueries)
+        assertTrue(Triple("full_sun", null, null) in api.requestedFilterParams)
+    }
+
+    @Test
+    fun `filters-only browsing makes no network call`() = runTest {
+        api.pages[1] = Page(
+            listOf(
+                dto(1, "Aloe", sunlight = listOf("full sun")),
+                dto(2, "Basil", sunlight = listOf("full shade")),
+            ),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+        api.requestedQueries.clear()
+
+        val filters = PlantFilters(light = setOf(LightFilter.LowLight))
+        val items = observeFilteredPlants("", savedOnly = false, filters = filters).first()
+
+        assertEquals(listOf("Basil"), items.map { it.commonName })
+        assertTrue(api.requestedQueries.isEmpty())
+    }
+
+    @Test
+    fun `savedOnly narrows to saved rows ordered newest first`() = runTest {
+        api.pages[1] = Page(
+            listOf(dto(1, "Aloe"), dto(2, "Basil"), dto(3, "Cactus")),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+        detailRepo.updateSavedPlant(1, saved = true)
+        nowMillis += 1_000
+        detailRepo.updateSavedPlant(3, saved = true)
+
+        val items = observeFilteredPlants("", savedOnly = true, filters = PlantFilters())
+            .first()
+
+        assertEquals(listOf(3L, 1L), items.map { it.id })
+    }
+
+    @Test
+    fun `query savedOnly and filter compose`() = runTest {
+        api.pages[1] = Page(
+            listOf(
+                dto(1, "Aloe", sunlight = listOf("full sun")),
+                dto(2, "Basil", sunlight = listOf("full shade")),
+                dto(3, "Cactus", sunlight = listOf("full sun")),
+            ),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+        detailRepo.updateSavedPlant(1, saved = true)
+        detailRepo.updateSavedPlant(2, saved = true)
+
+        val filters = PlantFilters(light = setOf(LightFilter.DirectSun))
+        val items = observeFilteredPlants("a", savedOnly = true, filters = filters).first()
+
+        // Cactus matches query+filter but is not saved; Basil is saved but wrong light.
+        assertEquals(listOf("Aloe"), items.map { it.commonName })
+    }
+
+    @Test
+    fun `active filter excludes rows with unknown data`() = runTest {
+        api.pages[1] = Page(
+            listOf(
+                dto(1, "Aloe", sunlight = listOf("full sun")),
+                dto(2, "Mystery"),   // sunlight null
+            ),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+
+        val filters = PlantFilters(light = setOf(LightFilter.DirectSun))
+        val items = observeFilteredPlants("", savedOnly = false, filters = filters).first()
+
+        assertEquals(listOf("Aloe"), items.map { it.commonName })
+    }
+
+    @Test
+    fun `empty filters return everything the sql matched`() = runTest {
+        api.pages[1] = Page(
+            listOf(dto(1, "Aloe"), dto(2, "Mystery")),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+
+        val items = observeFilteredPlants("", savedOnly = false, filters = PlantFilters())
+            .first()
+
+        assertEquals(2, items.size)
+    }
+
+    @Test
+    fun `like wildcards in query are escaped`() = runTest {
+        api.pages[1] = Page(
+            listOf(dto(1, "Aloe"), dto(2, "50% Cactus")),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+
+        val items = observeFilteredPlants("%", savedOnly = false, filters = PlantFilters())
+            .first()
+
+        assertEquals(listOf("50% Cactus"), items.map { it.commonName })
+    }
+
+    @Test
+    fun `searchPlant escapes like wildcards`() = runTest {
+        api.pages[1] = Page(
+            listOf(dto(1, "Aloe"), dto(2, "50% Cactus")),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+
+        val items = repo.searchPlant("%").asSnapshot()
+
+        assertEquals(listOf("50% Cactus"), items.map { it.commonName })
+    }
+
+    @Test
+    fun `repeated collection of the same search fetches remote once`() = runTest {
+        api.searchResults["fern"] = Page(listOf(dto(9, "Fern")), nextKey = null)
+
+        observeFilteredPlants("fern", savedOnly = false, filters = PlantFilters()).first()
+        observeFilteredPlants("fern", savedOnly = false, filters = PlantFilters()).first()
+
+        assertEquals(listOf("fern"), api.requestedQueries.filterNotNull())
+    }
+
+    @Test
+    fun `failed search fetch retries on next collection`() = runTest {
+        api.failWith = IOException("offline")
+        observeFilteredPlants("fern", savedOnly = false, filters = PlantFilters()).first()
+
+        api.failWith = null
+        api.searchResults["fern"] = Page(listOf(dto(9, "Fern")), nextKey = null)
+        val items = observeFilteredPlants("fern", savedOnly = false, filters = PlantFilters())
+            .first { it.isNotEmpty() }
+
+        assertEquals(listOf("Fern"), items.map { it.commonName })
+    }
+
+    @Test
+    fun `remote search hits merge into filtered results`() = runTest {
+        api.pages[1] = Page(
+            listOf(dto(1, "Monstera Local", sunlight = listOf("full sun"))),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+        api.searchResults["monstera"] = Page(
+            listOf(dto(50, "Monstera Remote", sunlight = listOf("full sun"))),
+            nextKey = null,
+        )
+
+        val filters = PlantFilters(light = setOf(LightFilter.DirectSun))
+        val items = observeFilteredPlants("monstera", savedOnly = false, filters = filters)
+            .first { plants -> plants.any { it.id == 50L } }
+
+        assertEquals(
+            listOf("Monstera Local", "Monstera Remote"),
+            items.map { it.commonName.orEmpty() }.sorted(),
+        )
     }
 
     @Test

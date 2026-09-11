@@ -53,10 +53,26 @@ interface PlantsDao {
         """
         SELECT id, common_name, scientific_name, watering, sunlight, image_thumbnail
         FROM plants
-        WHERE common_name LIKE '%' || :query || '%'
-           OR scientific_name LIKE '%' || :query || '%'
+        WHERE common_name LIKE '%' || :query || '%' ESCAPE '\'
+           OR scientific_name LIKE '%' || :query || '%' ESCAPE '\'
         ORDER BY common_name
         """
     )
     fun searchSummaries(query: String): PagingSource<Int, PlantSummaryRow>
+
+    // Full entities: filter predicates need columns the summary projection drops.
+    @Query(
+        """
+        SELECT plants.* FROM plants
+        LEFT JOIN saved_plants ON saved_plants.plant_id = plants.id
+        WHERE (:query = ''
+               OR common_name LIKE '%' || :query || '%' ESCAPE '\'
+               OR scientific_name LIKE '%' || :query || '%' ESCAPE '\')
+          AND (:savedOnly = 0 OR saved_plants.plant_id IS NOT NULL)
+        ORDER BY
+          CASE WHEN :savedOnly = 1 THEN saved_plants.saved_at END DESC,
+          common_name
+        """
+    )
+    fun observePlantsFiltered(query: String, savedOnly: Boolean): Flow<List<PlantEntity>>
 }
