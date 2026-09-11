@@ -1,7 +1,6 @@
 package com.ilynehdev.feature.plants.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -68,7 +67,6 @@ fun SavedFilterChip(
 
     Row(
         modifier = modifier
-            .minimumInteractiveComponentSize()
             .clip(RoundedCornerShape(percent = 50))
             .toggleable(
                 value = selected,

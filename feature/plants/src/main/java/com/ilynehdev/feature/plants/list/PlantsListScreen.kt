@@ -2,7 +2,9 @@ package com.ilynehdev.feature.plants.list
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
@@ -16,8 +18,10 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
+import com.ilynehdev.core.designsystem.LeafletTheme
 import com.ilynehdev.feature.plants.R
 import com.ilynehdev.feature.plants.ui.components.MainHeader
+import com.ilynehdev.feature.plants.ui.components.SavedFilterChip
 import com.ilynehdev.feature.plants.ui.components.SearchFilterBar
 import kotlinx.coroutines.flow.flowOf
 import org.koin.androidx.compose.koinViewModel
@@ -29,14 +33,16 @@ fun PlantListScreen(
     viewModel: PlantsListViewModel = koinViewModel(),
 ) {
     val plants = viewModel.plants.collectAsLazyPagingItems()
-    val searchQuery by viewModel.query.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     PlantListContent(
         plants = plants,
-        searchQuery = searchQuery,
+        searchQuery = uiState.query,
+        showSavedOnly = uiState.showSavedOnly,
         onSearchQueryChanged = viewModel::onQueryChanged,
         onFilterClicked = {
             // nav to filter
         },
+        toggleShowSaved = viewModel::toggleShowSavedOnly,
         onItemClicked = onPlantClicked,
         modifier = modifier
     )
@@ -44,10 +50,12 @@ fun PlantListScreen(
 
 @Composable
 fun PlantListContent(
-    plants: LazyPagingItems<PlantsListUiData>,
+    plants: LazyPagingItems<PlantsListUiItem>,
     searchQuery: String,
+    showSavedOnly: Boolean,
     onSearchQueryChanged: (String) -> Unit,
     onFilterClicked: () -> Unit,
+    toggleShowSaved: () -> Unit,
     onItemClicked: (id: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -57,6 +65,15 @@ fun PlantListContent(
         ) {
             MainHeader(text = stringResource(R.string.plants))
             SearchFilterBar(searchQuery, onSearchQueryChanged, onFilterClicked)
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+            SavedFilterChip(
+                selected = showSavedOnly,
+                onClick = toggleShowSaved
+            )
         }
 
         LazyColumn(
@@ -82,18 +99,22 @@ fun PlantListContentPreview() {
     val plants = flowOf(
         PagingData.from(
             listOf(
-                PlantsListUiData(1, "Monstera Deliciosa", "Monstera deliciosa", null),
-                PlantsListUiData(2, "Snake Plant", "null", null),
-                PlantsListUiData(3, "Aloe Vera", null, null,),
+                PlantsListUiItem(1, "Monstera Deliciosa", "Monstera deliciosa", null),
+                PlantsListUiItem(2, "Snake Plant", "null", null),
+                PlantsListUiItem(3, "Aloe Vera", null, null,),
             )
         )
     ).collectAsLazyPagingItems()
 
-    PlantListContent(
-        plants = plants,
-        searchQuery = "",
-        onSearchQueryChanged = {},
-        onFilterClicked = {},
-        onItemClicked = {}
-    )
+    LeafletTheme {
+        PlantListContent(
+            plants = plants,
+            searchQuery = "",
+            showSavedOnly = true,
+            onSearchQueryChanged = {},
+            onFilterClicked = {},
+            toggleShowSaved = {},
+            onItemClicked = {}
+        )
+    }
 }
