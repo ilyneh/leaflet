@@ -52,23 +52,9 @@ data class NavBarItem(
 
 val NAV_ITEMS = listOf(
     NavBarItem(BrowseRoute, R.drawable.ic_browse_leaf,"Browse"),
-    NavBarItem(SavedRoute, com.ilynehdev.feature.plants.R.drawable.ic_saved_bookmark,"Saved"),
     NavBarItem(PlantingsRoute, R.drawable.ic_plantings_tab, "Plantings")
 )
 
-@Composable
-private fun PlaceholderScreen(title: String) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
 
 @Composable
 fun AppNavigation(
@@ -159,9 +145,22 @@ fun AppNavigation(
                         },
                     )
                 }
-                entry<SavedRoute> { PlaceholderScreen(title = "Saved") }
                 entry<PlantingsRoute> { PlaceholderScreen(title = "Plantings") }
             }
+        )
+    }
+}
+
+@Composable
+private fun PlaceholderScreen(title: String) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

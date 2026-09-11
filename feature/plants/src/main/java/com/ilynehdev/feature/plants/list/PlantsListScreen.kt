@@ -67,7 +67,7 @@ fun PlantListContent(
             SearchFilterBar(searchQuery, onSearchQueryChanged, onFilterClicked)
         }
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(12.dp))
 
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             SavedFilterChip(
