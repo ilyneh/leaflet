@@ -28,8 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ilynehdev.core.designsystem.LeafletTheme
 import com.ilynehdev.feature.plants.R
-import com.ilynehdev.feature.plants.ui.components.SavedFilterChipDefaults.unselectedColor
-import com.ilynehdev.feature.plants.ui.components.SavedFilterChipDefaults.selectedColor
 
 
 @Immutable
@@ -40,16 +38,16 @@ internal data class SavedFilterChipColors(
 
 internal object SavedFilterChipDefaults {
     @Composable
-    fun selectedColor() = SavedFilterChipColors(
-        pillColor = MaterialTheme.colorScheme.secondary,
-        textColor = MaterialTheme.colorScheme.onSecondary
-    )
+    fun colors(
+        pillColor: Color = MaterialTheme.colorScheme.tertiaryContainer,
+        textColor: Color = MaterialTheme.colorScheme.onTertiaryContainer,
+    ) = SavedFilterChipColors(pillColor, textColor)
 
     @Composable
-    fun unselectedColor() = SavedFilterChipColors(
-        pillColor = MaterialTheme.colorScheme.tertiaryContainer,
-        textColor = MaterialTheme.colorScheme.onTertiaryContainer
-    )
+    fun selectedColors(
+        pillColor: Color = MaterialTheme.colorScheme.secondary,
+        textColor: Color = MaterialTheme.colorScheme.onSecondary,
+    ) = SavedFilterChipColors(pillColor, textColor)
 }
 
 @Composable
@@ -58,7 +56,7 @@ fun SavedFilterChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = if (selected) selectedColor() else unselectedColor()
+    val colors = if (selected) SavedFilterChipDefaults.selectedColors() else SavedFilterChipDefaults.colors()
     val iconRes = if (selected) {
         R.drawable.ic_saved_bookmark_filled
     } else {

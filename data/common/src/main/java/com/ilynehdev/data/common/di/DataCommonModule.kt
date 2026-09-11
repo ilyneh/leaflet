@@ -2,7 +2,7 @@ package com.ilynehdev.data.common.di
 
 import com.ilynehdev.core.database.di.databaseModule
 import com.ilynehdev.core.phloem.pagefetcher.FetchMetadataStore
-import com.ilynehdev.core.phloem.pagefetcher.Transactor
+import com.ilynehdev.core.phloem.Transactor
 import com.ilynehdev.data.common.RoomFetchMetadataStore
 import com.ilynehdev.data.common.RoomTransactor
 import org.koin.dsl.module

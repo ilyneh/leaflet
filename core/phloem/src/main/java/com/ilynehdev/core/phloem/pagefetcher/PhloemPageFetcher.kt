@@ -3,6 +3,7 @@ package com.ilynehdev.core.phloem.pagefetcher
 import com.ilynehdev.core.phloem.FetchError
 import com.ilynehdev.core.phloem.Freshness
 import com.ilynehdev.core.phloem.toFetchError
+import com.ilynehdev.core.phloem.Transactor
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
