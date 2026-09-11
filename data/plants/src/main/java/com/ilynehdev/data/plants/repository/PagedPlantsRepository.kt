@@ -28,8 +28,6 @@ import kotlin.time.Duration.Companion.hours
 interface PagedPlantsRepository {
     fun observePlants(): Flow<PagingData<Plant>>
 
-    fun searchPlant(name: String): Flow<PagingData<Plant>>
-
     fun observeFilteredPlants(
         query: String,
         savedOnly: Boolean,
@@ -98,23 +96,11 @@ class PagedPlantsRepositoryImpl(
             .map { pagingData -> pagingData.map { it.toPlant() } }
     }
 
-    // Local-first: Room is the merge point. The paged flow serves local matches
+    // Local-first: Room is the merge point. The list flow serves local matches
     // immediately; in parallel one remote search page is upserted into the same
-    // table, which invalidates the PagingSource and re-emits with remote hits.
-    // Remote failure (offline) is swallowed — local results stand alone.
-    override fun searchPlant(name: String): Flow<PagingData<Plant>> = channelFlow {
-        launch { fetchSearchPage(name) }
-
-        Pager(
-            config = PagingConfig(pageSize = NETWORK_PAGE_SIZE, enablePlaceholders = false),
-            pagingSourceFactory = { dao.searchSummaries(escapeLike(name)) }
-        ).flow
-            .map { pagingData -> pagingData.map { it.toPlant() } }
-            .collect { send(it) }
-    }
-
-    // Same local-first merge as searchPlant, over a plain list: SQL narrows by
-    // query and saved membership; the in-memory filter predicates live in
+    // table, which re-emits the flow with remote hits. Remote failure (offline)
+    // is swallowed — local results stand alone. SQL narrows by query and saved
+    // membership; the in-memory filter predicates live in
     // ObserveFilteredPlantsUseCase. Server params only pre-narrow the fetch.
     override fun observeFilteredPlants(
         query: String,

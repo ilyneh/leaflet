@@ -208,41 +208,6 @@ class PlantsRepositoryTest {
         assertEquals(listOf(1, 2), api.requestedPages)
     }
 
-    // ---- searchPlant ----
-    @Test
-    fun `searchPlant serves local matches when remote fails`() = runTest {
-        api.pages[1] = Page(listOf(dto(1, "Monstera"), dto(2, "Basil")), nextKey = null)
-        repo.observePlants().asSnapshot()   // seed local catalog
-        api.failWith = IOException("offline")
-
-        val items = repo.searchPlant("monstera").asSnapshot()
-
-        assertEquals(listOf("Monstera"), items.map { it.commonName })
-    }
-
-    @Test
-    fun `searchPlant merges remote hits into local results`() = runTest {
-        api.pages[1] = Page(listOf(dto(1, "Monstera Local")), nextKey = null)
-        repo.observePlants().asSnapshot()
-        api.searchResults["monstera"] = Page(listOf(dto(50, "Monstera Remote")), nextKey = 2)
-
-        val items = repo.searchPlant("monstera").asSnapshot()
-
-        assertEquals(
-            listOf("Monstera Local", "Monstera Remote"),
-            items.map { it.commonName.orEmpty() }.sorted(),
-        )
-        // remote hit permanently enriched the catalog table
-        assertEquals("Monstera Remote", detailRepo.observePlant(50).first()?.commonName)
-    }
-
-    @Test
-    fun `searchPlant passes query to api`() = runTest {
-        repo.searchPlant("fern").asSnapshot()
-
-        assertTrue("fern" in api.requestedQueries)
-    }
-
     // ---- refreshPlantDetails (cache-through) ----
     @Test
     fun `refreshPlantDetails fetches, stores and stamps the row`() = runTest {
@@ -489,16 +454,15 @@ class PlantsRepositoryTest {
     }
 
     @Test
-    fun `searchPlant escapes like wildcards`() = runTest {
-        api.pages[1] = Page(
-            listOf(dto(1, "Aloe"), dto(2, "50% Cactus")),
-            nextKey = null,
-        )
-        repo.observePlants().asSnapshot()
+    fun `filtered search serves local matches when remote fails`() = runTest {
+        api.pages[1] = Page(listOf(dto(1, "Monstera"), dto(2, "Basil")), nextKey = null)
+        repo.observePlants().asSnapshot()   // seed local catalog
+        api.failWith = IOException("offline")
 
-        val items = repo.searchPlant("%").asSnapshot()
+        val items = observeFilteredPlants("Monstera", savedOnly = false, filters = PlantFilters())
+            .first()
 
-        assertEquals(listOf("50% Cactus"), items.map { it.commonName })
+        assertEquals(listOf("Monstera"), items.map { it.commonName })
     }
 
     @Test

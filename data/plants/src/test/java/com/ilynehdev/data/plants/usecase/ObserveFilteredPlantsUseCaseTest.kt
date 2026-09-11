@@ -35,7 +35,6 @@ class ObserveFilteredPlantsUseCaseTest {
         }
 
         override fun observePlants(): Flow<PagingData<Plant>> = flowOf(PagingData.empty())
-        override fun searchPlant(name: String): Flow<PagingData<Plant>> = flowOf(PagingData.empty())
     }
 
     private val repo = FakePagedPlantsRepository()

@@ -48,19 +48,8 @@ interface PlantsDao {
     )
     fun pagedSummaries(): PagingSource<Int, PlantSummaryRow>
 
-    // scientific_name is a JSON-encoded list; LIKE still substring-matches inside it.
-    @Query(
-        """
-        SELECT id, common_name, scientific_name, watering, sunlight, image_thumbnail
-        FROM plants
-        WHERE common_name LIKE '%' || :query || '%' ESCAPE '\'
-           OR scientific_name LIKE '%' || :query || '%' ESCAPE '\'
-        ORDER BY common_name
-        """
-    )
-    fun searchSummaries(query: String): PagingSource<Int, PlantSummaryRow>
-
     // Full entities: filter predicates need columns the summary projection drops.
+    // scientific_name is a JSON-encoded list; LIKE still substring-matches inside it.
     @Query(
         """
         SELECT plants.* FROM plants
