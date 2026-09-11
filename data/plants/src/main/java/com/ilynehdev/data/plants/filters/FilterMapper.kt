@@ -1,11 +1,6 @@
-package com.ilynehdev.data.plants.mapper
+package com.ilynehdev.data.plants.filters
 
-import com.ilynehdev.data.plants.model.CareLevelFilter
 import com.ilynehdev.data.plants.model.Dimension
-import com.ilynehdev.data.plants.model.LightFilter
-import com.ilynehdev.data.plants.model.MatureSizeFilter
-import com.ilynehdev.data.plants.model.SafetyFilter
-import com.ilynehdev.data.plants.model.WateringFilter
 
 /**
  * Translates the app's filter taxonomy to API data values. Empty selections

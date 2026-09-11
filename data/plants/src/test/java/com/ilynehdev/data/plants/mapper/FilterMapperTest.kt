@@ -1,11 +1,12 @@
 package com.ilynehdev.data.plants.mapper
 
-import com.ilynehdev.data.plants.model.CareLevelFilter
+import com.ilynehdev.data.plants.filters.FilterMapper
+import com.ilynehdev.data.plants.filters.CareLevelFilter
 import com.ilynehdev.data.plants.model.Dimension
-import com.ilynehdev.data.plants.model.LightFilter
-import com.ilynehdev.data.plants.model.MatureSizeFilter
-import com.ilynehdev.data.plants.model.SafetyFilter
-import com.ilynehdev.data.plants.model.WateringFilter
+import com.ilynehdev.data.plants.filters.LightFilter
+import com.ilynehdev.data.plants.filters.MatureSizeFilter
+import com.ilynehdev.data.plants.filters.SafetyFilter
+import com.ilynehdev.data.plants.filters.WateringFilter
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test

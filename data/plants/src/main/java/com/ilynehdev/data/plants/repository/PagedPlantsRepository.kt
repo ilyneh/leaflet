@@ -14,8 +14,8 @@ import com.ilynehdev.core.phloem.pagefetcher.FetchPage
 import com.ilynehdev.core.phloem.pagefetcher.PhloemModel
 import com.ilynehdev.core.phloem.pagefetcher.PhloemPageFetcherImpl
 import com.ilynehdev.core.phloem.Transactor
-import com.ilynehdev.data.plants.mapper.toEntity
-import com.ilynehdev.data.plants.mapper.toPlant
+import com.ilynehdev.data.plants.model.mapper.toEntity
+import com.ilynehdev.data.plants.model.mapper.toPlant
 import com.ilynehdev.data.plants.model.Plant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow

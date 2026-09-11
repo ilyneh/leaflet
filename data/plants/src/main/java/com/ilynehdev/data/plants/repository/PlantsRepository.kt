@@ -7,9 +7,9 @@ import com.ilynehdev.core.network.plants.api.PlantsApi
 import com.ilynehdev.core.phloem.Freshness
 import com.ilynehdev.core.phloem.itemfetcher.PhloemItemFetcher
 import com.ilynehdev.data.common.RefreshResult
-import com.ilynehdev.data.plants.mapper.toEntity
-import com.ilynehdev.data.plants.mapper.toPlantDetails
-import com.ilynehdev.data.plants.mapper.toSavedPlants
+import com.ilynehdev.data.plants.model.mapper.toEntity
+import com.ilynehdev.data.plants.model.mapper.toPlantDetails
+import com.ilynehdev.data.plants.model.mapper.toSavedPlants
 import com.ilynehdev.data.plants.model.PlantDetails
 import com.ilynehdev.data.plants.model.SavedPlant
 import kotlinx.coroutines.flow.Flow

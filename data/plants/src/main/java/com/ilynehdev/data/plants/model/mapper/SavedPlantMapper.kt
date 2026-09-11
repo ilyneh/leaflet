@@ -1,4 +1,4 @@
-package com.ilynehdev.data.plants.mapper
+package com.ilynehdev.data.plants.model.mapper
 
 import com.ilynehdev.core.database.projections.SavedPlantsRow
 import com.ilynehdev.data.plants.model.SavedPlant

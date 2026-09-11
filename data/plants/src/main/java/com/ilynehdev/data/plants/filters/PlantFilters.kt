@@ -1,4 +1,4 @@
-package com.ilynehdev.data.plants.model
+package com.ilynehdev.data.plants.filters
 
 enum class LightFilter { LowLight, Medium, BrightIndirect, DirectSun }
 enum class WateringFilter { Weekly, EveryTwoWeeks, Monthly }

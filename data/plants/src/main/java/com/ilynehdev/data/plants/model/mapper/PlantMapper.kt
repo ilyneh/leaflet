@@ -1,4 +1,4 @@
-package com.ilynehdev.data.plants.mapper
+package com.ilynehdev.data.plants.model.mapper
 
 import com.ilynehdev.core.database.entities.AnatomyColumn
 import com.ilynehdev.core.database.entities.DimensionsColumn
