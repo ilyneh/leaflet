@@ -4,14 +4,14 @@ import com.ilynehdev.core.phloem.FetchError
 import com.ilynehdev.core.phloem.toFetchError
 import kotlin.coroutines.cancellation.CancellationException
 
-interface PhloemFetcher {
+interface PhloemItemFetcher {
     suspend fun <Dto> fetchItem(
         fetch: suspend () -> Dto,
         persist: suspend (Dto) -> Unit
     ): FetchError?
 }
 
-class PhloemItemFetcherImpl : PhloemFetcher {
+class PhloemItemFetcherImpl : PhloemItemFetcher {
     override suspend fun <Dto> fetchItem(
         fetch: suspend () -> Dto,
         persist: suspend (Dto) -> Unit

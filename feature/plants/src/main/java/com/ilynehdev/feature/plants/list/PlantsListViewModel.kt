@@ -29,7 +29,7 @@ data class PlantsListUiState(
     val showSavedOnly: Boolean = false,
 )
 
-data class PlantsListUiItem(
+data class PlantsListItemUiData(
     val id: Long,
     val commonName: String,
     val scientificName: String?,
@@ -49,7 +49,7 @@ class PlantsListViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlantsListUiState())
 
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-    val plants: Flow<PagingData<PlantsListUiItem>> = combine(
+    val plants: Flow<PagingData<PlantsListItemUiData>> = combine(
         query.debounce(300.milliseconds).distinctUntilChanged(),
         showSavedOnly,
     ) { query, showSavedOnly -> query to showSavedOnly }
@@ -77,14 +77,14 @@ class PlantsListViewModel(
         showSavedOnly.update { !it }
     }
 
-    private fun SavedPlant.toUiItem() = PlantsListUiItem(
+    private fun SavedPlant.toUiItem() = PlantsListItemUiData(
         id = id,
         commonName = commonName.orEmpty(),
         scientificName = scientificName?.firstOrNull(),
         imageUrl = thumbnail
     )
 
-    private fun Plant.toUiItem() = PlantsListUiItem(
+    private fun Plant.toUiItem() = PlantsListItemUiData(
         id = id,
         commonName = commonName.orEmpty(),
         scientificName = scientificName?.firstOrNull(),

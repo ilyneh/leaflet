@@ -88,15 +88,15 @@ class PlantsRepositoryTest {
             .allowMainThreadQueries()
             .build()
         repo = PagedPlantsRepositoryImpl(
-            dao = db.plantDao(),
+            dao = db.plantsDao(),
             api = api,
             transactor = { it() },
             metadataStore = store,
             now = { nowMillis },
         )
         detailRepo = PlantsRepositoryImpl(
-            dao = db.plantDao(),
-            savedDao = db.savedPlantDao(),
+            dao = db.plantsDao(),
+            savedDao = db.savedPlantsDao(),
             api = api,
             fetcher = PhloemItemFetcherImpl(),
             freshness = Freshness(ttl = DETAILS_TTL, now = { nowMillis }),
@@ -167,7 +167,7 @@ class PlantsRepositoryTest {
         // page 1 committed to the db despite the interruption
         assertEquals(
             listOf("Aloe"),
-            db.plantDao().observeSummaries().first().map { it.commonName },
+            db.plantsDao().observeSummaries().first().map { it.commonName },
         )
         val meta = store.map[PhloemModel.PlantCatalog]
         assertEquals("2", meta?.cursor)      // saved with page 1, points at first unfetched page
@@ -227,7 +227,7 @@ class PlantsRepositoryTest {
         val result = detailRepo.refreshPlantDetails(7)
 
         assertEquals(RefreshResult.Refreshed, result)
-        val row = db.plantDao().getById(7)
+        val row = db.plantsDao().getById(7)
         assertEquals("Big leaves", row?.description)
         assertEquals(nowMillis, row?.detailsSyncedAt)
     }
@@ -254,7 +254,7 @@ class PlantsRepositoryTest {
 
         assertEquals(RefreshResult.Refreshed, result)
         assertEquals(listOf(7L, 7L), api.requestedDetailIds)
-        assertEquals(nowMillis, db.plantDao().getById(7)?.detailsSyncedAt)
+        assertEquals(nowMillis, db.plantsDao().getById(7)?.detailsSyncedAt)
     }
 
     @Test
@@ -266,7 +266,7 @@ class PlantsRepositoryTest {
         detailRepo.refreshPlantDetails(7)
 
         assertEquals(listOf(7L, 7L), api.requestedDetailIds)
-        assertEquals(nowMillis, db.plantDao().getById(7)?.detailsSyncedAt)
+        assertEquals(nowMillis, db.plantsDao().getById(7)?.detailsSyncedAt)
     }
 
     @Test
@@ -280,7 +280,7 @@ class PlantsRepositoryTest {
         val result = detailRepo.refreshPlantDetails(7)
 
         assertEquals(RefreshResult.Failed(FetchError.Offline), result)
-        assertEquals("Big leaves", db.plantDao().getById(7)?.description)
+        assertEquals("Big leaves", db.plantsDao().getById(7)?.description)
     }
 
     // ---- saved plants ----
@@ -351,7 +351,7 @@ class PlantsRepositoryTest {
         api.pages[1] = Page(listOf(dto(1, "Aloe")), nextKey = null)
         repo.observePlants().asSnapshot()
 
-        val row = db.plantDao().getById(1)
+        val row = db.plantsDao().getById(1)
         assertEquals("Succulent", row?.description)      // detail survived
         assertEquals(nowMillis, row?.detailsSyncedAt)    // stamp survived
     }

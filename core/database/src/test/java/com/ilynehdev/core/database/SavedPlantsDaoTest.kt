@@ -50,29 +50,29 @@ class SavedPlantsDaoTest {
     )
 
     private suspend fun seedPlants(vararg ids: Long) {
-        db.plantDao().upsertPlants(ids.map { plant(it, "Plant $it") })
+        db.plantsDao().upsertPlants(ids.map { plant(it, "Plant $it") })
     }
 
     @Test
     fun `observeIsSaved is false for unsaved plant`() = runTest {
         seedPlants(1)
 
-        assertFalse(db.savedPlantDao().observeIsSaved(1L).first())
+        assertFalse(db.savedPlantsDao().observeIsSaved(1L).first())
     }
 
     @Test
     fun `saving a plant flips observeIsSaved`() = runTest {
         seedPlants(1)
 
-        db.savedPlantDao().upsertSavedPlant(SavedPlantEntity(plantId = 1, savedAt = 100))
+        db.savedPlantsDao().upsertSavedPlant(SavedPlantEntity(plantId = 1, savedAt = 100))
 
-        assertTrue(db.savedPlantDao().observeIsSaved(1L).first())
+        assertTrue(db.savedPlantsDao().observeIsSaved(1L).first())
     }
 
     @Test
     fun `saving twice keeps a single row and updates savedAt`() = runTest {
         seedPlants(1)
-        val dao = db.savedPlantDao()
+        val dao = db.savedPlantsDao()
 
         dao.upsertSavedPlant(SavedPlantEntity(plantId = 1, savedAt = 100))
         dao.upsertSavedPlant(SavedPlantEntity(plantId = 1, savedAt = 200))
@@ -85,7 +85,7 @@ class SavedPlantsDaoTest {
     @Test
     fun `observeSavedPlants joins plant fields for saved rows only`() = runTest {
         seedPlants(1, 2, 3)
-        val dao = db.savedPlantDao()
+        val dao = db.savedPlantsDao()
 
         dao.upsertSavedPlants(
             listOf(
@@ -109,13 +109,13 @@ class SavedPlantsDaoTest {
     fun `observeSavedPlants is empty with no saves`() = runTest {
         seedPlants(1)
 
-        assertTrue(db.savedPlantDao().observeSavedPlants().first().isEmpty())
+        assertTrue(db.savedPlantsDao().observeSavedPlants().first().isEmpty())
     }
 
     @Test
     fun `saving a plant that is not in the catalog violates the foreign key`() = runTest {
         val result = runCatching {
-            db.savedPlantDao().upsertSavedPlant(SavedPlantEntity(plantId = 99, savedAt = 100))
+            db.savedPlantsDao().upsertSavedPlant(SavedPlantEntity(plantId = 99, savedAt = 100))
         }
 
         assertTrue(result.exceptionOrNull() is SQLiteConstraintException)

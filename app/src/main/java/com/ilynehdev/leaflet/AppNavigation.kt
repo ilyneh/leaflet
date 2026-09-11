@@ -32,8 +32,8 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.ilynehdev.feature.plants.detail.PlantDetailScreen
-import com.ilynehdev.feature.plants.list.PlantListScreen
+import com.ilynehdev.feature.plants.detail.PlantsDetailScreen
+import com.ilynehdev.feature.plants.list.PlantsListScreen
 import kotlinx.serialization.Serializable
 
 
@@ -122,7 +122,7 @@ fun AppNavigation(
             },
             entryProvider = entryProvider {
                 entry<BrowseRoute> {
-                    PlantListScreen(
+                    PlantsListScreen(
                         onPlantClicked = { id -> backStack.add(PlantDetailRoute(id)) }
                     )
                 }
@@ -138,7 +138,7 @@ fun AppNavigation(
                             slideOutHorizontally(SLIDE_SPEC, targetOffsetX = { it })
                     },
                 ) { route ->
-                    PlantDetailScreen(
+                    PlantsDetailScreen(
                         plantId = route.id,
                         onBackClicked = {
                             if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)

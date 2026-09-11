@@ -27,14 +27,14 @@ import kotlinx.coroutines.flow.flowOf
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun PlantListScreen(
+fun PlantsListScreen(
     onPlantClicked: (id: Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlantsListViewModel = koinViewModel(),
 ) {
     val plants = viewModel.plants.collectAsLazyPagingItems()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    PlantListContent(
+    PlantsListContent(
         plants = plants,
         searchQuery = uiState.query,
         showSavedOnly = uiState.showSavedOnly,
@@ -49,8 +49,8 @@ fun PlantListScreen(
 }
 
 @Composable
-fun PlantListContent(
-    plants: LazyPagingItems<PlantsListUiItem>,
+fun PlantsListContent(
+    plants: LazyPagingItems<PlantsListItemUiData>,
     searchQuery: String,
     showSavedOnly: Boolean,
     onSearchQueryChanged: (String) -> Unit,
@@ -95,19 +95,19 @@ fun PlantListContent(
 
 @Preview(showBackground = true)
 @Composable
-fun PlantListContentPreview() {
+fun PlantsListContentPreview() {
     val plants = flowOf(
         PagingData.from(
             listOf(
-                PlantsListUiItem(1, "Monstera Deliciosa", "Monstera deliciosa", null),
-                PlantsListUiItem(2, "Snake Plant", "null", null),
-                PlantsListUiItem(3, "Aloe Vera", null, null,),
+                PlantsListItemUiData(1, "Monstera Deliciosa", "Monstera deliciosa", null),
+                PlantsListItemUiData(2, "Snake Plant", "null", null),
+                PlantsListItemUiData(3, "Aloe Vera", null, null,),
             )
         )
     ).collectAsLazyPagingItems()
 
     LeafletTheme {
-        PlantListContent(
+        PlantsListContent(
             plants = plants,
             searchQuery = "",
             showSavedOnly = true,

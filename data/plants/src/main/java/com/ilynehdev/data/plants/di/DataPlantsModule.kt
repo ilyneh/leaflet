@@ -29,14 +29,15 @@ val dataPlantsModule = module {
         )
     }
 
+    val clock: () -> Long = System::currentTimeMillis
     single<PlantsRepository> {
         PlantsRepositoryImpl(
             dao = get(),
             savedDao = get(),
             api = get(),
             fetcher = PhloemItemFetcherImpl(),
-            freshness = Freshness(ttl = PLANT_DETAILS_TTL),
-            now = System::currentTimeMillis
+            freshness = Freshness(ttl = PLANT_DETAILS_TTL, now = clock),
+            now = clock
         )
     }
 }

@@ -21,7 +21,7 @@ sealed interface LoadingStatus {
     data object Failed : LoadingStatus
 }
 
-data class PlantDetailUiData(
+data class PlantsDetailUiData(
     val commonName: String,
     val latinName: String?,
     val imageUrl: String?,
@@ -36,26 +36,26 @@ data class PlantDetailUiData(
     enum class ToxicityNotice { PetsAndHumans, Pets, Humans }
 }
 
-data class PlantDetailUiState(
-    val plant: PlantDetailUiData? = null,
+data class PlantsDetailUiState(
+    val plant: PlantsDetailUiData? = null,
     val saveButtonVisible: Boolean = false,
     val isSaved: Boolean = false,
     val loadingStatus: LoadingStatus = LoadingStatus.Loading,
 )
 
-class PlantDetailViewModel(
+class PlantsDetailViewModel(
     private val plantId: Long,
     private val plantsRepository: PlantsRepository,
 ) : ViewModel() {
 
     private val loadingStatus = MutableStateFlow<LoadingStatus>(LoadingStatus.Loading)
 
-    val uiState: StateFlow<PlantDetailUiState> = combine(
+    val uiState: StateFlow<PlantsDetailUiState> = combine(
         plantsRepository.observePlant(plantId),
         plantsRepository.observeIsSaved(plantId),
         loadingStatus,
     ) { plant, isSaved, status ->
-        PlantDetailUiState(
+        PlantsDetailUiState(
             plant = plant?.toUiData(),
             saveButtonVisible = plant != null,
             isSaved = isSaved,
@@ -64,7 +64,7 @@ class PlantDetailViewModel(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = PlantDetailUiState(),
+        initialValue = PlantsDetailUiState(),
     )
 
     init {
@@ -100,7 +100,7 @@ class PlantDetailViewModel(
     }
 }
 
-private fun PlantDetails.toUiData() = PlantDetailUiData(
+private fun PlantDetails.toUiData() = PlantsDetailUiData(
     commonName = commonName.orEmpty(),
     latinName = scientificName?.firstOrNull(),
     imageUrl = imageUrl,
@@ -115,9 +115,9 @@ private fun PlantDetails.toUiData() = PlantDetailUiData(
     toxicToPets = poisonousToPets,
     toxicityNotice = when {
         poisonousToPets == true && poisonousToHumans == true ->
-            PlantDetailUiData.ToxicityNotice.PetsAndHumans
-        poisonousToPets == true -> PlantDetailUiData.ToxicityNotice.Pets
-        poisonousToHumans == true -> PlantDetailUiData.ToxicityNotice.Humans
+            PlantsDetailUiData.ToxicityNotice.PetsAndHumans
+        poisonousToPets == true -> PlantsDetailUiData.ToxicityNotice.Pets
+        poisonousToHumans == true -> PlantsDetailUiData.ToxicityNotice.Humans
         else -> null
     }
 )

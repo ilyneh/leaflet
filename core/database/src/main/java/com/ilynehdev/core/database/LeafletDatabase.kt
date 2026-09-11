@@ -26,8 +26,8 @@ import com.ilynehdev.core.database.entities.SavedPlantEntity
 @ColumnTypeConverters(PlantConverters::class)
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 abstract class LeafletDatabase : RoomDatabase() {
-    abstract fun plantDao(): PlantsDao
-    abstract fun plantDiseaseDao(): PlantDiseasesDao
+    abstract fun plantsDao(): PlantsDao
+    abstract fun plantDiseasesDao(): PlantDiseasesDao
     abstract fun fetchMetadataDao(): FetchMetadataDao
-    abstract fun savedPlantDao(): SavedPlantsDao
+    abstract fun savedPlantsDao(): SavedPlantsDao
 }

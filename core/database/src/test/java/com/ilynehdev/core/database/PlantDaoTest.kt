@@ -33,7 +33,7 @@ class PlantDaoTest {
         db = Room.inMemoryDatabaseBuilder(context, LeafletDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        dao = db.plantDao()
+        dao = db.plantsDao()
     }
 
     @After

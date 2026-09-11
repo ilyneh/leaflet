@@ -47,14 +47,14 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
-fun PlantDetailScreen(
+fun PlantsDetailScreen(
     plantId: Long,
     onBackClicked: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: PlantDetailViewModel = koinViewModel(parameters = { parametersOf(plantId) }),
+    viewModel: PlantsDetailViewModel = koinViewModel(parameters = { parametersOf(plantId) }),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    PlantDetailContent(
+    PlantsDetailContent(
         uiState = uiState,
         onBackClicked = onBackClicked,
         onSaveClicked = viewModel::onSaveClicked,
@@ -64,8 +64,8 @@ fun PlantDetailScreen(
 }
 
 @Composable
-fun PlantDetailContent(
-    uiState: PlantDetailUiState,
+fun PlantsDetailContent(
+    uiState: PlantsDetailUiState,
     onBackClicked: () -> Unit,
     onSaveClicked: () -> Unit,
     onRetryClicked: () -> Unit,
@@ -73,7 +73,7 @@ fun PlantDetailContent(
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         when {
-            uiState.plant != null -> PlantDetails(
+            uiState.plant != null -> PlantsDetail(
                 plant = uiState.plant,
                 modifier = Modifier.fillMaxSize(),
             )
@@ -107,8 +107,8 @@ fun PlantDetailContent(
 }
 
 @Composable
-private fun PlantDetails(
-    plant: PlantDetailUiData,
+private fun PlantsDetail(
+    plant: PlantsDetailUiData,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -169,9 +169,9 @@ private fun PlantDetails(
 
         plant.toxicityNotice?.let { toxicityNotice ->
             val messageRes = when(toxicityNotice) {
-                PlantDetailUiData.ToxicityNotice.PetsAndHumans -> R.string.toxicity_notice_pets_and_humans
-                PlantDetailUiData.ToxicityNotice.Pets -> R.string.toxicity_notice_pets
-                PlantDetailUiData.ToxicityNotice.Humans -> R.string.toxicity_notice_humans
+                PlantsDetailUiData.ToxicityNotice.PetsAndHumans -> R.string.toxicity_notice_pets_and_humans
+                PlantsDetailUiData.ToxicityNotice.Pets -> R.string.toxicity_notice_pets
+                PlantsDetailUiData.ToxicityNotice.Humans -> R.string.toxicity_notice_humans
             }
             Spacer(Modifier.height(14.dp))
             CautionNotice(text = stringResource(messageRes))
@@ -182,7 +182,7 @@ private fun PlantDetails(
 }
 
 @Composable
-private fun PlantTraitsRow(plant: PlantDetailUiData) {
+private fun PlantTraitsRow(plant: PlantsDetailUiData) {
     Row(
         modifier = Modifier.height(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(9.dp)
@@ -280,11 +280,11 @@ private fun BoxScope.SaveButton(
 
 @Preview(showBackground = true)
 @Composable
-private fun PlantDetailContentPreview() {
+private fun PlantsDetailContentPreview() {
     LeafletTheme {
-        PlantDetailContent(
-            uiState = PlantDetailUiState(
-                plant = PlantDetailUiData(
+        PlantsDetailContent(
+            uiState = PlantsDetailUiState(
+                plant = PlantsDetailUiData(
                     commonName = "Monstera deliciosa",
                     latinName = "Monstera deliciosa",
                     imageUrl = null,
@@ -296,7 +296,7 @@ private fun PlantDetailContentPreview() {
                     matureSize = "2–3 m",
                     careLevel = "Easy",
                     toxicToPets = true,
-                    toxicityNotice = PlantDetailUiData.ToxicityNotice.PetsAndHumans
+                    toxicityNotice = PlantsDetailUiData.ToxicityNotice.PetsAndHumans
                 ),
             ),
             onBackClicked = {},

@@ -25,7 +25,7 @@ import org.junit.Before
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class PlantDetailViewModelTest {
+class PlantsDetailViewModelTest {
 
     private class FakePlantsRepository : PlantsRepository {
         val plants = MutableStateFlow<PlantDetails?>(null)
@@ -66,7 +66,7 @@ class PlantDetailViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun viewModel() = PlantDetailViewModel(PLANT_ID, repository)
+    private fun viewModel() = PlantsDetailViewModel(PLANT_ID, repository)
 
     private fun details(commonName: String = "Monstera") = PlantDetails(
         id = PLANT_ID,

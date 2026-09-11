@@ -3,10 +3,9 @@ package com.ilynehdev.data.plants.repository
 import com.ilynehdev.core.database.dao.PlantsDao
 import com.ilynehdev.core.database.dao.SavedPlantsDao
 import com.ilynehdev.core.database.entities.SavedPlantEntity
-import com.ilynehdev.core.database.projections.SavedPlantsRow
 import com.ilynehdev.core.network.plants.api.PlantsApi
 import com.ilynehdev.core.phloem.Freshness
-import com.ilynehdev.core.phloem.itemfetcher.PhloemFetcher
+import com.ilynehdev.core.phloem.itemfetcher.PhloemItemFetcher
 import com.ilynehdev.data.common.RefreshResult
 import com.ilynehdev.data.plants.mapper.toEntity
 import com.ilynehdev.data.plants.mapper.toPlantDetails
@@ -36,7 +35,7 @@ class PlantsRepositoryImpl(
     private val dao: PlantsDao,
     private val savedDao: SavedPlantsDao,
     private val api: PlantsApi,
-    private val fetcher: PhloemFetcher,
+    private val fetcher: PhloemItemFetcher,
     private val freshness: Freshness,
     private val now: () -> Long,
 ) : PlantsRepository {
