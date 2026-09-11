@@ -17,4 +17,5 @@
     <string name="toxicity_notice_pets">Toxic to pets if eaten. Keep away from furry loved ones.</string>
     <string name="toxicity_notice_humans">Toxic to people if eaten. Keep out of reach of children and wash hands after pruning.</string>
     <string name="save">Save</string>
+    <string name="saved">Saved</string>
 </resources>
