@@ -12,6 +12,7 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.http.Url
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
@@ -40,11 +41,13 @@ fun createHttpClient(engine: HttpClientEngine, json: Json, config: NetworkConfig
 
         install(HttpRequestRetry) {
             maxRetries = 2
-            retryOnServerErrors()          // 5xx only, never 4xx
             retryOnException(retryOnTimeout = true)
             exponentialDelay()             // 1s, 2s
-            // Only retry safe methods. Prevents double POST later when app gains writes.
-            retryIf { request, _ -> request.method.value == "GET" }
+            // retryIf REPLACES retryOnServerErrors' predicate (both set shouldRetry),
+            // so the 5xx check must live in the same predicate as the GET-only guard.
+            retryIf { request, response ->
+                request.method == HttpMethod.Get && response.status.value in 500..599
+            }
         }
 
         if (config.isDebug) {
