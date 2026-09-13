@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -19,6 +22,9 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.ilynehdev.core.designsystem.LeafletTheme
+import com.ilynehdev.data.plants.filters.LightFilter
+import com.ilynehdev.data.plants.filters.PlantFilters
+import com.ilynehdev.data.plants.filters.SafetyFilter
 import com.ilynehdev.feature.plants.R
 import com.ilynehdev.feature.plants.ui.components.MainHeader
 import com.ilynehdev.feature.plants.ui.components.SavedFilterChip
@@ -38,10 +44,9 @@ fun PlantsListScreen(
         plants = plants,
         searchQuery = uiState.query,
         showSavedOnly = uiState.showSavedOnly,
+        filters = uiState.filters,
         onSearchQueryChanged = viewModel::onQueryChanged,
-        onFilterClicked = {
-            // nav to filter
-        },
+        onFiltersApplied = viewModel::onFiltersChanged,
         toggleShowSaved = viewModel::toggleShowSavedOnly,
         onItemClicked = onPlantClicked,
         modifier = modifier
@@ -53,18 +58,26 @@ fun PlantsListContent(
     plants: LazyPagingItems<PlantsListItemUiData>,
     searchQuery: String,
     showSavedOnly: Boolean,
+    filters: PlantsListFiltersUiData,
     onSearchQueryChanged: (String) -> Unit,
-    onFilterClicked: () -> Unit,
+    onFiltersApplied: (PlantFilters) -> Unit,
     toggleShowSaved: () -> Unit,
     onItemClicked: (id: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showFilterSheet by rememberSaveable { mutableStateOf(false) }
+
     Column(modifier = modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(horizontal = 20.dp)
         ) {
             MainHeader(text = stringResource(R.string.plants))
-            SearchFilterBar(searchQuery, onSearchQueryChanged, onFilterClicked)
+            SearchFilterBar(
+                searchQuery = searchQuery,
+                onSearchQueryChanged = onSearchQueryChanged,
+                onFilterClicked = { showFilterSheet = true },
+                activeFilterCount = filters.activeCount,
+            )
         }
 
         Spacer(Modifier.height(12.dp))
@@ -91,6 +104,17 @@ fun PlantsListContent(
             }
         }
     }
+
+    if (showFilterSheet) {
+        PlantsFilterSheet(
+            current = filters,
+            onApply = {
+                onFiltersApplied(it)
+                showFilterSheet = false
+            },
+            onDismiss = { showFilterSheet = false },
+        )
+    }
 }
 
 @Preview(showBackground = true)
@@ -111,8 +135,13 @@ fun PlantsListContentPreview() {
             plants = plants,
             searchQuery = "",
             showSavedOnly = true,
+            filters = PlantsListFiltersUiData(
+                activeCount = 2,
+                selectedLight = setOf(LightFilter.LowLight),
+                selectedSafety = setOf(SafetyFilter.PetSafe),
+            ),
             onSearchQueryChanged = {},
-            onFilterClicked = {},
+            onFiltersApplied = {},
             toggleShowSaved = {},
             onItemClicked = {}
         )

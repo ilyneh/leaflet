@@ -4,34 +4,37 @@ androidGradlePlugin = "9.4.0"
 androidTools = "32.4.0" # https://mvnrepository.com/artifact/com.android.tools/common
 ksp = "2.3.11" # https://github.com/google/ksp
 
+agp = "9.2.1"
+
+kotlin = "2.4.20"
 kotlinSerializationJson = "1.11.0"
 ktor = "3.5.2"
 coroutines = "1.11.0"
 koin = "4.2.2"
 lifecycleViewmodelCompose = "2.11.0"
-agp = "9.2.1"
 coreKtx = "1.19.0"
-junit = "4.13.2"
-robolectric = "4.16.1"
+
 paging = "3.5.1"
-junitVersion = "1.3.0"
-espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.11.0"
 activityCompose = "1.13.0"
-kotlin = "2.4.10"
-composeBom = "2026.08.00"
-appcompat = "1.8.0"
+composeBom = "2026.09.00"
 material = "1.14.0"
 material3 = "1.4.0"
 appcompatVersion = "1.8.0"
 
+# test
+junit = "4.13.2"
+junitVersion = "1.3.0"
+robolectric = "4.16.1"
+espressoCore = "3.7.0"
+
 # Room
-room = "3.0.2"
+room = "3.0.3"
 jetbrainsKotlinJvm = "2.4.10"
 
 nav3Core = "1.1.7"
-lifecycleViewmodelNav3 = "2.12.0-alpha02"
-material3AdaptiveNav3 = "1.4.0-alpha01"
+lifecycleViewmodelNav3 = "2.12.0-alpha03"
+material3AdaptiveNav3 = "1.4.0-alpha02"
 
 # Coil
 coil = "3.6.2"

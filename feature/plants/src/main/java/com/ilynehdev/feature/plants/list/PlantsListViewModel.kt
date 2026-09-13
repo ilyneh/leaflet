@@ -44,6 +44,15 @@ data class PlantsListFiltersUiData(
     val selectedMatureSize: Set<MatureSizeFilter> = emptySet(),
 )
 
+// Seeds the filter sheet's editable draft from the displayed selections.
+internal fun PlantsListFiltersUiData.toPlantFilters() = PlantFilters(
+    light = selectedLight,
+    watering = selectedWatering,
+    safety = selectedSafety,
+    careLevel = selectedCareLevel,
+    matureSize = selectedMatureSize,
+)
+
 data class PlantsListItemUiData(
     val id: Long,
     val commonName: String,

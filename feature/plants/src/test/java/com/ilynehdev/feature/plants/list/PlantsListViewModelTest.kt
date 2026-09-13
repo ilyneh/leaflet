@@ -134,6 +134,23 @@ class PlantsListViewModelTest {
     }
 
     @Test
+    fun `ui filter data round-trips back to domain filters`() = runTest {
+        val vm = viewModel()
+        backgroundScope.launch { vm.uiState.collect {} }
+        runCurrent()
+
+        val filters = PlantFilters(
+            light = setOf(LightFilter.LowLight, LightFilter.Medium),
+            safety = setOf(SafetyFilter.PetSafe),
+        )
+        vm.onFiltersChanged(filters)
+        runCurrent()
+
+        // The sheet seeds its draft from the UiData; the conversion must be lossless.
+        assertEquals(filters, vm.uiState.value.filters.toPlantFilters())
+    }
+
+    @Test
     fun `onFiltersChanged is reflected in uiState`() = runTest {
         val vm = viewModel()
         backgroundScope.launch { vm.uiState.collect {} }

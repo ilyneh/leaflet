@@ -90,7 +90,7 @@ fun PlantsListItem(
         ) {
             Text(
                 text = commonName,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.headlineSmall,
             )
             Text(
                 text = scientificName.orEmpty(),

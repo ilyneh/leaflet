@@ -18,4 +18,27 @@
     <string name="toxicity_notice_humans">Toxic to people if eaten. Keep out of reach of children and wash hands after pruning.</string>
     <string name="save">Save</string>
     <string name="saved">Saved</string>
+    <string name="filters">Filters</string>
+    <string name="filter_section_watering">Watering</string>
+    <string name="filter_section_safety">Safety</string>
+    <string name="clear_all">Clear all</string>
+    <string name="apply">Apply</string>
+    <string name="filter_light_low">Low light</string>
+    <string name="filter_light_medium">Medium</string>
+    <string name="filter_light_bright_indirect">Bright indirect</string>
+    <string name="filter_light_direct_sun">Direct sun</string>
+    <string name="filter_watering_weekly">Weekly</string>
+    <string name="filter_watering_every_two_weeks">Every 2 weeks</string>
+    <string name="filter_watering_monthly">Monthly</string>
+    <string name="filter_safety_pet_safe">Pet-safe</string>
+    <string name="filter_safety_child_safe">Non-toxic to children</string>
+    <string name="filter_care_easy">Easy</string>
+    <string name="filter_care_moderate">Moderate</string>
+    <string name="filter_care_fussy">Fussy</string>
+    <string name="filter_size_tabletop">Tabletop</string>
+    <string name="filter_size_shelf">Shelf</string>
+    <string name="filter_size_floor">Floor</string>
+    <string name="filter_size_tall">Tall</string>
+    <string name="cancel">Cancel</string>
+    <string name="reset">Reset</string>
 </resources>
