@@ -12,6 +12,7 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.Url
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -48,10 +49,16 @@ fun createHttpClient(engine: HttpClientEngine, json: Json, config: NetworkConfig
 
         if (config.isDebug) {
             install(Logging) {
-                logger = Logger.ANDROID          // routes to logcat, tag "Ktor Client"
                 level = LogLevel.HEADERS         // BODY is verbose for list endpoints; bump when debugging parse issues
+                logger = object : Logger {
+                    private val delegate = Logger.ANDROID
+                    private val apiKey = Regex("""key=[^&\s]+""")
+                    override fun log(message: String) {
+                        delegate.log(message.replace(apiKey, "key=[REDACTED]"))
+                    }
+                }
+
                 sanitizeHeader { it == HttpHeaders.Authorization }
-                // Query-param API key still appears in URL line. Acceptable in debug builds only.
             }
         }
     }
