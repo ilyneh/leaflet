@@ -1,7 +1,9 @@
 package com.ilynehdev.feature.plants.detail
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -116,6 +118,82 @@ class PlantsDetailContentTest {
         )
 
         composeRule.onNodeWithContentDescription(string(R.string.save)).assertIsSelected()
+    }
+
+    @Test
+    fun `loading without a plant shows the progress indicator`() {
+        setContent(PlantsDetailUiState(loadingStatus = LoadingStatus.Loading))
+
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
+            .assertIsDisplayed()
+        composeRule.onNodeWithText(string(R.string.plant_detail_load_failed)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `save button is absent when not visible`() {
+        setContent(
+            PlantsDetailUiState(
+                plant = plant(),
+                saveButtonVisible = false,
+                loadingStatus = LoadingStatus.Done,
+            )
+        )
+
+        composeRule.onNodeWithContentDescription(string(R.string.save)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `trait cards show light water and toxicity values`() {
+        setContent(
+            PlantsDetailUiState(plant = plant(), loadingStatus = LoadingStatus.Done)
+        )
+
+        composeRule.onNodeWithText("Bright indirect").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Every 7 days").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(string(R.string.trait_toxic)).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `pet safe plant shows safe trait`() {
+        setContent(
+            PlantsDetailUiState(
+                plant = plant().copy(toxicToPets = false, toxicityNotice = null),
+                loadingStatus = LoadingStatus.Done,
+            )
+        )
+
+        composeRule.onNodeWithText(string(R.string.trait_safe)).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(string(R.string.trait_toxic)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `toxicity notice shows the variant matching the plant`() {
+        setContent(
+            PlantsDetailUiState(
+                plant = plant().copy(
+                    toxicityNotice = PlantsDetailUiData.ToxicityNotice.PetsAndHumans,
+                ),
+                loadingStatus = LoadingStatus.Done,
+            )
+        )
+
+        composeRule.onNodeWithText(string(R.string.toxicity_notice_pets_and_humans))
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `no toxicity notice when plant is safe`() {
+        setContent(
+            PlantsDetailUiState(
+                plant = plant().copy(toxicToPets = false, toxicityNotice = null),
+                loadingStatus = LoadingStatus.Done,
+            )
+        )
+
+        composeRule.onNodeWithText(string(R.string.toxicity_notice_pets)).assertDoesNotExist()
+        composeRule.onNodeWithText(string(R.string.toxicity_notice_pets_and_humans)).assertDoesNotExist()
+        composeRule.onNodeWithText(string(R.string.toxicity_notice_humans)).assertDoesNotExist()
     }
 
     @Test
