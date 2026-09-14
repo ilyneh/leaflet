@@ -5,6 +5,7 @@ import com.ilynehdev.data.common.RefreshResult
 import com.ilynehdev.data.plants.model.PlantDetails
 import com.ilynehdev.data.plants.model.SavedPlant
 import com.ilynehdev.data.plants.repository.PlantsRepository
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -33,6 +34,7 @@ class PlantsDetailViewModelTest {
         var refreshResult: RefreshResult = RefreshResult.Refreshed
         val refreshCalls = mutableListOf<Boolean>() // force flag per call
         var failSaveWith: Exception? = null
+        var refreshGate: CompletableDeferred<Unit>? = null
 
         override fun observePlant(plantId: Long): Flow<PlantDetails?> = plants
 
@@ -49,6 +51,7 @@ class PlantsDetailViewModelTest {
 
         override suspend fun refreshPlantDetails(plantId: Long, force: Boolean): RefreshResult {
             refreshCalls += force
+            refreshGate?.await()
             return refreshResult
         }
     }
@@ -146,6 +149,36 @@ class PlantsDetailViewModelTest {
         dispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(listOf(false, true), repository.refreshCalls)
+    }
+
+    @Test
+    fun `isRefreshing only while a refresh is in flight with a visible plant`() = runTest {
+        repository.plants.value = details()
+        val vm = viewModel()
+        val collector = launch { vm.uiState.collect { } }
+        vm.uiState.first { it.loadingStatus == LoadingStatus.Done && !it.isRefreshing }
+
+        val gate = CompletableDeferred<Unit>()
+        repository.refreshGate = gate
+        vm.onPullToRefresh()
+        vm.uiState.first { it.isRefreshing }
+
+        gate.complete(Unit)
+        vm.uiState.first { !it.isRefreshing }
+
+        collector.cancel()
+    }
+
+    @Test
+    fun `initial load without cached plant is not refreshing`() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        repository.refreshGate = gate
+        val vm = viewModel()
+
+        val state = vm.uiState.first { it.loadingStatus == LoadingStatus.Loading }
+
+        assertFalse(state.isRefreshing)
+        gate.complete(Unit)
     }
 
     @Test

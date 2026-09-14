@@ -41,6 +41,7 @@ data class PlantsDetailUiState(
     val saveButtonVisible: Boolean = false,
     val isSaved: Boolean = false,
     val loadingStatus: LoadingStatus = LoadingStatus.Loading,
+    val isRefreshing: Boolean = false,
 )
 
 class PlantsDetailViewModel(
@@ -59,7 +60,8 @@ class PlantsDetailViewModel(
             plant = plant?.toUiData(),
             saveButtonVisible = plant != null,
             isSaved = isSaved,
-            loadingStatus = status
+            loadingStatus = status,
+            isRefreshing = plant != null && status is LoadingStatus.Loading,
         )
     }.stateIn(
         scope = viewModelScope,

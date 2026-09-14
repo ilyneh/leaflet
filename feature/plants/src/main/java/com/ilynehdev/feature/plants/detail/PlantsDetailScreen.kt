@@ -2,7 +2,6 @@ package com.ilynehdev.feature.plants.detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -20,12 +19,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -59,19 +60,26 @@ fun PlantsDetailScreen(
         onBackClicked = onBackClicked,
         onSaveClicked = viewModel::onSaveClicked,
         onRetryClicked = viewModel::onRetryClicked,
+        onPullToRefresh = viewModel::onPullToRefresh,
         modifier = modifier,
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlantsDetailContent(
     uiState: PlantsDetailUiState,
     onBackClicked: () -> Unit,
     onSaveClicked: () -> Unit,
     onRetryClicked: () -> Unit,
+    onPullToRefresh: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier.fillMaxSize()) {
+    PullToRefreshBox(
+        isRefreshing = uiState.isRefreshing,
+        onRefresh = onPullToRefresh,
+        modifier = modifier.fillMaxSize(),
+    ) {
         when {
             uiState.plant != null -> PlantsDetail(
                 plant = uiState.plant,
@@ -302,6 +310,7 @@ private fun PlantsDetailContentPreview() {
             onBackClicked = {},
             onSaveClicked = {},
             onRetryClicked = {},
+            onPullToRefresh = {},
         )
     }
 }
