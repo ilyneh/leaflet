@@ -18,10 +18,12 @@ import com.ilynehdev.data.plants.filters.FilterQueryParams
 import com.ilynehdev.data.plants.model.mapper.toEntity
 import com.ilynehdev.data.plants.model.mapper.toPlant
 import com.ilynehdev.data.plants.model.Plant
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.hours
 
@@ -133,8 +135,14 @@ class PagedPlantsRepositoryImpl(
                 watering = params.watering,
                 poisonous = params.poisonous,
             )
-            upsertListRows(page.items)
-            synchronized(completedSearches) { completedSearches[key] = Unit }
+            // The call stays cancellable (a retyped query kills the stale
+            // request), but once the response is in hand the upsert + mark
+            // must land together or the next collection refetches a page
+            // that was already paid for.
+            withContext(NonCancellable) {
+                upsertListRows(page.items)
+                synchronized(completedSearches) { completedSearches[key] = Unit }
+            }
         } catch (e: CancellationException) {
             throw e
         } catch (_: Exception) {

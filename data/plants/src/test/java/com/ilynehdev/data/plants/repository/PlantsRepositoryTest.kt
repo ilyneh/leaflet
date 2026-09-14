@@ -184,9 +184,18 @@ class PlantsRepositoryTest {
         api.failOnPage = 2
 
         // First session: page 1 lands, page 2 fails -> partial catalog, no crash.
-        repo.observePlants().asSnapshot(
-            onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }
-        )
+        // paging-testing 3.5.1 bug: the REFRESH access callback launches a
+        // coroutine whose awaitNotLoading can observe the deliberate page-2
+        // error and throw the library's private ReturnSnapshotStub outside
+        // asSnapshot's own catch. The snapshot value is unused here, so a
+        // leaked stub is swallowed by name.
+        try {
+            repo.observePlants().asSnapshot(
+                onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }
+            )
+        } catch (e: Exception) {
+            if (e::class.simpleName != "ReturnSnapshotStub") throw e
+        }
 
         // page 1 committed to the db despite the interruption
         assertEquals(
