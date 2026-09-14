@@ -18,11 +18,12 @@ import com.ilynehdev.data.plants.filters.FilterQueryParams
 import com.ilynehdev.data.plants.model.mapper.toEntity
 import com.ilynehdev.data.plants.model.mapper.toPlant
 import com.ilynehdev.data.plants.model.Plant
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.hours
 
 interface PagedPlantsRepository {
@@ -125,19 +126,22 @@ class PagedPlantsRepositoryImpl(
             if (completedSearches.containsKey(key)) return
         }
 
-        try {
-            val page = api.getPlants(
-                page = 1,
-                query = query,
-                sunlight = params.sunlight,
-                watering = params.watering,
-                poisonous = params.poisonous,
-            )
-            upsertListRows(page.items)
-            synchronized(completedSearches) { completedSearches[key] = Unit }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (_: Exception) {
+        // NonCancellable: the collector cancelling mid-fetch (retype, screen
+        // exit) must not strand a recorded request without its upsert + mark,
+        // or the next collection refetches. One page is bounded work.
+        withContext(NonCancellable) {
+            try {
+                val page = api.getPlants(
+                    page = 1,
+                    query = query,
+                    sunlight = params.sunlight,
+                    watering = params.watering,
+                    poisonous = params.poisonous,
+                )
+                upsertListRows(page.items)
+                synchronized(completedSearches) { completedSearches[key] = Unit }
+            } catch (_: Exception) {
+            }
         }
     }
 
