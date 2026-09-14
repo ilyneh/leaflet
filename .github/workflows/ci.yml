@@ -42,6 +42,10 @@ jobs:
           :core:network:plants:test
           :core:network:client:test
 
+      - name: Summarize test failures
+        if: failure()
+        run: python3 ci_scripts/summarize_test_failures.py >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload test reports
         if: failure()
         uses: actions/upload-artifact@v4

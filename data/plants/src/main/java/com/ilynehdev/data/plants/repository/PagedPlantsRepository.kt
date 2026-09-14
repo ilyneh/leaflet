@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.hours
 
 interface PagedPlantsRepository {
@@ -126,22 +127,25 @@ class PagedPlantsRepositoryImpl(
             if (completedSearches.containsKey(key)) return
         }
 
-        // NonCancellable: the collector cancelling mid-fetch (retype, screen
-        // exit) must not strand a recorded request without its upsert + mark,
-        // or the next collection refetches. One page is bounded work.
-        withContext(NonCancellable) {
-            try {
-                val page = api.getPlants(
-                    page = 1,
-                    query = query,
-                    sunlight = params.sunlight,
-                    watering = params.watering,
-                    poisonous = params.poisonous,
-                )
+        try {
+            val page = api.getPlants(
+                page = 1,
+                query = query,
+                sunlight = params.sunlight,
+                watering = params.watering,
+                poisonous = params.poisonous,
+            )
+            // The call stays cancellable (a retyped query kills the stale
+            // request), but once the response is in hand the upsert + mark
+            // must land together or the next collection refetches a page
+            // that was already paid for.
+            withContext(NonCancellable) {
                 upsertListRows(page.items)
                 synchronized(completedSearches) { completedSearches[key] = Unit }
-            } catch (_: Exception) {
             }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
         }
     }
 
