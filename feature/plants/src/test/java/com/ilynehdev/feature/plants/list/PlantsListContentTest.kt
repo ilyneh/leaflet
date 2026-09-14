@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -22,10 +23,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(qualifiers = "w411dp-h1200dp")
 class PlantsListContentTest {
 
     @get:Rule
@@ -132,7 +131,7 @@ class PlantsListContentTest {
         setContent(onFiltersApplied = { applied = it })
         composeRule.onNodeWithContentDescription(string(R.string.filter)).performClick()
 
-        composeRule.onNodeWithText(string(R.string.filter_safety_pet_safe)).performClick()
+        composeRule.onNodeWithText(string(R.string.filter_safety_pet_safe)).performScrollTo().performClick()
         composeRule.onNodeWithText(string(R.string.apply)).performClick()
         composeRule.waitForIdle()
 
