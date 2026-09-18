@@ -54,6 +54,8 @@ private val LightColors = lightColorScheme(
     scrim = Black,
 )
 
+
+// TODO: Update to match light color scheme where green is the primary color and pink is secondary.
 private val DarkColors = darkColorScheme(
     primary              = Pink80,
     onPrimary            = Pink20,

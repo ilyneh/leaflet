@@ -3,7 +3,7 @@ package com.ilynehdev.core.designsystem
 import androidx.compose.ui.graphics.Color
 
 
-// Primary — Green
+// Primary
 val Green10 = Color(0xFF06280F)
 val Green20 = Color(0xFF0B2A16)
 val Green30 = Color(0xFF2C5535)
@@ -12,7 +12,7 @@ val Green40 = Color(0xFF3A6F43)
 val Green60 = Color(0xFF59AC77)
 val Green90 = Color(0xFFC7E8CE)
 
-// Secondary — Pink
+// Secondary
 val Pink10 = Color(0xFF40071A)
 val Pink20 = Color(0xFF5C1229)
 val Pink30 = Color(0xFF8A3149)
@@ -21,19 +21,19 @@ val Pink50 = Color(0xFFC25774)
 val Pink80 = Color(0xFFF3B6C4)
 val Pink90 = Color(0xFFFFDCE4)
 
-// Tertiary — Cyan
+// Tertiary
 val Cyan30 = Color(0xFF204D58)
 val Cyan40 = Color(0xFF3A6470)
 val Cyan80 = Color(0xFFA2CEDC)
 val Cyan90 = Color(0xFFBEEAF8)
 
-// Error — Red
+// Error
 val Red30 = Color(0xFF93000A)
 val Red40 = Color(0xFFBA1A1A)
 val Red80 = Color(0xFFFFB4AB)
 val Red90 = Color(0xFFFFDAD6)
 
-// Neutral — Grey
+// Neutral
 val Grey5  = Color(0xFF0F1512)
 val Grey10 = Color(0xFF191C1A)
 val Grey20 = Color(0xFF2B322E)
@@ -43,7 +43,7 @@ val Grey94 = Color(0xFFEBF2ED)
 val Grey96 = Color(0xFFEFF6F2)
 val Grey98 = Color(0xFFF4FBF6)
 
-// Neutral variant — GreenGrey
+// Neutral variant
 val GreenGrey10 = Color(0xFF04231A)
 val GreenGrey30 = Color(0xFF404944)
 val GreenGrey40 = Color(0xFF3E5D51)
@@ -57,8 +57,7 @@ val White = Color(0xFFFFFFFF)
 val Black = Color(0xFF000000)
 
 
-// Caution colors - content advisory.
-// Not used in ColorScheme. Reached through PlantCautionColors.
+// Caution colors - content advisory
 val Caution30 = Color(0xFF8E3040)
 val Caution40 = Color(0xFFB3244C)
 val Caution80 = Color(0xFFFFD5D5)
