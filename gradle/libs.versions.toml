@@ -4,7 +4,7 @@ androidGradlePlugin = "9.4.0"
 androidTools = "32.4.0" # https://mvnrepository.com/artifact/com.android.tools/common
 ksp = "2.3.11" # https://github.com/google/ksp
 
-agp = "9.2.1"
+agp = "9.4.1"
 
 kotlin = "2.4.20"
 kotlinSerializationJson = "1.11.0"
