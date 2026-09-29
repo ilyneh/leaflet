@@ -11,7 +11,7 @@ import com.ilynehdev.core.designsystem.LeafletTheme
 
 
 @Composable
-fun MainHeader(
+internal fun MainHeader(
     text: String,
     modifier: Modifier = Modifier
 ) {
@@ -25,7 +25,7 @@ fun MainHeader(
 
 @Preview(showBackground = true)
 @Composable
-fun MainHeaderPreview() {
+internal fun MainHeaderPreview() {
     LeafletTheme {
         MainHeader("Plants")
     }

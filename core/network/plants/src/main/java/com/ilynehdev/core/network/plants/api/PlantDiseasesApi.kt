@@ -11,7 +11,7 @@ interface PlantDiseasesApi {
     suspend fun getPlantDiseases(page: Int): Page<PlantDiseaseDto>
 }
 
-class PlantDiseaseApiImpl(private val client: HttpClient) : PlantDiseasesApi {
+internal class PlantDiseaseApiImpl(private val client: HttpClient) : PlantDiseasesApi {
     override suspend fun getPlantDiseases(page: Int): Page<PlantDiseaseDto> {
         return client.get("pest-disease-list") {
             parameter("page", page)

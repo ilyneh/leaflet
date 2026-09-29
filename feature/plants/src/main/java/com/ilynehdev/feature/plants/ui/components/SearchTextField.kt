@@ -16,7 +16,7 @@ import com.ilynehdev.core.designsystem.LeafletTheme
 import com.ilynehdev.feature.plants.R
 
 @Composable
-fun SearchTextField(
+internal fun SearchTextField(
     value: String,
     placeHolderText: String,
     onValueChange: (String) -> Unit,
@@ -49,7 +49,7 @@ fun SearchTextField(
 
 @Preview
 @Composable
-fun SearchTextFieldPreview() {
+internal fun SearchTextFieldPreview() {
     LeafletTheme {
         SearchTextField(
             value = "Skirll",

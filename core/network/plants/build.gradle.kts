@@ -8,6 +8,6 @@ plugins {
 dependencies {
     implementation(projects.core.network.client)
 
-    implementation(libs.koin.core)
+    api(libs.koin.core)
     testImplementation(libs.junit)
 }

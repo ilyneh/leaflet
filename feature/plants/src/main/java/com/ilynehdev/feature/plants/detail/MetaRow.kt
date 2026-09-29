@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.ilynehdev.core.designsystem.LeafletTheme
 
 @Composable
-fun InfoRow(
+internal fun InfoRow(
     label: String,
     value: String,
     modifier: Modifier = Modifier,

@@ -32,7 +32,7 @@ interface PlantsRepository {
     suspend fun refreshPlantDetails(plantId: Long, force: Boolean = false): RefreshResult
 }
 
-class PlantsRepositoryImpl(
+internal class PlantsRepositoryImpl(
     private val dao: PlantsDao,
     private val savedDao: SavedPlantsDao,
     private val api: PlantsApi,

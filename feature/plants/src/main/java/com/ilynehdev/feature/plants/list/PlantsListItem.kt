@@ -34,7 +34,7 @@ import com.ilynehdev.feature.plants.ui.components.PulsingIcon
 
 
 @Composable
-fun PlantsListItem(
+internal fun PlantsListItem(
     commonName: String,
     scientificName: String?,
     imageUrl: String?,
@@ -110,7 +110,7 @@ fun PlantsListItem(
 
 @Preview(showBackground = true)
 @Composable
-fun PlantsListItemPreview() {
+internal fun PlantsListItemPreview() {
     LeafletTheme {
         PlantsListItem(
             commonName = "Monstera",

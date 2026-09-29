@@ -8,7 +8,7 @@ import com.ilynehdev.core.database.entities.PlantDiseaseSectionColumn
 import com.ilynehdev.core.database.entities.PruningCountColumn
 import kotlinx.serialization.json.Json
 
-class PlantConverters(private val json: Json = Json) {
+internal class PlantConverters(private val json: Json = Json) {
     @ColumnTypeConverter fun stringListToJson(value: List<String>): String = json.encodeToString(value)
     @ColumnTypeConverter fun jsonToStringList(value: String): List<String> = json.decodeFromString(value)
 

@@ -54,7 +54,7 @@ internal object TraitCardDefaults {
 }
 
 @Composable
-fun TraitCard(
+internal fun TraitCard(
     eyebrow: String,
     value: String,
     @DrawableRes iconRes:  Int,

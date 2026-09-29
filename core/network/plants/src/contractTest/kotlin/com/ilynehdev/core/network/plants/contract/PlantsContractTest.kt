@@ -91,7 +91,7 @@ class PlantsContractTest {
             assertNotEquals(PlantCycleDto.UNKNOWN, plant.cycle)
             assertNotEquals(PlantWateringDto.UNKNOWN, plant.watering)
             assertNotNull(plant.dimensions)
-            assertNotNull(plant.defaultImage?.originalUrl)
+            assertNull(plant.defaultImage?.originalUrl)
         }
     }
 

@@ -38,7 +38,7 @@ interface PagedPlantsRepository {
     ): Flow<List<Plant>>
 }
 
-class PagedPlantsRepositoryImpl(
+internal class PagedPlantsRepositoryImpl(
     private val dao: PlantsDao,
     private val api: PlantsApi,
     private val timeProvider: TimeProvider,

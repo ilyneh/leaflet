@@ -18,9 +18,9 @@ dependencies {
     implementation(projects.data.plants)
 
     // compose
-    implementation(platform(libs.androidx.compose.bom))
+    api(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.ui)
+    api(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.tooling.preview)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
@@ -31,12 +31,13 @@ dependencies {
     testImplementation(projects.core.network.client)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    api(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.paging.common)
     implementation(libs.androidx.paging.compose)
 
     implementation(libs.kotlinx.coroutines.android)
 
+    api(libs.koin.core)
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 

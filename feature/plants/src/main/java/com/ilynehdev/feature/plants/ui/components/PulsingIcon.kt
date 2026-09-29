@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 
 @Composable
-fun PulsingIcon(
+internal fun PulsingIcon(
     painter: Painter,
     contentDescription: String?,
     modifier: Modifier = Modifier,
@@ -30,7 +30,7 @@ fun PulsingIcon(
 }
 
 @Composable
-fun pulsingColor(
+internal fun pulsingColor(
     from: Color = MaterialTheme.colorScheme.secondary,
     to: Color = MaterialTheme.colorScheme.secondaryContainer,
 ): Color {

@@ -4,5 +4,5 @@ plugins {
 
 
 dependencies {
-    implementation(libs.koin.core)
+    api(libs.koin.core)
 }

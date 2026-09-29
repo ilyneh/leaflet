@@ -59,24 +59,41 @@ new source and creating new mapping in `data:plants`.
 
 ```mermaid
 graph TD
-    app --> feature:plants
-    app --> core:designsystem
-    app --> core:network:client
+    app[app]
+    featurePlants[feature:plants]
+    dataPlants[data:plants]
+    dataCommon[data:common]
+    phloem[core:phloem]
+    time[core:time]
+    database[core:database]
+    networkPlants[core:network:plants]
+    networkClient[core:network:client]
+    designsystem[core:designsystem]
 
-    feature:plants --> data:plants
-    feature:plants --> core:designsystem
+    app --> featurePlants
+    app --> designsystem
+    app --> networkClient
 
-    data:plants --> data:common
-    data:plants --> core:phloem
-    data:plants --> core:network:plants
-    data:plants --> core:database
+    featurePlants --> dataPlants
+    featurePlants --> designsystem
 
-    data:common --> core:database
-    data:common --> core:phloem
+    dataPlants ==> dataCommon
+    dataPlants ==> phloem
+    dataPlants --> networkPlants
+    dataPlants --> database
+    dataPlants --> time
 
-    core:network:plants --> core:network:client
-    core:phloem --> core:time
+    dataCommon ==> phloem
+    dataCommon --> database
+    dataCommon --> time
+
+    networkPlants --> networkClient
+    phloem ==> time
 ```
+
+Thick arrows are `api` dependencies, which consumers also see. Thin arrows are `implementation`
+dependencies, which stay hidden. `feature:plants` therefore sees the data layer's repositories and
+Phloem types, but not Room, the database or the network modules.
 
 Rules:
 
@@ -85,6 +102,12 @@ Rules:
 - Network modules are split by backend, not by feature.
 - `core:phloem`, `core:time` and the network modules are plain JVM libraries with no Android dependency.
 - Each Gradle module exposes one Koin module and composes its dependencies with `includes(...)`.
+- A dependency is `api` only when its types appear in the module's public API. Everything else
+  is `implementation`.
+- Implementations that are only constructed in their own module's Koin module are `internal`,
+  so their constructor dependencies don't leak. Callers see only the interface.
+- A module declares every library whose types it uses directly, rather than relying on another
+  library to bring it in.
 
 Build configuration is shared through convention plugins in `build-logic/`.
 

@@ -26,7 +26,7 @@ import com.ilynehdev.core.designsystem.LeafletTheme
 import com.ilynehdev.feature.plants.R
 
 @Composable
-fun SearchFilterBar(
+internal fun SearchFilterBar(
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
     onFilterClicked: () -> Unit,

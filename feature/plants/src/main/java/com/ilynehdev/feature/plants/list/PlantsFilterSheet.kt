@@ -51,7 +51,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlantsFilterSheet(
+internal fun PlantsFilterSheet(
     current: PlantsListFiltersUiData,
     onApply: (PlantFilters) -> Unit,
     onDismiss: () -> Unit,

@@ -58,7 +58,7 @@ data class PlantPruningCountDto(
 )
 
 // The API sends pruning_count as [] when absent and as an object when present.
-object PruningCountDtoSerializer : KSerializer<PlantPruningCountDto?> {
+internal object PruningCountDtoSerializer : KSerializer<PlantPruningCountDto?> {
     override val descriptor: SerialDescriptor =
         PlantPruningCountDto.serializer().nullable.descriptor
 

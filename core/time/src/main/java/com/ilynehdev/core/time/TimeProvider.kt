@@ -4,6 +4,6 @@ interface TimeProvider {
     fun currentTimeMillis(): Long
 }
 
-class SystemTimeProvider : TimeProvider {
+internal class SystemTimeProvider : TimeProvider {
     override fun currentTimeMillis(): Long = System.currentTimeMillis()
 }

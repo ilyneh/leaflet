@@ -54,7 +54,7 @@ fun PlantsListScreen(
 }
 
 @Composable
-fun PlantsListContent(
+internal fun PlantsListContent(
     plants: LazyPagingItems<PlantsListItemUiData>,
     searchQuery: String,
     showSavedOnly: Boolean,
@@ -119,7 +119,7 @@ fun PlantsListContent(
 
 @Preview(showBackground = true)
 @Composable
-fun PlantsListContentPreview() {
+internal fun PlantsListContentPreview() {
     val plants = flowOf(
         PagingData.from(
             listOf(

@@ -15,13 +15,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-sealed interface LoadingStatus {
+internal sealed interface LoadingStatus {
     data object Loading : LoadingStatus
     data object Done : LoadingStatus
     data object Failed : LoadingStatus
 }
 
-data class PlantsDetailUiData(
+internal data class PlantsDetailUiData(
     val commonName: String,
     val latinName: String?,
     val imageUrl: String?,
@@ -36,7 +36,7 @@ data class PlantsDetailUiData(
     enum class ToxicityNotice { PetsAndHumans, Pets, Humans }
 }
 
-data class PlantsDetailUiState(
+internal data class PlantsDetailUiState(
     val plant: PlantsDetailUiData? = null,
     val saveButtonVisible: Boolean = false,
     val isSaved: Boolean = false,
@@ -44,14 +44,14 @@ data class PlantsDetailUiState(
     val isRefreshing: Boolean = false,
 )
 
-class PlantsDetailViewModel(
+class PlantsDetailViewModel internal constructor(
     private val plantId: Long,
     private val plantsRepository: PlantsRepository,
 ) : ViewModel() {
 
     private val loadingStatus = MutableStateFlow<LoadingStatus>(LoadingStatus.Loading)
 
-    val uiState: StateFlow<PlantsDetailUiState> = combine(
+    internal val uiState: StateFlow<PlantsDetailUiState> = combine(
         plantsRepository.observePlant(plantId),
         plantsRepository.observeIsSaved(plantId),
         loadingStatus,
@@ -73,9 +73,9 @@ class PlantsDetailViewModel(
         refresh()
     }
 
-    fun onPullToRefresh() = refresh(force = true)
+    internal fun onPullToRefresh() = refresh(force = true)
 
-    fun onSaveClicked() {
+    internal fun onSaveClicked() {
         viewModelScope.launch {
             try {
                 plantsRepository.updateSavedPlant(plantId, !uiState.value.isSaved)
@@ -88,7 +88,7 @@ class PlantsDetailViewModel(
         }
     }
 
-    fun onRetryClicked() = refresh()
+    internal fun onRetryClicked() = refresh()
 
     private fun refresh(force: Boolean = false) {
         viewModelScope.launch {

@@ -51,7 +51,7 @@ internal object SavedFilterChipDefaults {
 }
 
 @Composable
-fun SavedFilterChip(
+internal fun SavedFilterChip(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,

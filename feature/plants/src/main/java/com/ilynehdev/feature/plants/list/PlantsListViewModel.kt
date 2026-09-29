@@ -29,13 +29,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlin.time.Duration.Companion.milliseconds
 
-data class PlantsListUiState(
+internal data class PlantsListUiState(
     val query: String = "",
     val showSavedOnly: Boolean = false,
     val filters: PlantsListFiltersUiData = PlantsListFiltersUiData(),
 )
 
-data class PlantsListFiltersUiData(
+internal data class PlantsListFiltersUiData(
     val activeCount: Int = 0,
     val selectedLight: Set<LightFilter> = emptySet(),
     val selectedWatering: Set<WateringFilter> = emptySet(),
@@ -53,14 +53,14 @@ internal fun PlantsListFiltersUiData.toPlantFilters() = PlantFilters(
     matureSize = selectedMatureSize,
 )
 
-data class PlantsListItemUiData(
+internal data class PlantsListItemUiData(
     val id: Long,
     val commonName: String,
     val scientificName: String?,
     val imageUrl: String?,
 )
 
-class PlantsListViewModel(
+class PlantsListViewModel internal constructor(
     private val pagedPlantsRepository: PagedPlantsRepository,
     private val observeFilteredPlants: ObserveFilteredPlantsUseCase,
 ) : ViewModel() {
@@ -69,14 +69,14 @@ class PlantsListViewModel(
     private val showSavedOnly = MutableStateFlow(false)
     private val filters = MutableStateFlow(PlantFilters())
 
-    val uiState: StateFlow<PlantsListUiState> =
+    internal val uiState: StateFlow<PlantsListUiState> =
         combine(query, showSavedOnly, filters) { query, showSavedOnly, filters ->
             PlantsListUiState(query, showSavedOnly, filters.toUiData())
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlantsListUiState())
 
     // Only the query is debounced; chip and filter changes apply instantly.
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-    val plants: Flow<PagingData<PlantsListItemUiData>> = combine(
+    internal val plants: Flow<PagingData<PlantsListItemUiData>> = combine(
         query.debounce(300.milliseconds).distinctUntilChanged(),
         showSavedOnly,
         filters,
@@ -94,15 +94,15 @@ class PlantsListViewModel(
         }
         .cachedIn(viewModelScope)   // must be the last operator
 
-    fun onQueryChanged(value: String) {
+    internal fun onQueryChanged(value: String) {
         query.value = value
     }
 
-    fun toggleShowSavedOnly() {
+    internal fun toggleShowSavedOnly() {
         showSavedOnly.update { !it }
     }
 
-    fun onFiltersChanged(value: PlantFilters) {
+    internal fun onFiltersChanged(value: PlantFilters) {
         filters.value = value
     }
 

@@ -15,6 +15,11 @@ val contractTest: SourceSet = sourceSets.create("contractTest") {
     runtimeClasspath += output + compileClasspath
 }
 
+// contractTest is a custom source set, so unlike `test` it can't see main's internal classes by default.
+kotlin.target.compilations.named("contractTest") {
+    associateWith(kotlin.target.compilations.getByName("main"))
+}
+
 configurations["contractTestImplementation"].extendsFrom(configurations["testImplementation"])
 configurations["contractTestRuntimeOnly"].extendsFrom(configurations["testRuntimeOnly"])
 

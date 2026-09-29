@@ -67,7 +67,7 @@ fun PlantsDetailScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlantsDetailContent(
+internal fun PlantsDetailContent(
     uiState: PlantsDetailUiState,
     onBackClicked: () -> Unit,
     onSaveClicked: () -> Unit,

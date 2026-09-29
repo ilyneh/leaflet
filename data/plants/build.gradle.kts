@@ -13,8 +13,9 @@ dependencies {
     implementation(projects.core.network.plants)
     implementation(projects.core.time)
 
-    implementation(libs.koin.core)
-    implementation(libs.androidx.room.paging)
+    api(libs.androidx.paging.common)
+    api(libs.koin.core)
 
     testImplementation(libs.androidx.paging.testing)
+    testImplementation(libs.androidx.room.runtime)
 }

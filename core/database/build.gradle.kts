@@ -9,6 +9,10 @@ android {
 }
 
 dependencies {
-    implementation(libs.koin.core)
+    api(libs.kotlinx.coroutines.core)
+    api(libs.androidx.room.runtime)
+    api(libs.androidx.room.paging)
+
+    api(libs.koin.core)
     implementation(libs.koin.android)
 }

@@ -22,7 +22,7 @@ interface PlantsApi {
     suspend fun getPlant(id: Long): PlantDto
 }
 
-class PlantsApiImpl(private val client: HttpClient) : PlantsApi {
+internal class PlantsApiImpl(private val client: HttpClient) : PlantsApi {
     override suspend fun getPlants(
         page: Int,
         query: String?,

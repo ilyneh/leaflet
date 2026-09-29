@@ -17,13 +17,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Immutable
-data class FilterOptionChipColors(
+internal data class FilterOptionChipColors(
     val pillColor: Color,
     val borderColor: Color,
     val textColor: Color,
 )
 
-object FilterOptionChipDefaults {
+internal object FilterOptionChipDefaults {
     @Composable
     fun colors(
         pillColor: Color = Color.Transparent,
@@ -40,7 +40,7 @@ object FilterOptionChipDefaults {
 }
 
 @Composable
-fun FilterOptionChip(
+internal fun FilterOptionChip(
     label: String,
     selected: Boolean,
     onToggle: () -> Unit,

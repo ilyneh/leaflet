@@ -6,7 +6,7 @@ import com.ilynehdev.core.phloem.pagefetcher.FetchMetadata
 import com.ilynehdev.core.phloem.pagefetcher.FetchMetadataStore
 import com.ilynehdev.core.phloem.pagefetcher.PhloemModel
 
-class RoomFetchMetadataStore(private val dao: FetchMetadataDao) : FetchMetadataStore {
+internal class RoomFetchMetadataStore(private val dao: FetchMetadataDao) : FetchMetadataStore {
 
     override suspend fun get(model: PhloemModel): FetchMetadata? =
         dao.get(model.key)?.let {

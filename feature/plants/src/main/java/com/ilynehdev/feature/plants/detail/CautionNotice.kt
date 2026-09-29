@@ -15,7 +15,7 @@ import com.ilynehdev.core.designsystem.PlantCautionColors
 
 
 @Composable
-fun CautionNotice(
+internal fun CautionNotice(
     text: String,
     modifier: Modifier = Modifier,
 ) {
