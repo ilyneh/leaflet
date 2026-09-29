@@ -16,6 +16,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ilynehdev.core.designsystem.LeafletTheme
 import com.ilynehdev.data.plants.filters.PlantFilters
 import com.ilynehdev.data.plants.filters.SafetyFilter
+import com.ilynehdev.data.plants.model.PlantId
 import com.ilynehdev.feature.plants.R
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Assert.assertEquals
@@ -40,7 +41,7 @@ class PlantsListContentTest {
         onSearchQueryChanged: (String) -> Unit = {},
         onFiltersApplied: (PlantFilters) -> Unit = {},
         toggleShowSaved: () -> Unit = {},
-        onItemClicked: (id: Long) -> Unit = {},
+        onItemClicked: (id: PlantId) -> Unit = {},
     ) {
         composeRule.setContent {
             val pagingItems = flowOf(PagingData.from(items)).collectAsLazyPagingItems()
@@ -60,9 +61,9 @@ class PlantsListContentTest {
     }
 
     private fun plants() = listOf(
-        PlantsListItemUiData(1, "Monstera", "Monstera deliciosa", null),
-        PlantsListItemUiData(2, "Snake Plant", "Dracaena trifasciata", null),
-        PlantsListItemUiData(3, "Aloe Vera", null, null),
+        PlantsListItemUiData(PlantId(1), "Monstera", "Monstera deliciosa", null),
+        PlantsListItemUiData(PlantId(2), "Snake Plant", "Dracaena trifasciata", null),
+        PlantsListItemUiData(PlantId(3), "Aloe Vera", null, null),
     )
 
     @Test
@@ -76,12 +77,12 @@ class PlantsListContentTest {
 
     @Test
     fun `clicking a row emits its id`() {
-        var clickedId: Long? = null
+        var clickedId: PlantId? = null
         setContent(onItemClicked = { clickedId = it })
 
         composeRule.onNodeWithText("Snake Plant").performClick()
 
-        assertEquals(2L, clickedId)
+        assertEquals(PlantId(2), clickedId)
     }
 
     @Test

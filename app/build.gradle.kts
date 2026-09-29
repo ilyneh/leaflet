@@ -56,6 +56,7 @@ android {
 
 dependencies {
     implementation(projects.core.designsystem)
+    implementation(projects.data.plants)
     implementation(projects.core.network.client)
     implementation(projects.feature.plants)
 
@@ -78,7 +79,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.androidx.junit)
     testImplementation(libs.robolectric)
-    testImplementation(projects.data.plants)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)

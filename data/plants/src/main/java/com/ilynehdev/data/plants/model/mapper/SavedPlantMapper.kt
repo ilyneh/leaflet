@@ -1,6 +1,7 @@
 package com.ilynehdev.data.plants.model.mapper
 
 import com.ilynehdev.core.database.projections.SavedPlantsRow
+import com.ilynehdev.data.plants.model.PlantId
 import com.ilynehdev.data.plants.model.SavedPlant
 
 
@@ -9,7 +10,7 @@ internal fun List<SavedPlantsRow>.toSavedPlants(): List<SavedPlant> =
 
 internal fun SavedPlantsRow.toSavedPlant() =
     SavedPlant(
-        id = id,
+        id = PlantId(id),
         commonName = commonName,
         scientificName = scientificName,
         watering = watering,

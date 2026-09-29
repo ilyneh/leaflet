@@ -43,13 +43,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.ilynehdev.core.designsystem.LeafletTheme
+import com.ilynehdev.data.plants.model.PlantId
 import com.ilynehdev.feature.plants.R
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
 fun PlantsDetailScreen(
-    plantId: Long,
+    plantId: PlantId,
     onBackClicked: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlantsDetailViewModel = koinViewModel(parameters = { parametersOf(plantId) }),

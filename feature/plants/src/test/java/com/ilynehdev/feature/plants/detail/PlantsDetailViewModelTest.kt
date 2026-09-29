@@ -3,6 +3,7 @@ package com.ilynehdev.feature.plants.detail
 import com.ilynehdev.data.common.RefreshError
 import com.ilynehdev.data.common.RefreshResult
 import com.ilynehdev.data.plants.model.PlantDetails
+import com.ilynehdev.data.plants.model.PlantId
 import com.ilynehdev.data.plants.model.SavedPlant
 import com.ilynehdev.data.plants.repository.PlantsRepository
 import kotlinx.coroutines.CompletableDeferred
@@ -30,26 +31,26 @@ class PlantsDetailViewModelTest {
 
     private class FakePlantsRepository : PlantsRepository {
         val plants = MutableStateFlow<PlantDetails?>(null)
-        val savedIds = MutableStateFlow<Set<Long>>(emptySet())
+        val savedIds = MutableStateFlow<Set<PlantId>>(emptySet())
         var refreshResult: RefreshResult = RefreshResult.Refreshed
         val refreshCalls = mutableListOf<Boolean>() // force flag per call
         var failSaveWith: Exception? = null
         var refreshGate: CompletableDeferred<Unit>? = null
 
-        override fun observePlant(plantId: Long): Flow<PlantDetails?> = plants
+        override fun observePlant(plantId: PlantId): Flow<PlantDetails?> = plants
 
-        override fun observeIsSaved(plantId: Long): Flow<Boolean> =
+        override fun observeIsSaved(plantId: PlantId): Flow<Boolean> =
             savedIds.map { plantId in it }
 
         override fun observeSavedPlants(): Flow<List<SavedPlant>> =
             error("not used in these tests")
 
-        override suspend fun updateSavedPlant(plantId: Long, saved: Boolean) {
+        override suspend fun updateSavedPlant(plantId: PlantId, saved: Boolean) {
             failSaveWith?.let { throw it }
             savedIds.value = if (saved) savedIds.value + plantId else savedIds.value - plantId
         }
 
-        override suspend fun refreshPlantDetails(plantId: Long, force: Boolean): RefreshResult {
+        override suspend fun refreshPlantDetails(plantId: PlantId, force: Boolean): RefreshResult {
             refreshCalls += force
             refreshGate?.await()
             return refreshResult
@@ -215,6 +216,6 @@ class PlantsDetailViewModelTest {
     }
 
     companion object {
-        const val PLANT_ID = 7L
+        val PLANT_ID = PlantId(7)
     }
 }

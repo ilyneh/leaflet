@@ -25,6 +25,7 @@ import com.ilynehdev.core.designsystem.LeafletTheme
 import com.ilynehdev.data.plants.filters.LightFilter
 import com.ilynehdev.data.plants.filters.PlantFilters
 import com.ilynehdev.data.plants.filters.SafetyFilter
+import com.ilynehdev.data.plants.model.PlantId
 import com.ilynehdev.feature.plants.R
 import com.ilynehdev.feature.plants.ui.components.MainHeader
 import com.ilynehdev.feature.plants.ui.components.SavedFilterChip
@@ -34,7 +35,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun PlantsListScreen(
-    onPlantClicked: (id: Long) -> Unit,
+    onPlantClicked: (id: PlantId) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PlantsListViewModel = koinViewModel(),
 ) {
@@ -62,7 +63,7 @@ internal fun PlantsListContent(
     onSearchQueryChanged: (String) -> Unit,
     onFiltersApplied: (PlantFilters) -> Unit,
     toggleShowSaved: () -> Unit,
-    onItemClicked: (id: Long) -> Unit,
+    onItemClicked: (id: PlantId) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showFilterSheet by rememberSaveable { mutableStateOf(false) }
@@ -92,7 +93,8 @@ internal fun PlantsListContent(
         LazyColumn(
             contentPadding = PaddingValues(top = 6.dp, bottom = 12.dp)
         ) {
-            items(count = plants.itemCount, key = plants.itemKey { it.id }) { index ->
+            // Lazy keys must be Bundle-saveable; a boxed value class is not.
+            items(count = plants.itemCount, key = plants.itemKey { it.id.value }) { index ->
                 val plant = plants[index] ?: return@items
                 PlantsListItem(
                     commonName = plant.commonName,
@@ -123,9 +125,9 @@ internal fun PlantsListContentPreview() {
     val plants = flowOf(
         PagingData.from(
             listOf(
-                PlantsListItemUiData(1, "Monstera Deliciosa", "Monstera deliciosa", null),
-                PlantsListItemUiData(2, "Snake Plant", "null", null),
-                PlantsListItemUiData(3, "Aloe Vera", null, null,),
+                PlantsListItemUiData(PlantId(1), "Monstera Deliciosa", "Monstera deliciosa", null),
+                PlantsListItemUiData(PlantId(2), "Snake Plant", "null", null),
+                PlantsListItemUiData(PlantId(3), "Aloe Vera", null, null,),
             )
         )
     ).collectAsLazyPagingItems()

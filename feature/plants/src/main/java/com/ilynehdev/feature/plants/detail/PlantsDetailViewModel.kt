@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.ilynehdev.data.common.RefreshResult
 import com.ilynehdev.data.plants.model.Dimension
 import com.ilynehdev.data.plants.model.PlantDetails
+import com.ilynehdev.data.plants.model.PlantId
 import com.ilynehdev.data.plants.repository.PlantsRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,7 +46,7 @@ internal data class PlantsDetailUiState(
 )
 
 class PlantsDetailViewModel internal constructor(
-    private val plantId: Long,
+    private val plantId: PlantId,
     private val plantsRepository: PlantsRepository,
 ) : ViewModel() {
 

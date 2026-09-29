@@ -9,6 +9,7 @@ import com.ilynehdev.data.plants.filters.SafetyFilter
 import com.ilynehdev.data.plants.filters.WateringFilter
 import com.ilynehdev.data.plants.model.Dimension
 import com.ilynehdev.data.plants.model.Plant
+import com.ilynehdev.data.plants.model.PlantId
 import com.ilynehdev.data.plants.model.WateringBenchmark
 import com.ilynehdev.data.plants.repository.PagedPlantsRepository
 import kotlinx.coroutines.flow.Flow
@@ -50,7 +51,7 @@ class ObserveFilteredPlantsUseCaseTest {
         careLevel: String? = null,
         dimensions: List<Dimension>? = null,
     ) = Plant(
-        id = id,
+        id = PlantId(id),
         commonName = "Plant $id",
         scientificName = null,
         watering = watering,
@@ -84,7 +85,7 @@ class ObserveFilteredPlantsUseCaseTest {
 
         val items = useCase("", savedOnly = false, filters = PlantFilters()).first()
 
-        assertEquals(listOf(1L, 2L), items.map { it.id })
+        assertEquals(listOf(1L, 2L), items.map { it.id.value })
     }
 
     @Test
@@ -98,7 +99,7 @@ class ObserveFilteredPlantsUseCaseTest {
         val filters = PlantFilters(light = setOf(LightFilter.DirectSun))
         val items = useCase("", savedOnly = false, filters = filters).first()
 
-        assertEquals(listOf(1L), items.map { it.id })
+        assertEquals(listOf(1L), items.map { it.id.value })
     }
 
     @Test
@@ -115,7 +116,7 @@ class ObserveFilteredPlantsUseCaseTest {
         )
         val items = useCase("", savedOnly = false, filters = filters).first()
 
-        assertEquals(listOf(1L), items.map { it.id })
+        assertEquals(listOf(1L), items.map { it.id.value })
     }
 
     @Test
@@ -131,7 +132,7 @@ class ObserveFilteredPlantsUseCaseTest {
         )
         val items = useCase("", savedOnly = false, filters = filters).first()
 
-        assertEquals(listOf(1L), items.map { it.id })
+        assertEquals(listOf(1L), items.map { it.id.value })
     }
 
     @Test
@@ -144,7 +145,7 @@ class ObserveFilteredPlantsUseCaseTest {
         val filters = PlantFilters(matureSize = setOf(MatureSizeFilter.Tall))
         val items = useCase("", savedOnly = false, filters = filters).first()
 
-        assertEquals(listOf(1L), items.map { it.id })
+        assertEquals(listOf(1L), items.map { it.id.value })
     }
 
     @Test

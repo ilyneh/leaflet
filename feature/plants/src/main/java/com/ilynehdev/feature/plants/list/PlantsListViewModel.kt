@@ -12,6 +12,7 @@ import com.ilynehdev.data.plants.filters.PlantFilters
 import com.ilynehdev.data.plants.filters.SafetyFilter
 import com.ilynehdev.data.plants.filters.WateringFilter
 import com.ilynehdev.data.plants.model.Plant
+import com.ilynehdev.data.plants.model.PlantId
 import com.ilynehdev.data.plants.repository.PagedPlantsRepository
 import com.ilynehdev.data.plants.usecase.ObserveFilteredPlantsUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -54,7 +55,7 @@ internal fun PlantsListFiltersUiData.toPlantFilters() = PlantFilters(
 )
 
 internal data class PlantsListItemUiData(
-    val id: Long,
+    val id: PlantId,
     val commonName: String,
     val scientificName: String?,
     val imageUrl: String?,

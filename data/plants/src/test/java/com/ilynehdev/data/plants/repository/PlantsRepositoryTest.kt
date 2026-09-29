@@ -20,6 +20,7 @@ import com.ilynehdev.data.common.RefreshError
 import com.ilynehdev.data.common.RefreshResult
 import com.ilynehdev.data.plants.filters.LightFilter
 import com.ilynehdev.data.plants.filters.PlantFilters
+import com.ilynehdev.data.plants.model.PlantId
 import com.ilynehdev.data.plants.usecase.ObserveFilteredPlantsUseCase
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -146,15 +147,15 @@ class PlantsRepositoryTest {
         api.pages[1] = Page(listOf(dto(7, "Monstera Deliciosa")), nextKey = null)
         repo.observePlants().asSnapshot()   // fills db through the mediator
 
-        val plant = detailRepo.observePlant(7).first()
+        val plant = detailRepo.observePlant(PlantId(7)).first()
 
         assertEquals("Monstera Deliciosa", plant?.commonName)
-        assertEquals(7L, plant?.id)
+        assertEquals(PlantId(7), plant?.id)
     }
 
     @Test
     fun `observePlant emits null for missing row`() = runTest {
-        assertNull(detailRepo.observePlant(99).first())
+        assertNull(detailRepo.observePlant(PlantId(99)).first())
     }
 
     // ---- observePlants (mediator path) ----
@@ -227,7 +228,7 @@ class PlantsRepositoryTest {
     fun `refreshPlantDetails fetches, stores and stamps the row`() = runTest {
         api.details[7] = PlantDto(id = 7, commonName = "Monstera", description = "Big leaves")
 
-        val result = detailRepo.refreshPlantDetails(7)
+        val result = detailRepo.refreshPlantDetails(PlantId(7))
 
         assertEquals(RefreshResult.Refreshed, result)
         val row = db.plantsDao().getById(7)
@@ -238,10 +239,10 @@ class PlantsRepositoryTest {
     @Test
     fun `refreshPlantDetails skips network while row is fresh`() = runTest {
         api.details[7] = PlantDto(id = 7, commonName = "Monstera")
-        detailRepo.refreshPlantDetails(7)
+        detailRepo.refreshPlantDetails(PlantId(7))
 
         nowMillis += 1_000  // well inside the TTL
-        val result = detailRepo.refreshPlantDetails(7)
+        val result = detailRepo.refreshPlantDetails(PlantId(7))
 
         assertEquals(RefreshResult.AlreadyFresh, result)
         assertEquals(listOf(7L), api.requestedDetailIds)  // fetched exactly once
@@ -250,10 +251,10 @@ class PlantsRepositoryTest {
     @Test
     fun `forced refresh bypasses ttl and refetches a fresh row`() = runTest {
         api.details[7] = PlantDto(id = 7, commonName = "Monstera")
-        detailRepo.refreshPlantDetails(7)
+        detailRepo.refreshPlantDetails(PlantId(7))
 
         nowMillis += 1_000  // still fresh
-        val result = detailRepo.refreshPlantDetails(7, force = true)
+        val result = detailRepo.refreshPlantDetails(PlantId(7), force = true)
 
         assertEquals(RefreshResult.Refreshed, result)
         assertEquals(listOf(7L, 7L), api.requestedDetailIds)
@@ -263,10 +264,10 @@ class PlantsRepositoryTest {
     @Test
     fun `refreshPlantDetails refetches after ttl expires`() = runTest {
         api.details[7] = PlantDto(id = 7, commonName = "Monstera")
-        detailRepo.refreshPlantDetails(7)
+        detailRepo.refreshPlantDetails(PlantId(7))
 
         nowMillis += DETAILS_TTL.inWholeMilliseconds + 1
-        detailRepo.refreshPlantDetails(7)
+        detailRepo.refreshPlantDetails(PlantId(7))
 
         assertEquals(listOf(7L, 7L), api.requestedDetailIds)
         assertEquals(nowMillis, db.plantsDao().getById(7)?.detailsSyncedAt)
@@ -275,12 +276,12 @@ class PlantsRepositoryTest {
     @Test
     fun `refreshPlantDetails classifies failure and keeps cached row`() = runTest {
         api.details[7] = PlantDto(id = 7, commonName = "Monstera", description = "Big leaves")
-        detailRepo.refreshPlantDetails(7)
+        detailRepo.refreshPlantDetails(PlantId(7))
 
         nowMillis += DETAILS_TTL.inWholeMilliseconds + 1
         api.failWith = IOException("offline")
 
-        val result = detailRepo.refreshPlantDetails(7)
+        val result = detailRepo.refreshPlantDetails(PlantId(7))
 
         assertEquals(RefreshResult.Failed(RefreshError.Offline), result)
         assertEquals("Big leaves", db.plantsDao().getById(7)?.description)
@@ -292,13 +293,13 @@ class PlantsRepositoryTest {
         api.pages[1] = Page(listOf(dto(1, "Aloe")), nextKey = null)
         repo.observePlants().asSnapshot()   // seed catalog row for the FK
 
-        assertFalse(detailRepo.observeIsSaved(1).first())
+        assertFalse(detailRepo.observeIsSaved(PlantId(1)).first())
 
-        detailRepo.updateSavedPlant(1, saved = true)
-        assertTrue(detailRepo.observeIsSaved(1).first())
+        detailRepo.updateSavedPlant(PlantId(1), saved = true)
+        assertTrue(detailRepo.observeIsSaved(PlantId(1)).first())
 
-        detailRepo.updateSavedPlant(1, saved = false)
-        assertFalse(detailRepo.observeIsSaved(1).first())
+        detailRepo.updateSavedPlant(PlantId(1), saved = false)
+        assertFalse(detailRepo.observeIsSaved(PlantId(1)).first())
     }
 
     @Test
@@ -306,9 +307,9 @@ class PlantsRepositoryTest {
         api.pages[1] = Page(listOf(dto(1, "Aloe")), nextKey = null)
         repo.observePlants().asSnapshot()
 
-        detailRepo.updateSavedPlant(1, saved = true)
+        detailRepo.updateSavedPlant(PlantId(1), saved = true)
         nowMillis += 5_000
-        detailRepo.updateSavedPlant(1, saved = true)
+        detailRepo.updateSavedPlant(PlantId(1), saved = true)
 
         val saved = detailRepo.observeSavedPlants().first()
         assertEquals(1, saved.size)
@@ -320,7 +321,7 @@ class PlantsRepositoryTest {
         api.pages[1] = Page(listOf(dto(1, "Aloe")), nextKey = null)
         repo.observePlants().asSnapshot()
 
-        detailRepo.updateSavedPlant(1, saved = false)
+        detailRepo.updateSavedPlant(PlantId(1), saved = false)
 
         assertTrue(detailRepo.observeSavedPlants().first().isEmpty())
     }
@@ -333,14 +334,14 @@ class PlantsRepositoryTest {
         )
         repo.observePlants().asSnapshot()
 
-        detailRepo.updateSavedPlant(1, saved = true)
+        detailRepo.updateSavedPlant(PlantId(1), saved = true)
         nowMillis += 1_000
-        detailRepo.updateSavedPlant(3, saved = true)
+        detailRepo.updateSavedPlant(PlantId(3), saved = true)
 
         val saved = detailRepo.observeSavedPlants().first()
 
-        assertEquals(listOf(3L, 1L), saved.map { it.id })  // newest first
-        val aloe = saved.single { it.id == 1L }
+        assertEquals(listOf(3L, 1L), saved.map { it.id.value })  // newest first
+        val aloe = saved.single { it.id == PlantId(1) }
         assertEquals("Aloe", aloe.commonName)
         assertEquals(nowMillis - 1_000, aloe.savedAt)
     }
@@ -391,14 +392,14 @@ class PlantsRepositoryTest {
             nextKey = null,
         )
         repo.observePlants().asSnapshot()
-        detailRepo.updateSavedPlant(1, saved = true)
+        detailRepo.updateSavedPlant(PlantId(1), saved = true)
         nowMillis += 1_000
-        detailRepo.updateSavedPlant(3, saved = true)
+        detailRepo.updateSavedPlant(PlantId(3), saved = true)
 
         val items = observeFilteredPlants("", savedOnly = true, filters = PlantFilters())
             .first()
 
-        assertEquals(listOf(3L, 1L), items.map { it.id })
+        assertEquals(listOf(3L, 1L), items.map { it.id.value })
     }
 
     @Test
@@ -412,8 +413,8 @@ class PlantsRepositoryTest {
             nextKey = null,
         )
         repo.observePlants().asSnapshot()
-        detailRepo.updateSavedPlant(1, saved = true)
-        detailRepo.updateSavedPlant(2, saved = true)
+        detailRepo.updateSavedPlant(PlantId(1), saved = true)
+        detailRepo.updateSavedPlant(PlantId(2), saved = true)
 
         val filters = PlantFilters(light = setOf(LightFilter.DirectSun))
         val items = observeFilteredPlants("a", savedOnly = true, filters = filters).first()
@@ -516,7 +517,7 @@ class PlantsRepositoryTest {
 
         val filters = PlantFilters(light = setOf(LightFilter.DirectSun))
         val items = observeFilteredPlants("monstera", savedOnly = false, filters = filters)
-            .first { plants -> plants.any { it.id == 50L } }
+            .first { plants -> plants.any { it.id == PlantId(50) } }
 
         assertEquals(
             listOf("Monstera Local", "Monstera Remote"),
@@ -527,7 +528,7 @@ class PlantsRepositoryTest {
     @Test
     fun `list crawl does not clobber a detail-synced row`() = runTest {
         api.details[1] = PlantDto(id = 1, commonName = "Aloe", description = "Succulent")
-        detailRepo.refreshPlantDetails(1)
+        detailRepo.refreshPlantDetails(PlantId(1))
 
         // Catalog crawl returns the same plant as a sparse list row.
         api.pages[1] = Page(listOf(dto(1, "Aloe")), nextKey = null)
