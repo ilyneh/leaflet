@@ -1,6 +1,6 @@
 package com.ilynehdev.feature.plants.detail
 
-import com.ilynehdev.core.phloem.FetchError
+import com.ilynehdev.data.common.RefreshError
 import com.ilynehdev.data.common.RefreshResult
 import com.ilynehdev.data.plants.model.PlantDetails
 import com.ilynehdev.data.plants.model.SavedPlant
@@ -109,7 +109,7 @@ class PlantsDetailViewModelTest {
 
     @Test
     fun `failed refresh with no cached plant exposes Failed and hides save button`() = runTest {
-        repository.refreshResult = RefreshResult.Failed(FetchError.Offline)
+        repository.refreshResult = RefreshResult.Failed(RefreshError.Offline)
         val vm = viewModel()
 
         val state = vm.uiState.first { it.loadingStatus == LoadingStatus.Failed }
@@ -121,7 +121,7 @@ class PlantsDetailViewModelTest {
     @Test
     fun `failed refresh keeps cached plant visible`() = runTest {
         repository.plants.value = details()
-        repository.refreshResult = RefreshResult.Failed(FetchError.Offline)
+        repository.refreshResult = RefreshResult.Failed(RefreshError.Offline)
         val vm = viewModel()
 
         val state = vm.uiState.first { it.loadingStatus == LoadingStatus.Failed }

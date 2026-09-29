@@ -4,9 +4,11 @@ import com.ilynehdev.core.database.dao.PlantsDao
 import com.ilynehdev.core.database.dao.SavedPlantsDao
 import com.ilynehdev.core.database.entities.SavedPlantEntity
 import com.ilynehdev.core.network.plants.api.PlantsApi
+import com.ilynehdev.core.phloem.FetchError
 import com.ilynehdev.core.phloem.Freshness
 import com.ilynehdev.core.phloem.itemfetcher.PhloemItemFetcher
 import com.ilynehdev.core.time.TimeProvider
+import com.ilynehdev.data.common.RefreshError
 import com.ilynehdev.data.common.RefreshResult
 import com.ilynehdev.data.plants.model.mapper.toEntity
 import com.ilynehdev.data.plants.model.mapper.toPlantDetails
@@ -74,7 +76,16 @@ internal class PlantsRepositoryImpl(
 
         return when (error) {
             null -> RefreshResult.Refreshed
-            else -> RefreshResult.Failed(error)
+            else -> RefreshResult.Failed(error.toRefreshError())
         }
     }
+}
+
+private fun FetchError.toRefreshError(): RefreshError = when (this) {
+    FetchError.Offline -> RefreshError.Offline
+    FetchError.RateLimited -> RefreshError.RateLimited
+    FetchError.ServerDown -> RefreshError.ServerDown
+    FetchError.Forbidden -> RefreshError.Unauthorized
+    FetchError.StorageError -> RefreshError.StorageError
+    FetchError.General -> RefreshError.Unknown
 }

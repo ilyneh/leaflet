@@ -10,13 +10,13 @@ import com.ilynehdev.core.database.LeafletDatabase
 import com.ilynehdev.core.network.plants.api.Page
 import com.ilynehdev.core.network.plants.api.PlantsApi
 import com.ilynehdev.core.network.plants.dto.PlantDto
-import com.ilynehdev.core.phloem.FetchError
 import com.ilynehdev.core.phloem.Freshness
 import com.ilynehdev.core.phloem.itemfetcher.PhloemItemFetcherImpl
 import com.ilynehdev.core.phloem.pagefetcher.FetchMetadata
 import com.ilynehdev.core.phloem.pagefetcher.FetchMetadataStore
 import com.ilynehdev.core.phloem.pagefetcher.PhloemModel
 import com.ilynehdev.core.time.TimeProvider
+import com.ilynehdev.data.common.RefreshError
 import com.ilynehdev.data.common.RefreshResult
 import com.ilynehdev.data.plants.filters.LightFilter
 import com.ilynehdev.data.plants.filters.PlantFilters
@@ -282,7 +282,7 @@ class PlantsRepositoryTest {
 
         val result = detailRepo.refreshPlantDetails(7)
 
-        assertEquals(RefreshResult.Failed(FetchError.Offline), result)
+        assertEquals(RefreshResult.Failed(RefreshError.Offline), result)
         assertEquals("Big leaves", db.plantsDao().getById(7)?.description)
     }
 

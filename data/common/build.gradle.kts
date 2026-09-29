@@ -7,7 +7,7 @@ android {
 }
 
 dependencies {
-    api(projects.core.phloem)
+    implementation(projects.core.phloem)
     implementation(projects.core.database)
     implementation(projects.core.time)
 

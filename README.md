@@ -63,16 +63,14 @@ graph TD
     featurePlants --> dataPlants[data:plants]
     dataPlants --> database[core:database]
     dataPlants ==> dataCommon[data:common]
-    dataPlants ==> phloem[core:phloem]
+    dataPlants --> phloem[core:phloem]
     dataPlants --> networkPlants[core:network:plants]
     dataCommon --> database
-    dataCommon ==> phloem
+    dataCommon --> phloem
     networkPlants --> networkClient[core:network:client]
 ```
 
-Thick arrows are `api` dependencies, which consumers also see. Thin arrows are `implementation`
-dependencies, which stay hidden. `feature:plants` therefore sees the data layer's repositories and
-Phloem types, but not Room, the database or the network modules.
+Thick arrows represent `api` dependencies, and thin arrows represent `implementation` dependencies.
 
 Two shared modules are left out of the graph for readability: `core:designsystem`, and `core:time`.
 
