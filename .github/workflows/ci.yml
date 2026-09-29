@@ -16,6 +16,11 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      # Custom props sized for CI builds.
+      GRADLE_OPTS: >-
+        -Dorg.gradle.jvmargs=-Xmx2048m
+        -Dorg.gradle.project.kotlin.daemon.jvmargs=-Xmx2048m
     steps:
       - uses: actions/checkout@v7
 
