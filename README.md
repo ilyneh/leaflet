@@ -125,3 +125,5 @@ when it isn't set:
 ## CI 
 GitHub Actions builds the debug APK and runs the unit suite on every push and pull
 request, then posts a summary of any failing tests to the job page.
+
+Every build, local or CI, publishes a [Gradle Build Scan](https://scans.gradle.com).

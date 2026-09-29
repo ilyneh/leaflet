@@ -34,8 +34,6 @@ tasks.register<Test>("contractTest") {
     shouldRunAfter("test")
     outputs.upToDateWhen { false }
 
-    testLogging { events("passed", "skipped", "failed") }
-
     val localProperties = Properties().apply {
         val file = rootProject.file("local.properties")
         if (file.exists()) file.inputStream().use { load(it) }
