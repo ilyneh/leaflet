@@ -16,6 +16,7 @@ import com.ilynehdev.core.phloem.itemfetcher.PhloemItemFetcherImpl
 import com.ilynehdev.core.phloem.pagefetcher.FetchMetadata
 import com.ilynehdev.core.phloem.pagefetcher.FetchMetadataStore
 import com.ilynehdev.core.phloem.pagefetcher.PhloemModel
+import com.ilynehdev.core.time.TimeProvider
 import com.ilynehdev.data.common.RefreshResult
 import com.ilynehdev.data.plants.filters.LightFilter
 import com.ilynehdev.data.plants.filters.PlantFilters
@@ -85,6 +86,10 @@ class PlantsRepositoryTest {
         }
     }
 
+    private val timeProvider = object : TimeProvider {
+        override fun currentTimeMillis() = nowMillis
+    }
+
     private lateinit var db: LeafletDatabase
     private val api = FakePlantsApi()
     private val store = FakeMetadataStore()
@@ -105,15 +110,15 @@ class PlantsRepositoryTest {
             api = api,
             transactor = { it() },
             metadataStore = store,
-            now = { nowMillis },
+            timeProvider = timeProvider,
         )
         detailRepo = PlantsRepositoryImpl(
             dao = db.plantsDao(),
             savedDao = db.savedPlantsDao(),
             api = api,
             fetcher = PhloemItemFetcherImpl(),
-            freshness = Freshness(ttl = DETAILS_TTL, now = { nowMillis }),
-            now = { nowMillis },
+            freshness = Freshness(ttl = DETAILS_TTL, timeProvider = timeProvider),
+            timeProvider = timeProvider,
         )
         observeFilteredPlants = ObserveFilteredPlantsUseCase(repo)
     }

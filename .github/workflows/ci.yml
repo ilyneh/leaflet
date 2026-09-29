@@ -41,6 +41,7 @@ jobs:
           :core:phloem:test
           :core:network:plants:test
           :core:network:client:test
+          :core:time:test
 
       - name: Summarize test failures
         if: failure()

@@ -6,6 +6,7 @@ import com.ilynehdev.core.phloem.pagefetcher.FetchPage
 import com.ilynehdev.core.phloem.pagefetcher.FetchResult
 import com.ilynehdev.core.phloem.pagefetcher.PhloemModel
 import com.ilynehdev.core.phloem.pagefetcher.PhloemPageFetcherImpl
+import com.ilynehdev.core.time.TimeProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respondError
@@ -46,7 +47,9 @@ class PhloemPageFetcherImplTest {
         model = PhloemModel.PlantCatalog,
         freshness = Freshness(
             ttl = 24.hours,
-            now = { currentTime },
+            timeProvider = object : TimeProvider {
+                override fun currentTimeMillis(): Long = currentTime
+            },
         ),
         transactor = { it() },
         fetchMetadataStore = store,

@@ -26,6 +26,7 @@ val dataPlantsModule = module {
         PagedPlantsRepositoryImpl(
             dao = get(),
             api = get(),
+            timeProvider = get(),
             transactor = get(),
             metadataStore = get()
         )
@@ -33,15 +34,14 @@ val dataPlantsModule = module {
 
     factoryOf(::ObserveFilteredPlantsUseCase)
 
-    val clock: () -> Long = System::currentTimeMillis
     single<PlantsRepository> {
         PlantsRepositoryImpl(
             dao = get(),
             savedDao = get(),
             api = get(),
             fetcher = PhloemItemFetcherImpl(),
-            freshness = Freshness(ttl = PLANT_DETAILS_TTL, now = clock),
-            now = clock
+            freshness = Freshness(ttl = PLANT_DETAILS_TTL, timeProvider = get()),
+            timeProvider = get(),
         )
     }
 }

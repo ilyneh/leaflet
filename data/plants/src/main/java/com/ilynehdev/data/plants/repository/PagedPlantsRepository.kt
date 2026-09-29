@@ -14,6 +14,7 @@ import com.ilynehdev.core.phloem.pagefetcher.FetchPage
 import com.ilynehdev.core.phloem.pagefetcher.PhloemModel
 import com.ilynehdev.core.phloem.pagefetcher.PhloemPageFetcherImpl
 import com.ilynehdev.core.phloem.Transactor
+import com.ilynehdev.core.time.TimeProvider
 import com.ilynehdev.data.plants.filters.FilterQueryParams
 import com.ilynehdev.data.plants.model.mapper.toEntity
 import com.ilynehdev.data.plants.model.mapper.toPlant
@@ -40,16 +41,16 @@ interface PagedPlantsRepository {
 class PagedPlantsRepositoryImpl(
     private val dao: PlantsDao,
     private val api: PlantsApi,
+    private val timeProvider: TimeProvider,
     transactor: Transactor,
     metadataStore: FetchMetadataStore,
-    private val now: () -> Long = System::currentTimeMillis,
 ) : PagedPlantsRepository {
 
     private val pageFetcher = PhloemPageFetcherImpl(
         model = PhloemModel.PlantCatalog,
         freshness = Freshness(
             ttl = 24.hours,
-            now = now
+            timeProvider = timeProvider,
         ),
         transactor = transactor,
         fetchMetadataStore = metadataStore,

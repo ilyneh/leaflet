@@ -11,11 +11,10 @@ dependencies {
     api(projects.data.common)
     implementation(projects.core.database)
     implementation(projects.core.network.plants)
+    implementation(projects.core.time)
 
     implementation(libs.koin.core)
     implementation(libs.androidx.room.paging)
 
     testImplementation(libs.androidx.paging.testing)
-    testImplementation(libs.koin.test)
-    testImplementation(projects.core.network.client)
 }

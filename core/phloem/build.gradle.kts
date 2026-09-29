@@ -3,6 +3,8 @@ plugins {
 }
 
 dependencies {
+    api(projects.core.time)
+
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.ktor.client.core)
 

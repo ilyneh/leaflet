@@ -1,4 +1,4 @@
-package com.ilynehdev.data.plants.di
+package com.ilynehdev.feature.plants.di
 
 import android.content.Context
 import com.ilynehdev.core.network.client.NetworkConfig
@@ -6,18 +6,19 @@ import org.junit.Test
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.test.verify.verify
 
-class DataPlantsModuleTest {
+class FeaturePlantsModuleTest {
 
     /**
      * Static graph check: every definition's dependencies must be resolvable
-     * from the module tree. Catches binding mistakes (e.g. a concrete type
-     * bound where an interface is requested) without building anything.
+     * from the module tree. Only sees constructors of declared types, so
+     * `single<Interface> { Impl(get()) }` definitions are covered by
+     * KoinGraphTest in :app instead.
      * Context is provided at runtime by startKoin { androidContext(...) }.
      */
     @OptIn(KoinExperimentalAPI::class)
     @Test
-    fun `dataPlantsModule graph is complete`() {
-        dataPlantsModule.verify(
+    fun `featurePlantsModule graph is complete`() {
+        featurePlantsModule.verify(
             extraTypes = listOf(
                 Context::class,
                 // NetworkConfig is provided by the app composition root
@@ -25,7 +26,7 @@ class DataPlantsModuleTest {
                 NetworkConfig::class,
                 String::class,
                 Boolean::class,
-            )
+            ),
         )
     }
 }

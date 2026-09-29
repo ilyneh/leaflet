@@ -6,6 +6,7 @@ import com.ilynehdev.core.database.entities.SavedPlantEntity
 import com.ilynehdev.core.network.plants.api.PlantsApi
 import com.ilynehdev.core.phloem.Freshness
 import com.ilynehdev.core.phloem.itemfetcher.PhloemItemFetcher
+import com.ilynehdev.core.time.TimeProvider
 import com.ilynehdev.data.common.RefreshResult
 import com.ilynehdev.data.plants.model.mapper.toEntity
 import com.ilynehdev.data.plants.model.mapper.toPlantDetails
@@ -37,7 +38,7 @@ class PlantsRepositoryImpl(
     private val api: PlantsApi,
     private val fetcher: PhloemItemFetcher,
     private val freshness: Freshness,
-    private val now: () -> Long,
+    private val timeProvider: TimeProvider,
 ) : PlantsRepository {
 
     override fun observePlant(plantId: Long): Flow<PlantDetails?> =
@@ -51,7 +52,7 @@ class PlantsRepositoryImpl(
 
     override suspend fun updateSavedPlant(plantId: Long, saved: Boolean) {
         if (saved) {
-            savedDao.upsertSavedPlant(SavedPlantEntity(plantId, savedAt = now()))
+            savedDao.upsertSavedPlant(SavedPlantEntity(plantId, savedAt = timeProvider.currentTimeMillis()))
         } else {
             savedDao.deleteSavedPlant(plantId)
         }

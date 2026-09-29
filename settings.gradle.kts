@@ -30,6 +30,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(":app")
 include(":core:designsystem")
+include(":core:time")
 include(":data:common")
 include(":data:plants")
 include(":feature:plants")

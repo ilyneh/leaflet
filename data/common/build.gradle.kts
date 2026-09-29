@@ -9,6 +9,7 @@ android {
 dependencies {
     implementation(projects.core.database)
     implementation(projects.core.phloem)
+    implementation(projects.core.time)
 
     implementation(libs.koin.core)
     implementation(libs.androidx.room.runtime)
