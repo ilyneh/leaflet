@@ -16,8 +16,13 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      GRADLE_OPTS: >-
+        -Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=1g -XX:+UseParallelGC
+        -Dorg.gradle.parallel=true
+        -Dorg.gradle.project.kotlin.daemon.jvmargs=-Xmx2g
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7what
 
       - uses: actions/setup-java@v6
         with:
