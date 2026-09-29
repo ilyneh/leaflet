@@ -32,6 +32,7 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.ilynehdev.data.plants.model.PlantId
 import com.ilynehdev.feature.plants.detail.PlantsDetailScreen
 import com.ilynehdev.feature.plants.list.PlantsListScreen
 import kotlinx.serialization.Serializable
@@ -42,7 +43,7 @@ private val SLIDE_SPEC = tween<IntOffset>(durationMillis = 300, easing = FastOut
 @Serializable data object BrowseRoute
 @Serializable data object SavedRoute
 @Serializable data object PlantingsRoute
-@Serializable data class PlantDetailRoute(val id: Long)
+@Serializable data class PlantDetailRoute(val id: PlantId)
 
 data class NavBarItem(
     val route: Any,

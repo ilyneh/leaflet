@@ -1,7 +1,7 @@
 package com.ilynehdev.data.plants.model
 
 data class PlantDetails(
-    val id: Long,
+    val id: PlantId,
     val commonName: String?,
     val scientificName: List<String>?,
     val description: String?,

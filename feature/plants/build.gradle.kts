@@ -15,7 +15,7 @@ android {
 
 dependencies {
     implementation(projects.core.designsystem)
-    implementation(projects.data.plants)
+    api(projects.data.plants)
 
     // compose
     api(platform(libs.androidx.compose.bom))

@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.leaflet.android.library)
+    alias(libs.plugins.leaflet.kotlin.serialization)
 }
 
 android {

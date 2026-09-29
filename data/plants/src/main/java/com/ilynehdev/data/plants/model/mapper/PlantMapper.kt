@@ -18,6 +18,7 @@ import com.ilynehdev.core.network.plants.dto.PlantWateringGeneralBenchmarkDto
 import com.ilynehdev.data.plants.model.Dimension
 import com.ilynehdev.data.plants.model.Plant
 import com.ilynehdev.data.plants.model.PlantDetails
+import com.ilynehdev.data.plants.model.PlantId
 import com.ilynehdev.data.plants.model.WateringBenchmark
 
 internal fun PlantDto.toEntity() = PlantEntity(
@@ -107,7 +108,7 @@ private fun PlantImageDto.toColumn() = ImageColumn(
 )
 
 internal fun PlantSummaryRow.toPlant() = Plant(
-    id = id,
+    id = PlantId(id),
     commonName = commonName,
     scientificName = scientificName,
     watering = watering,
@@ -116,7 +117,7 @@ internal fun PlantSummaryRow.toPlant() = Plant(
 )
 
 internal fun PlantEntity.toPlant() = Plant(
-    id = id,
+    id = PlantId(id),
     commonName = commonName,
     scientificName = scientificName,
     watering = watering,
@@ -139,7 +140,7 @@ internal fun PlantEntity.toPlant() = Plant(
 )
 
 internal fun PlantEntity.toPlantDetails() = PlantDetails(
-    id = id,
+    id = PlantId(id),
     commonName = commonName,
     scientificName = scientificName,
     description = description,

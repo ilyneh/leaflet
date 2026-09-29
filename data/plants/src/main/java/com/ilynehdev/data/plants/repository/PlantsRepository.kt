@@ -14,24 +14,25 @@ import com.ilynehdev.data.plants.model.mapper.toEntity
 import com.ilynehdev.data.plants.model.mapper.toPlantDetails
 import com.ilynehdev.data.plants.model.mapper.toSavedPlants
 import com.ilynehdev.data.plants.model.PlantDetails
+import com.ilynehdev.data.plants.model.PlantId
 import com.ilynehdev.data.plants.model.SavedPlant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 interface PlantsRepository {
 
-    fun observePlant(plantId: Long): Flow<PlantDetails?>
+    fun observePlant(plantId: PlantId): Flow<PlantDetails?>
 
-    fun observeIsSaved(plantId: Long): Flow<Boolean>
+    fun observeIsSaved(plantId: PlantId): Flow<Boolean>
     fun observeSavedPlants(): Flow<List<SavedPlant>>
 
-    suspend fun updateSavedPlant(plantId: Long, saved: Boolean)
+    suspend fun updateSavedPlant(plantId: PlantId, saved: Boolean)
     /**
      * Cache-through fetch of the full plant record; [observePlant] emits the
      * update. [force] skips the TTL check (pull-to-refresh); otherwise the
      * network is hit only when the row is stale or missing.
      */
-    suspend fun refreshPlantDetails(plantId: Long, force: Boolean = false): RefreshResult
+    suspend fun refreshPlantDetails(plantId: PlantId, force: Boolean = false): RefreshResult
 }
 
 internal class PlantsRepositoryImpl(
@@ -43,31 +44,31 @@ internal class PlantsRepositoryImpl(
     private val timeProvider: TimeProvider,
 ) : PlantsRepository {
 
-    override fun observePlant(plantId: Long): Flow<PlantDetails?> =
-        dao.observePlant(plantId).map { it?.toPlantDetails() }
+    override fun observePlant(plantId: PlantId): Flow<PlantDetails?> =
+        dao.observePlant(plantId.value).map { it?.toPlantDetails() }
 
-    override fun observeIsSaved(plantId: Long): Flow<Boolean> =
-        savedDao.observeIsSaved(plantId)
+    override fun observeIsSaved(plantId: PlantId): Flow<Boolean> =
+        savedDao.observeIsSaved(plantId.value)
 
     override fun observeSavedPlants(): Flow<List<SavedPlant>> =
         savedDao.observeSavedPlants().map { it.toSavedPlants() }
 
-    override suspend fun updateSavedPlant(plantId: Long, saved: Boolean) {
+    override suspend fun updateSavedPlant(plantId: PlantId, saved: Boolean) {
         if (saved) {
-            savedDao.upsertSavedPlant(SavedPlantEntity(plantId, savedAt = timeProvider.currentTimeMillis()))
+            savedDao.upsertSavedPlant(SavedPlantEntity(plantId.value, savedAt = timeProvider.currentTimeMillis()))
         } else {
-            savedDao.deleteSavedPlant(plantId)
+            savedDao.deleteSavedPlant(plantId.value)
         }
     }
 
-    override suspend fun refreshPlantDetails(plantId: Long, force: Boolean): RefreshResult {
-        if (!force && freshness.isFresh(dao.getById(plantId)?.detailsSyncedAt)) {
+    override suspend fun refreshPlantDetails(plantId: PlantId, force: Boolean): RefreshResult {
+        if (!force && freshness.isFresh(dao.getById(plantId.value)?.detailsSyncedAt)) {
             return RefreshResult.AlreadyFresh
         }
 
         val error = fetcher.fetchItem(
             fetch = {
-                api.getPlant(plantId)
+                api.getPlant(plantId.value)
             },
             persist = { dto ->
                 dao.upsertPlant(dto.toEntity().copy(detailsSyncedAt = freshness.newTimestamp()))
