@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 30
     env:
       GRADLE_OPTS: >-
-        -Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=1g -XX:+UseParallelGC
+        "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=1g -XX:+UseParallelGC"
         -Dorg.gradle.parallel=true
         -Dorg.gradle.project.kotlin.daemon.jvmargs=-Xmx2g
     steps:
