@@ -4,6 +4,10 @@ import com.ilynehdev.core.phloem.FetchError
 import com.ilynehdev.core.phloem.toFetchError
 import kotlin.coroutines.cancellation.CancellationException
 
+/**
+ * Cache-through refresh of a resource: fetch, then persist. Has no TTL of its own; the
+ * caller is responsible for managing resource freshness and when to refresh.
+ */
 interface PhloemItemFetcher {
     suspend fun <Dto> fetchItem(
         fetch: suspend () -> Dto,

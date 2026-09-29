@@ -8,6 +8,15 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
+/**
+ * Resumable pull of a paged collection, one page per [pullNextPage] call.
+ *
+ * Each page is persisted in the same transaction as its next cursor, so an interrupted pull
+ * resumes where it stopped, even across process restarts. `completedAt` is stamped only when
+ * the last page lands, so an incomplete pass always resumes rather than restarting, and the
+ * TTL clock starts only after a complete pass. Pulls are serialized, so concurrent callers
+ * never fetch the same page twice.
+ */
 interface PhloemPageFetcher<Dto> {
     suspend fun pullNextPage(): FetchResult
 
