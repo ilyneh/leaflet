@@ -8,5 +8,6 @@ dependencies {
     api(libs.koin.core)
     api(libs.ktor.client.core)
     api(libs.kotlinx.serialization.json)
-    testImplementation(libs.junit)
+
+    testImplementation(libs.kotlinx.coroutines.test)
 }
