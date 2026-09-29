@@ -4,8 +4,11 @@
  * - Sources: `src/contractTest/kotlin`, resources: `src/contractTest/resources`
  * - Inherits `testImplementation` dependencies
  * - Never wired into `check`; run explicitly:
- *     PLANTS_API_KEY=... ./gradlew :core:network:plants:contractTest
+ *     ./gradlew :core:network:plants:contractTest
+ * - Reads PERENUAL_API_KEY from local.properties, then the environment, like :app
  */
+import java.util.Properties
+
 plugins {
     kotlin("jvm")
 }
@@ -31,8 +34,14 @@ tasks.register<Test>("contractTest") {
     shouldRunAfter("test")
     outputs.upToDateWhen { false }
 
-    val key = providers.environmentVariable("PLANTS_API_KEY")
-        .orElse(providers.gradleProperty("plantsApiKey"))
-        .getOrElse("")
-    environment("PLANTS_API_KEY", key)
+    testLogging { events("passed", "skipped", "failed") }
+
+    val localProperties = Properties().apply {
+        val file = rootProject.file("local.properties")
+        if (file.exists()) file.inputStream().use { load(it) }
+    }
+    val key = localProperties.getProperty("PERENUAL_API_KEY")
+        ?: providers.environmentVariable("PERENUAL_API_KEY").orNull
+        ?: ""
+    environment("PERENUAL_API_KEY", key)
 }

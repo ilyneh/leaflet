@@ -136,10 +136,11 @@ Run the unit test suite (same as CI):
 ```
 
 **Contract tests** hit the live Perenual API to catch schema drift. They are excluded from
-`check` to protect the rate limit, and they are skipped when no key is set:
+`check` to protect the rate limit. They use the same `PERENUAL_API_KEY` as the app and are skipped
+when it isn't set:
 
 ```bash
-PLANTS_API_KEY=your-key-here ./gradlew :core:network:plants:contractTest
+./gradlew :core:network:plants:contractTest
 ```
 
 ## CI 

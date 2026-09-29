@@ -28,8 +28,8 @@ import org.junit.Test
 /**
  * Live contract tests against the Perenual API. Detect upstream drift, not our logic.
  *
- * Skipped when PLANTS_API_KEY is absent. Budget: 4 calls per run.
- * Run: PLANTS_API_KEY=... ./gradlew :core:network:plants:contractTest
+ * Skipped when PERENUAL_API_KEY is absent. Budget: 4 calls per run.
+ * Run: ./gradlew :core:network:plants:contractTest (key from local.properties or the environment)
  */
 class PlantsContractTest {
 
@@ -37,7 +37,7 @@ class PlantsContractTest {
         const val BASE_URL = "https://perenual.com/api/"
         const val SERVER_PAGE_SIZE = 30
 
-        val apiKey: String = System.getenv("PLANTS_API_KEY").orEmpty()
+        val apiKey: String = System.getenv("PERENUAL_API_KEY").orEmpty()
 
         fun client(key: String): HttpClient = createPlantHttpClient(
             engine = OkHttp.create(),
@@ -51,7 +51,7 @@ class PlantsContractTest {
 
     @Before
     fun requireKey() {
-        assumeTrue("PLANTS_API_KEY not set; skipping live contract tests", apiKey.isNotBlank())
+        assumeTrue("PERENUAL_API_KEY not set; skipping live contract tests", apiKey.isNotBlank())
     }
 
     @Test
@@ -91,7 +91,7 @@ class PlantsContractTest {
             assertNotEquals(PlantCycleDto.UNKNOWN, plant.cycle)
             assertNotEquals(PlantWateringDto.UNKNOWN, plant.watering)
             assertNotNull(plant.dimensions)
-            assertNull(plant.defaultImage?.originalUrl)
+            assertNotNull(plant.defaultImage?.originalUrl)
         }
     }
 
