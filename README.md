@@ -59,41 +59,22 @@ new source and creating new mapping in `data:plants`.
 
 ```mermaid
 graph TD
-    app[app]
-    featurePlants[feature:plants]
-    dataPlants[data:plants]
-    dataCommon[data:common]
-    phloem[core:phloem]
-    time[core:time]
-    database[core:database]
-    networkPlants[core:network:plants]
-    networkClient[core:network:client]
-    designsystem[core:designsystem]
-
-    app --> featurePlants
-    app --> designsystem
-    app --> networkClient
-
-    featurePlants --> dataPlants
-    featurePlants --> designsystem
-
-    dataPlants ==> dataCommon
-    dataPlants ==> phloem
-    dataPlants --> networkPlants
-    dataPlants --> database
-    dataPlants --> time
-
-    dataCommon ==> phloem
+    app[app] --> featurePlants[feature:plants]
+    featurePlants --> dataPlants[data:plants]
+    dataPlants --> database[core:database]
+    dataPlants ==> dataCommon[data:common]
+    dataPlants ==> phloem[core:phloem]
+    dataPlants --> networkPlants[core:network:plants]
     dataCommon --> database
-    dataCommon --> time
-
-    networkPlants --> networkClient
-    phloem ==> time
+    dataCommon ==> phloem
+    networkPlants --> networkClient[core:network:client]
 ```
 
 Thick arrows are `api` dependencies, which consumers also see. Thin arrows are `implementation`
 dependencies, which stay hidden. `feature:plants` therefore sees the data layer's repositories and
 Phloem types, but not Room, the database or the network modules.
+
+Two shared modules are left out of the graph for readability: `core:designsystem`, and `core:time`.
 
 Rules:
 
