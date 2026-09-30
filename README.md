@@ -74,22 +74,6 @@ Thick arrows represent `api` dependencies, and thin arrows represent `implementa
 
 Two shared modules are left out of the graph for readability: `core:designsystem`, and `core:time`.
 
-Rules:
-
-- Features depend only on data modules, never on network or database directly, and never on each other.
-- DTOs live in network modules, entities in the database, and all mapping happens in the data layer.
-- Network modules are split by backend, not by feature.
-- `core:phloem`, `core:time` and the network modules are plain JVM libraries with no Android dependency.
-- Each Gradle module exposes one Koin module and composes its dependencies with `includes(...)`.
-- A dependency is `api` only when its types appear in the module's public API. Everything else
-  is `implementation`.
-- Implementations that are only constructed in their own module's Koin module are `internal`,
-  so their constructor dependencies don't leak. Callers see only the interface.
-- A module declares every library whose types it uses directly, rather than relying on another
-  library to bring it in.
-
-Build configuration is shared through convention plugins in `build-logic/`.
-
 ### Phloem - sync engine
 
 Phloem moves data from remote APIs into Room, and the UI only ever reads from Room.
