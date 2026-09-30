@@ -1,11 +1,12 @@
 # Leaflet
 
-An offline-first Android plant catalog built with Jetpack Compose. Browse, search and filter
-thousands of species from the [Perenual](https://perenual.com/docs/api) API, save favorites, and read care details, 
-all backed by a local Room cache that keeps working without a network.
+An offline-first Android plant catalog built with Jetpack Compose and backed by local Room cache.
+Browse, search and filter thousands of species from the [Perenual](https://perenual.com/docs/api) API, save favorites, and read care details.
+
+**Coming soon:** Log your personal plants and track their care events.
 
 *Leaflet is deliberately over-architected for its size. The multi-module structure showcases how
-I'd organize an app that actually needed it.*
+I'd organize an app that does need it.*
 
 ## Features
 
