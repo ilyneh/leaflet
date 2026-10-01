@@ -1,5 +1,6 @@
 package com.ilynehdev.core.network.client
 
+import com.ilynehdev.core.network.client.di.createPlantHttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.HttpRequestData

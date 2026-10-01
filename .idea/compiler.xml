@@ -2,6 +2,7 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="17">
+      <module name="Leaflet.composition" target="21" />
       <module name="Leaflet.core.data" target="21" />
     </bytecodeTargetLevel>
   </component>
