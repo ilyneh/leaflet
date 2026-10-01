@@ -32,12 +32,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
 import java.io.IOException
 import kotlin.time.Duration.Companion.days
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [34])
 class PlantsRepositoryTest {
 
     private class FakePlantsApi : PlantsApi {
