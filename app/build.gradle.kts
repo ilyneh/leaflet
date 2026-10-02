@@ -61,8 +61,8 @@ dependencies {
     implementation(projects.core.designsystem)
 
     // features
-    implementation(projects.data.plants)
-    implementation(projects.feature.plants)
+    implementation(projects.feature.plants.data)
+    implementation(projects.feature.plants.presentation)
 
     // external libs
     implementation(platform(libs.androidx.compose.bom))

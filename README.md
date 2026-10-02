@@ -53,7 +53,7 @@ free key, expect browsing to stall once the daily quota runs out. Anything alrea
 fetched stays available offline from the local cache, and the next scroll resumes the pull.
 
 Perenual may be replaced. Swapping providers means updating the `core:network:plants` module to the
-new source and creating new mapping in `data:plants`.
+new source and creating new mapping in `feature:plants:data`.
 
 ## Architecture
 
@@ -61,10 +61,10 @@ new source and creating new mapping in `data:plants`.
 
 ```mermaid
 graph TD
-    app[app] --> featurePlants[feature:plants]
-    featurePlants --> dataPlants[data:plants]
+    app[app] --> featurePlants[feature:plants:presentation]
+    featurePlants --> dataPlants[feature:plants:data]
     dataPlants --> database[core:database]
-    dataPlants ==> dataCommon[data:common]
+    dataPlants ==> dataCommon[core:data]
     dataPlants --> phloem[core:phloem]
     dataPlants --> networkPlants[core:network:plants]
     dataCommon --> database

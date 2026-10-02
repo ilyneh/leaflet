@@ -34,10 +34,10 @@
             <option value="$PROJECT_DIR$/core/phloem" />
             <option value="$PROJECT_DIR$/core/time" />
             <option value="$PROJECT_DIR$/data" />
-            <option value="$PROJECT_DIR$/data/common" />
-            <option value="$PROJECT_DIR$/data/plants" />
+            <option value="$PROJECT_DIR$/core/data" />
+            <option value="$PROJECT_DIR$/feature/plants/data" />
             <option value="$PROJECT_DIR$/feature" />
-            <option value="$PROJECT_DIR$/feature/plants" />
+            <option value="$PROJECT_DIR$/feature/plants/presentation" />
           </set>
         </option>
       </GradleProjectSettings>
