@@ -1,16 +1,15 @@
 package com.ilynehdev.data.plants.di
 
-import com.ilynehdev.core.database.di.databaseModule
-import com.ilynehdev.core.network.plants.di.plantsNetworkModule
 import com.ilynehdev.core.phloem.Freshness
 import com.ilynehdev.core.phloem.itemfetcher.PhloemItemFetcherImpl
-import com.ilynehdev.data.common.di.dataCommonModule
 import com.ilynehdev.data.plants.repository.PagedPlantsRepository
 import com.ilynehdev.data.plants.repository.PagedPlantsRepositoryImpl
 import com.ilynehdev.data.plants.repository.PlantsRepository
 import com.ilynehdev.data.plants.repository.PlantsRepositoryImpl
 import com.ilynehdev.data.plants.usecase.ObserveFilteredPlantsUseCase
+import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import kotlin.time.Duration.Companion.days
 
@@ -18,19 +17,7 @@ import kotlin.time.Duration.Companion.days
 private val PLANT_DETAILS_TTL = 7.days
 
 val dataPlantsModule = module {
-    includes(databaseModule)
-    includes(dataCommonModule)
-    includes(plantsNetworkModule)
-
-    single<PagedPlantsRepository> {
-        PagedPlantsRepositoryImpl(
-            dao = get(),
-            api = get(),
-            timeProvider = get(),
-            transactor = get(),
-            metadataStore = get()
-        )
-    }
+    singleOf(::PagedPlantsRepositoryImpl) { bind<PagedPlantsRepository>() }
 
     factoryOf(::ObserveFilteredPlantsUseCase)
 

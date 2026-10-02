@@ -55,13 +55,16 @@ android {
 }
 
 dependencies {
+    implementation(projects.composition)
+
+    // core
     implementation(projects.core.designsystem)
+
+    // features
     implementation(projects.data.plants)
-    implementation(projects.core.network.client)
     implementation(projects.feature.plants)
 
-    implementation(libs.koin.android)
-
+    // external libs
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
@@ -75,6 +78,8 @@ dependencies {
 
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
 
     testImplementation(libs.junit)
     testImplementation(libs.androidx.junit)

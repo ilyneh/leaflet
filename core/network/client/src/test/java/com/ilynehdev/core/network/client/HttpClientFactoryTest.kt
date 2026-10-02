@@ -1,6 +1,5 @@
 package com.ilynehdev.core.network.client
 
-import com.ilynehdev.core.network.client.di.createPlantHttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.HttpRequestData
@@ -26,16 +25,16 @@ class HttpClientFactoryTest {
     }
 
     @Test
-    fun `plant client resolves paths against the base url and adds the api key`() = runTest {
-        createPlantHttpClient(engine, LeafletJson, config).get("v2/species-list")
+    fun `resolves paths against the base url`() = runTest {
+        createHttpClient(engine, LeafletJson, config).get("v2/species-list")
 
         val url = captured!!.url
         assertEquals("https://example.test/api/v2/species-list", url.toString().substringBefore('?'))
-        assertEquals("test-key", url.parameters["key"])
     }
 
+    // Authentication is a per-backend concern; see PerenualHttpClientTest.
     @Test
-    fun `base client does not add the api key`() = runTest {
+    fun `base client adds no auth params`() = runTest {
         createHttpClient(engine, LeafletJson, config).get("v2/species-list")
 
         assertNull(captured!!.url.parameters["key"])

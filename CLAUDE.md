@@ -27,6 +27,7 @@ Dependencies point down only: `app` → `feature:*` → `data:*` → `core:*`.
 
 ```
 :app                   — entry point, startKoin, AppNavigation (Navigation3)
+:composition           — composition root: assembles every Koin module
 :feature:plants        — ViewModels + Compose screens; sees data:plants and core:designsystem only
 :data:plants           — repositories, DTO/entity/domain mappers, use cases
 :data:common           — RefreshResult/RefreshError, Room-backed Phloem plumbing
@@ -44,7 +45,7 @@ Rules:
 - `api(...)` only when a dependency's types appear in the module's public API; otherwise `implementation`. Classes only bound via Koin are `internal`.
 - Declare every library whose types a module uses directly; never rely on a transitive dependency.
 - `core:phloem`, `core:time` and the network modules are plain JVM (`leaflet.jvm.library`) — no Android dependencies.
-- DI is Koin (not Hilt). One Koin `module` per Gradle module, composing its dependencies' modules with `includes(...)`. APIs are hand-written interfaces with `internal` Ktor impls (not Retrofit).
+- DI is Koin (not Hilt). One Koin `module` per Gradle module, declaring only its own bindings — never `includes(...)` of a dependency's module. `:composition` assembles them into one flat list via `leafletModules(AppConfig)`; `:app` just starts Koin with it. APIs are hand-written interfaces with `internal` Ktor impls (not Retrofit).
 - Split network modules by backend, not by feature.
 - New modules apply `build-logic/` convention plugins (`leaflet.android.library`, `leaflet.jvm.library`, `leaflet.ktor`, `leaflet.android.room`, ...) — never hand-configure android/kotlin blocks.
 
@@ -98,6 +99,9 @@ Pink marks state, green performs actions, crimson is caution only.
 - Compose UI tests run on Robolectric in `testDebugUnitTest`. Use `createAndroidComposeRule` from `junit4.v2`; test stateless `*Content` composables with fake UiState. `robolectric.properties` pins `sdk=36` (Robolectric can't emulate compileSdk 37).
 - Robolectric's display is short: below-the-fold nodes need `performScrollTo`, or clicks silently miss.
 - API shape changes → update `core/network/plants/src/contractTest` (don't run it).
+- DI:
+  - `:composition` tests graph completeness (all entry points, fake AppConfig).
+  - `:app` tests startup wiring only (manifest → startKoin → androidContext → AppConfig) with a single resolution. Don't add resolutions to the `:app` test.
 
 Done = both unit-test commands green, no new compiler warnings.
 
