@@ -9,4 +9,6 @@ dependencies {
     implementation(projects.core.network.client)
 
     api(libs.koin.core)
+
+    testImplementation(libs.kotlinx.coroutines.test)
 }

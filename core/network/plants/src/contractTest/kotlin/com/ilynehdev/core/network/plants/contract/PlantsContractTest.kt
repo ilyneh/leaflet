@@ -1,9 +1,8 @@
 package com.ilynehdev.core.network.plants.contract
 
 import com.ilynehdev.core.network.client.LeafletJson
-import com.ilynehdev.core.network.client.NetworkConfig
-import com.ilynehdev.core.network.client.createPlantHttpClient
 import com.ilynehdev.core.network.plants.api.PlantsApiImpl
+import com.ilynehdev.core.network.plants.createPerenualHttpClient
 import com.ilynehdev.core.network.plants.dto.PagedDto
 import com.ilynehdev.core.network.plants.dto.PlantCycleDto
 import com.ilynehdev.core.network.plants.dto.PlantDto
@@ -34,15 +33,15 @@ import org.junit.Test
 class PlantsContractTest {
 
     private companion object {
-        const val BASE_URL = "https://perenual.com/api/"
         const val SERVER_PAGE_SIZE = 30
 
         val apiKey: String = System.getenv("PERENUAL_API_KEY").orEmpty()
 
-        fun client(key: String): HttpClient = createPlantHttpClient(
+        fun client(key: String): HttpClient = createPerenualHttpClient(
             engine = OkHttp.create(),
             json = LeafletJson,
-            config = NetworkConfig(baseUrl = BASE_URL, apiKey = key, isDebug = false),
+            apiKey = key,
+            isDebug = false,
         )
 
         val client: HttpClient by lazy { client(apiKey) }
