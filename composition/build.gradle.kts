@@ -16,11 +16,11 @@ dependencies {
     implementation(projects.core.time)
 
     // data
-    implementation(projects.data.common)
-    implementation(projects.data.plants)
+    implementation(projects.core.data)
+    implementation(projects.feature.plants.data)
 
     // feature
-    implementation(projects.feature.plants)
+    implementation(projects.feature.plants.presentation)
 
     // androidContext(...) when starting the graph under Robolectric
     testImplementation(libs.koin.android)

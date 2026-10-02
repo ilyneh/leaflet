@@ -1,7 +1,7 @@
 package com.ilynehdev.leaflet
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ilynehdev.data.plants.repository.PlantsRepository
+import com.ilynehdev.feature.plants.data.repository.PlantsRepository
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith

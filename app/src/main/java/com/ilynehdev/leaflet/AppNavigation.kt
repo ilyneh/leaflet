@@ -32,9 +32,9 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.ilynehdev.data.plants.model.PlantId
-import com.ilynehdev.feature.plants.detail.PlantsDetailScreen
-import com.ilynehdev.feature.plants.list.PlantsListScreen
+import com.ilynehdev.feature.plants.data.model.PlantId
+import com.ilynehdev.feature.plants.presentation.detail.PlantsDetailScreen
+import com.ilynehdev.feature.plants.presentation.list.PlantsListScreen
 import kotlinx.serialization.Serializable
 
 

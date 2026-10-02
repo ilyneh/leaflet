@@ -1,0 +1,539 @@
+package com.ilynehdev.feature.plants.data.repository
+
+import android.content.Context
+import androidx.paging.testing.ErrorRecovery
+import androidx.paging.testing.asSnapshot
+import androidx.room3.Room
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ilynehdev.core.database.LeafletDatabase
+import com.ilynehdev.core.network.plants.api.Page
+import com.ilynehdev.core.network.plants.api.PlantsApi
+import com.ilynehdev.core.network.plants.dto.PlantDto
+import com.ilynehdev.core.phloem.Freshness
+import com.ilynehdev.core.phloem.itemfetcher.PhloemItemFetcherImpl
+import com.ilynehdev.core.phloem.pagefetcher.FetchMetadata
+import com.ilynehdev.core.phloem.pagefetcher.FetchMetadataStore
+import com.ilynehdev.core.phloem.pagefetcher.PhloemModel
+import com.ilynehdev.core.time.TimeProvider
+import com.ilynehdev.core.data.RefreshError
+import com.ilynehdev.core.data.RefreshResult
+import com.ilynehdev.feature.plants.data.filters.LightFilter
+import com.ilynehdev.feature.plants.data.filters.PlantFilters
+import com.ilynehdev.feature.plants.data.model.PlantId
+import com.ilynehdev.feature.plants.data.usecase.ObserveFilteredPlantsUseCase
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import java.io.IOException
+import kotlin.time.Duration.Companion.days
+
+@RunWith(AndroidJUnit4::class)
+class PlantsRepositoryTest {
+
+    private class FakePlantsApi : PlantsApi {
+        val pages = mutableMapOf<Int, Page<PlantDto>>()
+        val searchResults = mutableMapOf<String, Page<PlantDto>>()
+        var failWith: Exception? = null
+        var failOnPage: Int? = null
+        val requestedQueries = mutableListOf<String?>()
+        val requestedPages = mutableListOf<Int>()
+        val requestedFilterParams = mutableListOf<Triple<String?, String?, Boolean?>>()
+
+        override suspend fun getPlants(
+            page: Int,
+            query: String?,
+            sunlight: String?,
+            watering: String?,
+            poisonous: Boolean?,
+            indoor: Boolean?,
+        ): Page<PlantDto> {
+            failWith?.let { throw it }
+            if (page == failOnPage) throw IOException("interrupted at page $page")
+            requestedQueries += query
+            requestedPages += page
+            requestedFilterParams += Triple(sunlight, watering, poisonous)
+            return if (query == null) {
+                pages[page] ?: Page(emptyList(), nextKey = null)
+            } else {
+                searchResults[query] ?: Page(emptyList(), nextKey = null)
+            }
+        }
+
+        val details = mutableMapOf<Long, PlantDto>()
+        val requestedDetailIds = mutableListOf<Long>()
+
+        override suspend fun getPlant(id: Long): PlantDto {
+            failWith?.let { throw it }
+            requestedDetailIds += id
+            return details[id] ?: error("no detail stubbed for id $id")
+        }
+    }
+
+    private class FakeMetadataStore : FetchMetadataStore {
+        val map = mutableMapOf<PhloemModel, FetchMetadata>()
+        override suspend fun get(model: PhloemModel) = map[model]
+        override suspend fun save(model: PhloemModel, metadata: FetchMetadata) {
+            map[model] = metadata
+        }
+    }
+
+    private val timeProvider = object : TimeProvider {
+        override fun currentTimeMillis() = nowMillis
+    }
+
+    private lateinit var db: LeafletDatabase
+    private val api = FakePlantsApi()
+    private val store = FakeMetadataStore()
+    private val DETAILS_TTL = 7.days
+    private var nowMillis = 1_000_000L
+    private lateinit var repo: PagedPlantsRepository
+    private lateinit var detailRepo: PlantsRepository
+    private lateinit var observeFilteredPlants: ObserveFilteredPlantsUseCase
+
+    @Before
+    fun setUp() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        db = Room.inMemoryDatabaseBuilder(context, LeafletDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
+        repo = PagedPlantsRepositoryImpl(
+            dao = db.plantsDao(),
+            api = api,
+            transactor = { it() },
+            metadataStore = store,
+            timeProvider = timeProvider,
+        )
+        detailRepo = PlantsRepositoryImpl(
+            dao = db.plantsDao(),
+            savedDao = db.savedPlantsDao(),
+            api = api,
+            fetcher = PhloemItemFetcherImpl(),
+            freshness = Freshness(ttl = DETAILS_TTL, timeProvider = timeProvider),
+            timeProvider = timeProvider,
+        )
+        observeFilteredPlants = ObserveFilteredPlantsUseCase(repo)
+    }
+
+    @After
+    fun tearDown() {
+        db.close()
+    }
+
+    private fun dto(
+        id: Long,
+        commonName: String,
+        sunlight: List<String>? = null,
+        poisonousToPets: Boolean? = null,
+    ) = PlantDto(
+        id = id,
+        commonName = commonName,
+        sunlight = sunlight,
+        poisonousToPets = poisonousToPets,
+    )
+
+    // ---- observePlant ----
+    @Test
+    fun `observePlant maps entity to domain model`() = runTest {
+        api.pages[1] = Page(listOf(dto(7, "Monstera Deliciosa")), nextKey = null)
+        repo.observePlants().asSnapshot()   // fills db through the mediator
+
+        val plant = detailRepo.observePlant(PlantId(7)).first()
+
+        assertEquals("Monstera Deliciosa", plant?.commonName)
+        assertEquals(PlantId(7), plant?.id)
+    }
+
+    @Test
+    fun `observePlant emits null for missing row`() = runTest {
+        assertNull(detailRepo.observePlant(PlantId(99)).first())
+    }
+
+    // ---- observePlants (mediator path) ----
+    @Test
+    fun `observePlants pulls catalog pages through mediator into db`() = runTest {
+        api.pages[1] = Page(listOf(dto(1, "Aloe"), dto(2, "Basil")), nextKey = 2)
+        api.pages[2] = Page(listOf(dto(3, "Cactus")), nextKey = null)
+
+        val items = repo.observePlants().asSnapshot()
+
+        assertEquals(listOf("Aloe", "Basil", "Cactus"), items.map { it.commonName })
+        // crawl completed: cursor cleared, ttl clock started
+        assertNull(store.map[PhloemModel.PlantCatalog]?.cursor)
+        assertTrue((store.map[PhloemModel.PlantCatalog]?.completedAt ?: 0) > 0)
+    }
+
+    @Test
+    fun `observePlants serves cached rows without network when fresh`() = runTest {
+        api.pages[1] = Page(listOf(dto(1, "Aloe")), nextKey = null)
+        repo.observePlants().asSnapshot()   // completes crawl, stamps completedAt
+
+        api.failWith = IOException("network gone")
+
+        val items = repo.observePlants().asSnapshot()
+
+        assertEquals(listOf("Aloe"), items.map { it.commonName })
+    }
+
+    @Test
+    fun `crawl interrupted after first page resumes from cursor without refetching`() = runTest {
+        api.pages[1] = Page(listOf(dto(1, "Aloe")), nextKey = 2)
+        api.failOnPage = 2
+
+        // First session: page 1 lands, page 2 fails -> partial catalog, no crash.
+        // paging-testing 3.5.1 bug: the REFRESH access callback launches a
+        // coroutine whose awaitNotLoading can observe the deliberate page-2
+        // error and throw the library's private ReturnSnapshotStub outside
+        // asSnapshot's own catch. The snapshot value is unused here, so a
+        // leaked stub is swallowed by name.
+        try {
+            repo.observePlants().asSnapshot(
+                onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }
+            )
+        } catch (e: Exception) {
+            if (e::class.simpleName != "ReturnSnapshotStub") throw e
+        }
+
+        // page 1 committed to the db despite the interruption
+        assertEquals(
+            listOf("Aloe"),
+            db.plantsDao().observeSummaries().first().map { it.commonName },
+        )
+        val meta = store.map[PhloemModel.PlantCatalog]
+        assertEquals("2", meta?.cursor)      // saved with page 1, points at first unfetched page
+        assertNull(meta?.completedAt)        // half-crawled is not synced
+
+        // Second session: network back.
+        api.failOnPage = null
+        api.pages[2] = Page(listOf(dto(2, "Basil")), nextKey = null)
+
+        val full = repo.observePlants().asSnapshot()
+
+        assertEquals(listOf("Aloe", "Basil"), full.map { it.commonName })
+        // page 1 was fetched exactly once across both sessions
+        assertEquals(listOf(1, 2), api.requestedPages)
+    }
+
+    // ---- refreshPlantDetails (cache-through) ----
+    @Test
+    fun `refreshPlantDetails fetches, stores and stamps the row`() = runTest {
+        api.details[7] = PlantDto(id = 7, commonName = "Monstera", description = "Big leaves")
+
+        val result = detailRepo.refreshPlantDetails(PlantId(7))
+
+        assertEquals(RefreshResult.Refreshed, result)
+        val row = db.plantsDao().getById(7)
+        assertEquals("Big leaves", row?.description)
+        assertEquals(nowMillis, row?.detailsSyncedAt)
+    }
+
+    @Test
+    fun `refreshPlantDetails skips network while row is fresh`() = runTest {
+        api.details[7] = PlantDto(id = 7, commonName = "Monstera")
+        detailRepo.refreshPlantDetails(PlantId(7))
+
+        nowMillis += 1_000  // well inside the TTL
+        val result = detailRepo.refreshPlantDetails(PlantId(7))
+
+        assertEquals(RefreshResult.AlreadyFresh, result)
+        assertEquals(listOf(7L), api.requestedDetailIds)  // fetched exactly once
+    }
+
+    @Test
+    fun `forced refresh bypasses ttl and refetches a fresh row`() = runTest {
+        api.details[7] = PlantDto(id = 7, commonName = "Monstera")
+        detailRepo.refreshPlantDetails(PlantId(7))
+
+        nowMillis += 1_000  // still fresh
+        val result = detailRepo.refreshPlantDetails(PlantId(7), force = true)
+
+        assertEquals(RefreshResult.Refreshed, result)
+        assertEquals(listOf(7L, 7L), api.requestedDetailIds)
+        assertEquals(nowMillis, db.plantsDao().getById(7)?.detailsSyncedAt)
+    }
+
+    @Test
+    fun `refreshPlantDetails refetches after ttl expires`() = runTest {
+        api.details[7] = PlantDto(id = 7, commonName = "Monstera")
+        detailRepo.refreshPlantDetails(PlantId(7))
+
+        nowMillis += DETAILS_TTL.inWholeMilliseconds + 1
+        detailRepo.refreshPlantDetails(PlantId(7))
+
+        assertEquals(listOf(7L, 7L), api.requestedDetailIds)
+        assertEquals(nowMillis, db.plantsDao().getById(7)?.detailsSyncedAt)
+    }
+
+    @Test
+    fun `refreshPlantDetails classifies failure and keeps cached row`() = runTest {
+        api.details[7] = PlantDto(id = 7, commonName = "Monstera", description = "Big leaves")
+        detailRepo.refreshPlantDetails(PlantId(7))
+
+        nowMillis += DETAILS_TTL.inWholeMilliseconds + 1
+        api.failWith = IOException("offline")
+
+        val result = detailRepo.refreshPlantDetails(PlantId(7))
+
+        assertEquals(RefreshResult.Failed(RefreshError.Offline), result)
+        assertEquals("Big leaves", db.plantsDao().getById(7)?.description)
+    }
+
+    // ---- saved plants ----
+    @Test
+    fun `updateSavedPlant round-trips through observeIsSaved`() = runTest {
+        api.pages[1] = Page(listOf(dto(1, "Aloe")), nextKey = null)
+        repo.observePlants().asSnapshot()   // seed catalog row for the FK
+
+        assertFalse(detailRepo.observeIsSaved(PlantId(1)).first())
+
+        detailRepo.updateSavedPlant(PlantId(1), saved = true)
+        assertTrue(detailRepo.observeIsSaved(PlantId(1)).first())
+
+        detailRepo.updateSavedPlant(PlantId(1), saved = false)
+        assertFalse(detailRepo.observeIsSaved(PlantId(1)).first())
+    }
+
+    @Test
+    fun `updateSavedPlant is idempotent and refreshes savedAt`() = runTest {
+        api.pages[1] = Page(listOf(dto(1, "Aloe")), nextKey = null)
+        repo.observePlants().asSnapshot()
+
+        detailRepo.updateSavedPlant(PlantId(1), saved = true)
+        nowMillis += 5_000
+        detailRepo.updateSavedPlant(PlantId(1), saved = true)
+
+        val saved = detailRepo.observeSavedPlants().first()
+        assertEquals(1, saved.size)
+        assertEquals(nowMillis, saved.single().savedAt)
+    }
+
+    @Test
+    fun `unsaving a plant that is not saved is a no-op`() = runTest {
+        api.pages[1] = Page(listOf(dto(1, "Aloe")), nextKey = null)
+        repo.observePlants().asSnapshot()
+
+        detailRepo.updateSavedPlant(PlantId(1), saved = false)
+
+        assertTrue(detailRepo.observeSavedPlants().first().isEmpty())
+    }
+
+    @Test
+    fun `observeSavedPlants maps plant fields and orders by most recently saved`() = runTest {
+        api.pages[1] = Page(
+            listOf(dto(1, "Aloe"), dto(2, "Basil"), dto(3, "Cactus")),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+
+        detailRepo.updateSavedPlant(PlantId(1), saved = true)
+        nowMillis += 1_000
+        detailRepo.updateSavedPlant(PlantId(3), saved = true)
+
+        val saved = detailRepo.observeSavedPlants().first()
+
+        assertEquals(listOf(3L, 1L), saved.map { it.id.value })  // newest first
+        val aloe = saved.single { it.id == PlantId(1) }
+        assertEquals("Aloe", aloe.commonName)
+        assertEquals(nowMillis - 1_000, aloe.savedAt)
+    }
+
+    // ---- observeFilteredPlants ----
+    @Test
+    fun `filtered query narrows locally and passes filter params to api`() = runTest {
+        api.pages[1] = Page(
+            listOf(
+                dto(1, "Aloe", sunlight = listOf("full sun")),
+                dto(2, "Basil", sunlight = listOf("full shade")),
+            ),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+
+        val filters = PlantFilters(light = setOf(LightFilter.DirectSun))
+        val items = observeFilteredPlants("a", savedOnly = false, filters = filters).first()
+
+        assertEquals(listOf("Aloe"), items.map { it.commonName })
+        assertTrue("a" in api.requestedQueries)
+        assertTrue(Triple("full_sun", null, null) in api.requestedFilterParams)
+    }
+
+    @Test
+    fun `filters-only browsing makes no network call`() = runTest {
+        api.pages[1] = Page(
+            listOf(
+                dto(1, "Aloe", sunlight = listOf("full sun")),
+                dto(2, "Basil", sunlight = listOf("full shade")),
+            ),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+        api.requestedQueries.clear()
+
+        val filters = PlantFilters(light = setOf(LightFilter.LowLight))
+        val items = observeFilteredPlants("", savedOnly = false, filters = filters).first()
+
+        assertEquals(listOf("Basil"), items.map { it.commonName })
+        assertTrue(api.requestedQueries.isEmpty())
+    }
+
+    @Test
+    fun `savedOnly narrows to saved rows ordered newest first`() = runTest {
+        api.pages[1] = Page(
+            listOf(dto(1, "Aloe"), dto(2, "Basil"), dto(3, "Cactus")),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+        detailRepo.updateSavedPlant(PlantId(1), saved = true)
+        nowMillis += 1_000
+        detailRepo.updateSavedPlant(PlantId(3), saved = true)
+
+        val items = observeFilteredPlants("", savedOnly = true, filters = PlantFilters())
+            .first()
+
+        assertEquals(listOf(3L, 1L), items.map { it.id.value })
+    }
+
+    @Test
+    fun `query savedOnly and filter compose`() = runTest {
+        api.pages[1] = Page(
+            listOf(
+                dto(1, "Aloe", sunlight = listOf("full sun")),
+                dto(2, "Basil", sunlight = listOf("full shade")),
+                dto(3, "Cactus", sunlight = listOf("full sun")),
+            ),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+        detailRepo.updateSavedPlant(PlantId(1), saved = true)
+        detailRepo.updateSavedPlant(PlantId(2), saved = true)
+
+        val filters = PlantFilters(light = setOf(LightFilter.DirectSun))
+        val items = observeFilteredPlants("a", savedOnly = true, filters = filters).first()
+
+        // Cactus matches query+filter but is not saved; Basil is saved but wrong light.
+        assertEquals(listOf("Aloe"), items.map { it.commonName })
+    }
+
+    @Test
+    fun `active filter excludes rows with unknown data`() = runTest {
+        api.pages[1] = Page(
+            listOf(
+                dto(1, "Aloe", sunlight = listOf("full sun")),
+                dto(2, "Mystery"),   // sunlight null
+            ),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+
+        val filters = PlantFilters(light = setOf(LightFilter.DirectSun))
+        val items = observeFilteredPlants("", savedOnly = false, filters = filters).first()
+
+        assertEquals(listOf("Aloe"), items.map { it.commonName })
+    }
+
+    @Test
+    fun `empty filters return everything the sql matched`() = runTest {
+        api.pages[1] = Page(
+            listOf(dto(1, "Aloe"), dto(2, "Mystery")),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+
+        val items = observeFilteredPlants("", savedOnly = false, filters = PlantFilters())
+            .first()
+
+        assertEquals(2, items.size)
+    }
+
+    @Test
+    fun `like wildcards in query are escaped`() = runTest {
+        api.pages[1] = Page(
+            listOf(dto(1, "Aloe"), dto(2, "50% Cactus")),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+
+        val items = observeFilteredPlants("%", savedOnly = false, filters = PlantFilters())
+            .first()
+
+        assertEquals(listOf("50% Cactus"), items.map { it.commonName })
+    }
+
+    @Test
+    fun `filtered search serves local matches when remote fails`() = runTest {
+        api.pages[1] = Page(listOf(dto(1, "Monstera"), dto(2, "Basil")), nextKey = null)
+        repo.observePlants().asSnapshot()   // seed local catalog
+        api.failWith = IOException("offline")
+
+        val items = observeFilteredPlants("Monstera", savedOnly = false, filters = PlantFilters())
+            .first()
+
+        assertEquals(listOf("Monstera"), items.map { it.commonName })
+    }
+
+    @Test
+    fun `repeated collection of the same search fetches remote once`() = runTest {
+        api.searchResults["fern"] = Page(listOf(dto(9, "Fern")), nextKey = null)
+
+        observeFilteredPlants("fern", savedOnly = false, filters = PlantFilters()).first()
+        observeFilteredPlants("fern", savedOnly = false, filters = PlantFilters()).first()
+
+        assertEquals(listOf("fern"), api.requestedQueries.filterNotNull())
+    }
+
+    @Test
+    fun `failed search fetch retries on next collection`() = runTest {
+        api.failWith = IOException("offline")
+        observeFilteredPlants("fern", savedOnly = false, filters = PlantFilters()).first()
+
+        api.failWith = null
+        api.searchResults["fern"] = Page(listOf(dto(9, "Fern")), nextKey = null)
+        val items = observeFilteredPlants("fern", savedOnly = false, filters = PlantFilters())
+            .first { it.isNotEmpty() }
+
+        assertEquals(listOf("Fern"), items.map { it.commonName })
+    }
+
+    @Test
+    fun `remote search hits merge into filtered results`() = runTest {
+        api.pages[1] = Page(
+            listOf(dto(1, "Monstera Local", sunlight = listOf("full sun"))),
+            nextKey = null,
+        )
+        repo.observePlants().asSnapshot()
+        api.searchResults["monstera"] = Page(
+            listOf(dto(50, "Monstera Remote", sunlight = listOf("full sun"))),
+            nextKey = null,
+        )
+
+        val filters = PlantFilters(light = setOf(LightFilter.DirectSun))
+        val items = observeFilteredPlants("monstera", savedOnly = false, filters = filters)
+            .first { plants -> plants.any { it.id == PlantId(50) } }
+
+        assertEquals(
+            listOf("Monstera Local", "Monstera Remote"),
+            items.map { it.commonName.orEmpty() }.sorted(),
+        )
+    }
+
+    @Test
+    fun `list crawl does not clobber a detail-synced row`() = runTest {
+        api.details[1] = PlantDto(id = 1, commonName = "Aloe", description = "Succulent")
+        detailRepo.refreshPlantDetails(PlantId(1))
+
+        // Catalog crawl returns the same plant as a sparse list row.
+        api.pages[1] = Page(listOf(dto(1, "Aloe")), nextKey = null)
+        repo.observePlants().asSnapshot()
+
+        val row = db.plantsDao().getById(1)
+        assertEquals("Succulent", row?.description)      // detail survived
+        assertEquals(nowMillis, row?.detailsSyncedAt)    // stamp survived
+    }
+}

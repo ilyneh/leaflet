@@ -4,9 +4,9 @@ import com.ilynehdev.core.database.di.databaseModule
 import com.ilynehdev.core.network.client.di.networkModule
 import com.ilynehdev.core.network.plants.di.plantsNetworkModule
 import com.ilynehdev.core.time.di.timeModule
-import com.ilynehdev.data.common.di.dataCommonModule
-import com.ilynehdev.data.plants.di.dataPlantsModule
-import com.ilynehdev.feature.plants.di.featurePlantsModule
+import com.ilynehdev.core.data.di.coreDataModule
+import com.ilynehdev.feature.plants.data.di.plantsDataModule
+import com.ilynehdev.feature.plants.presentation.di.plantsPresentationModule
 
 data class AppConfig(
     val perenualApiKey: String,
@@ -23,8 +23,8 @@ fun leafletModules(config: AppConfig) = listOf(
     ),
     timeModule,
     // data
-    dataCommonModule,
-    dataPlantsModule,
+    coreDataModule,
+    plantsDataModule,
     // feature
-    featurePlantsModule
+    plantsPresentationModule
 )
